@@ -26,7 +26,7 @@ func makeReplicaReader(namespace string, client clientset.Interface) http.Handle
 
 		result := &requests.Function{
 			Replicas:   uint64(*k8sfunc.Spec.Replicas),
-			Labels:     &k8sfunc.Labels,
+			Labels:     k8sfunc.Spec.Labels,
 			Name:       k8sfunc.Spec.Name,
 			EnvProcess: k8sfunc.Spec.Handler,
 			Image:      k8sfunc.Spec.Image,
@@ -48,8 +48,8 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 		if r.Body != nil {
 			defer r.Body.Close()
 			bytesIn, _ := ioutil.ReadAll(r.Body)
-			marshalErr := json.Unmarshal(bytesIn, &req)
-			if marshalErr != nil {
+			if err := json.Unmarshal(bytesIn, &req); err != nil {
+				glog.Errorf("Function %s replica invalid JSON: %v", functionName, err)
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}

@@ -41,19 +41,27 @@ Check if nodeinfo pods, rc, deployment and service were removed:
 kubectl get all
 ```
 
-Create or update function via API:
+### API calls
+
+Create or update a function:
 
 ```bash
 curl -d '{"service":"nodeinfo","image":"functions/nodeinfo:burner","envProcess":"node main.js","labels":{"com.openfaas.scale.min":"2","com.openfaas.scale.max":"15"},"environment":{"output":"verbose","debug":"true"}}' -X POST  http://localhost:9090/system/functions
 ```
 
-List functions via API:
+List functions:
 
 ```bash
 curl http://localhost:9090/system/functions | jq .
 ```
 
-Remove function via API:
+Scale PODs up/down:
+
+```bash
+curl -d '{"serviceName":"nodeinfo", "replicas": 3}' -X POST http://localhost:9090/system/scale-function/nodeinfo
+```
+
+Remove function:
 
 ```bash
 curl -d '{"functionName":"nodeinfo"}' -X DELETE http://localhost:9090/system/functions
