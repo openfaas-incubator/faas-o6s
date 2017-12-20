@@ -9,30 +9,33 @@ import (
 	"github.com/gorilla/mux"
 	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas/gateway/requests"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func makeReplicaReader(namespace string, client clientset.Interface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		functions := []requests.Function{}
 		vars := mux.Vars(r)
 		functionName := vars["name"]
 
-		var found *requests.Function
-		for _, function := range functions {
-			if function.Name == functionName {
-				found = &function
-				break
-			}
-		}
-		if found == nil {
+		opts := metav1.GetOptions{}
+		k8sfunc, err := client.O6sV1alpha1().Functions(namespace).Get(functionName, opts)
+		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
-		functionBytes, _ := json.Marshal(found)
+		result := &requests.Function{
+			Replicas:   uint64(*k8sfunc.Spec.Replicas),
+			Labels:     &k8sfunc.Labels,
+			Name:       k8sfunc.Spec.Name,
+			EnvProcess: k8sfunc.Spec.Handler,
+			Image:      k8sfunc.Spec.Image,
+		}
+
+		res, _ := json.Marshal(result)
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		w.Write(functionBytes)
+		w.WriteHeader(http.StatusOK)
+		w.Write(res)
 	}
 }
 
@@ -52,7 +55,24 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 			}
 		}
 
+		opts := metav1.GetOptions{}
+		k8sfunc, err := client.O6sV1alpha1().Functions(namespace).Get(functionName, opts)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			glog.Errorf("Function %s get error: %v", functionName, err)
+			return
+		}
+
+		k8sfunc.Spec.Replicas = int32p(int32(req.Replicas))
+		_, err = client.O6sV1alpha1().Functions(namespace).Update(k8sfunc)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			glog.Errorf("Function %s update error: %v", functionName, err)
+			return
+		}
+
 		glog.Infof("Function %v replica updated to %v", functionName, req.Replicas)
+		w.WriteHeader(http.StatusAccepted)
 	}
 }
 
