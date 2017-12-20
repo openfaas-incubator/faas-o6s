@@ -19,9 +19,9 @@ limitations under the License.
 package externalversions
 
 import (
-	versioned "github.com/stefanprodan/faas-k8s/pkg/client/clientset/versioned"
-	internalinterfaces "github.com/stefanprodan/faas-k8s/pkg/client/informers/externalversions/internalinterfaces"
-	o6s "github.com/stefanprodan/faas-k8s/pkg/client/informers/externalversions/o6s"
+	versioned "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
+	internalinterfaces "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions/internalinterfaces"
+	o6s "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions/o6s"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"

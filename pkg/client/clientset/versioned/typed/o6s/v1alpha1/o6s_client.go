@@ -16,8 +16,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/stefanprodan/faas-k8s/pkg/apis/o6sio/v1alpha1"
-	"github.com/stefanprodan/faas-k8s/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/apis/o6sio/v1alpha1"
+	"github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned/scheme"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
 )

@@ -19,8 +19,8 @@ limitations under the License.
 package o6s
 
 import (
-	internalinterfaces "github.com/stefanprodan/faas-k8s/pkg/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/stefanprodan/faas-k8s/pkg/client/informers/externalversions/o6s/v1alpha1"
+	internalinterfaces "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions/o6s/v1alpha1"
 )
 
 // Interface provides access to each of this group's versions.

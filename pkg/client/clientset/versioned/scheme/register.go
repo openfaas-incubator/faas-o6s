@@ -16,7 +16,7 @@ limitations under the License.
 package scheme
 
 import (
-	o6sv1alpha1 "github.com/stefanprodan/faas-k8s/pkg/apis/o6sio/v1alpha1"
+	o6sv1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/apis/o6sio/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

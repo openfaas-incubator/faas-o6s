@@ -11,9 +11,9 @@ import (
 	// required to authenticate against GKE clusters
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
-	clientset "github.com/stefanprodan/faas-k8s/pkg/client/clientset/versioned"
-	informers "github.com/stefanprodan/faas-k8s/pkg/client/informers/externalversions"
-	"github.com/stefanprodan/faas-k8s/pkg/signals"
+	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
+	informers "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions"
+	"github.com/openfaas-incubator/faas-o6s/pkg/signals"
 )
 
 var (

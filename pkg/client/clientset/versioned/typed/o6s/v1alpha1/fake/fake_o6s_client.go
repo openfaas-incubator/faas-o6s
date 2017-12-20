@@ -16,7 +16,7 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/stefanprodan/faas-k8s/pkg/client/clientset/versioned/typed/o6s/v1alpha1"
+	v1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned/typed/o6s/v1alpha1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
