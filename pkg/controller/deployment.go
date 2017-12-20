@@ -68,10 +68,10 @@ func newDeployment(function *faasv1alpha1.Function) *appsv1beta2.Deployment {
 func makeEnvVars(function *faasv1alpha1.Function) []corev1.EnvVar {
 	envVars := []corev1.EnvVar{}
 
-	if len(function.Spec.FProcess) > 0 {
+	if len(function.Spec.Handler) > 0 {
 		envVars = append(envVars, corev1.EnvVar{
 			Name:  "fprocess",
-			Value: function.Spec.FProcess,
+			Value: function.Spec.Handler,
 		})
 	}
 
