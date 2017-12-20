@@ -40,6 +40,7 @@ func newDeployment(function *faasv1alpha1.Function) *appsv1beta2.Deployment {
 					"controller": function.Name,
 				},
 			},
+			RevisionHistoryLimit: int32p(5),
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels:      labels,
@@ -53,6 +54,7 @@ func newDeployment(function *faasv1alpha1.Function) *appsv1beta2.Deployment {
 							Ports: []corev1.ContainerPort{
 								{ContainerPort: int32(functionPort), Protocol: corev1.ProtocolTCP},
 							},
+							ImagePullPolicy: corev1.PullAlways,
 							Env:           envVars,
 							LivenessProbe: livenessProbe,
 						},
@@ -185,4 +187,8 @@ func labelsNotEqual(a, b map[string]string) bool {
 		}
 	}
 	return false
+}
+
+func int32p(i int32) *int32 {
+	return &i
 }
