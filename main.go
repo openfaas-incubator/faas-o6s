@@ -13,6 +13,7 @@ import (
 
 	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
 	informers "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions"
+	"github.com/openfaas-incubator/faas-o6s/pkg/controller"
 	"github.com/openfaas-incubator/faas-o6s/pkg/signals"
 )
 
@@ -50,12 +51,12 @@ func main() {
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
 	faasInformerFactory := informers.NewSharedInformerFactory(faasClient, time.Second*30)
 
-	controller := NewController(kubeClient, faasClient, kubeInformerFactory, faasInformerFactory)
+	ctrl := controller.NewController(kubeClient, faasClient, kubeInformerFactory, faasInformerFactory)
 
 	go kubeInformerFactory.Start(stopCh)
 	go faasInformerFactory.Start(stopCh)
 
-	if err = controller.Run(2, stopCh); err != nil {
+	if err = ctrl.Run(2, stopCh); err != nil {
 		glog.Fatalf("Error running controller: %s", err.Error())
 	}
 }
