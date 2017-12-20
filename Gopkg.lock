@@ -110,6 +110,18 @@
   version = "v0.1.0"
 
 [[projects]]
+  name = "github.com/gorilla/context"
+  packages = ["."]
+  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
+  version = "v1.1"
+
+[[projects]]
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  revision = "7f08801859139f86dfafd1c296e2cba9a80d292e"
+  version = "v1.6.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/gregjones/httpcache"
   packages = [".","diskcache"]
@@ -150,6 +162,18 @@
   name = "github.com/mailru/easyjson"
   packages = ["buffer","jlexer","jwriter"]
   revision = "32fa128f234d041f196a9f3e0fea5ac9772c08e1"
+
+[[projects]]
+  name = "github.com/openfaas/faas"
+  packages = ["gateway/requests"]
+  revision = "5f30c7570f67dd7ec71d30f31cab6fc9644f0e79"
+  version = "0.6.15"
+
+[[projects]]
+  name = "github.com/openfaas/faas-provider"
+  packages = [".","types"]
+  revision = "b9f261986a88ce62bbca20af2ff2dcf1d46a8df8"
+  version = "0.4"
 
 [[projects]]
   branch = "master"
@@ -255,6 +279,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1d7a639a7d087e99f1e73b6ea0f50d2fadff1dc779dbf90415c38d33306c956f"
+  inputs-digest = "67ecc09965c466c7156af50db63be41f17003b1aededff86bb045ead957cd9e9"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -15,6 +15,7 @@ import (
 	informers "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions"
 	"github.com/openfaas-incubator/faas-o6s/pkg/controller"
 	"github.com/openfaas-incubator/faas-o6s/pkg/signals"
+	"github.com/openfaas-incubator/faas-o6s/pkg/server"
 )
 
 var (
@@ -55,6 +56,7 @@ func main() {
 
 	go kubeInformerFactory.Start(stopCh)
 	go faasInformerFactory.Start(stopCh)
+	go server.Start(faasClient)
 
 	if err = ctrl.Run(2, stopCh); err != nil {
 		glog.Fatalf("Error running controller: %s", err.Error())
