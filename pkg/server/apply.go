@@ -26,7 +26,7 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 			return
 		}
 
-		k8sfunc := &v1alpha1.Function{
+		newFunc := &v1alpha1.Function{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      req.Service,
 				Namespace: namespace,
@@ -37,20 +37,24 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 				Handler:     req.EnvProcess,
 				Labels:      req.Labels,
 				Environment: &req.EnvVars,
+				Constraints: req.Constraints,
+				Secrets:     req.Secrets,
 				Replicas:    getMinReplicaCount(req.Labels),
+				Limits:      getResources(req.Limits),
+				Requests:    getResources(req.Requests),
 			},
 		}
 
 		opts := metav1.GetOptions{}
-		exfunc, _ := client.O6sV1alpha1().Functions(namespace).Get(req.Service, opts)
-		if exfunc != nil {
-			k8sfunc.ResourceVersion = exfunc.ResourceVersion
+		oldFunc, _ := client.O6sV1alpha1().Functions(namespace).Get(req.Service, opts)
+		if oldFunc != nil {
+			newFunc.ResourceVersion = oldFunc.ResourceVersion
 		}
-		_, err = client.O6sV1alpha1().Functions(namespace).Update(k8sfunc)
+		_, err = client.O6sV1alpha1().Functions(namespace).Update(newFunc)
 		if err != nil {
 			errMsg := err.Error()
 			if strings.Contains(errMsg, "not found") {
-				_, err = client.O6sV1alpha1().Functions(namespace).Create(k8sfunc)
+				_, err = client.O6sV1alpha1().Functions(namespace).Create(newFunc)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					glog.Errorf("Function %s create error: %v", req.Service, err)
@@ -85,6 +89,16 @@ func getMinReplicaCount(labels *map[string]string) *int32 {
 	}
 
 	return int32p(1)
+}
+
+func getResources(limits *requests.FunctionResources) *v1alpha1.FunctionResources {
+	if limits == nil {
+		return nil
+	}
+	return &v1alpha1.FunctionResources{
+		CPU:    limits.CPU,
+		Memory: limits.Memory,
+	}
 }
 
 func int32p(i int32) *int32 {
