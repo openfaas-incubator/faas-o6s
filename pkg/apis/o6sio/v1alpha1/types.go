@@ -23,9 +23,18 @@ type FunctionSpec struct {
 	Image       string             `json:"image"`
 	Replicas    *int32             `json:"replicas"`
 	Handler     string             `json:"handler"`
-	FProcess    string             `json:"fprocess"`
 	Labels      *map[string]string `json:"labels"`
 	Environment *map[string]string `json:"environment"`
+	Constraints []string           `json:"constraints"`
+	Secrets     []string           `json:"secrets"`
+	Limits      *FunctionResources `json:"limits"`
+	Requests    *FunctionResources `json:"requests"`
+}
+
+// FunctionResources is used to set CPU and memory limits and requests
+type FunctionResources struct {
+	Memory string `json:"memory"`
+	CPU    string `json:"cpu"`
 }
 
 // FunctionStatus is the status for a Function resource
