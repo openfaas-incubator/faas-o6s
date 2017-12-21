@@ -72,7 +72,7 @@ func Start(client clientset.Interface) {
 	}
 	bootstrap.Router().Path("/metrics").Handler(promhttp.Handler())
 
-	glog.Infof("Using namespace %v", functionNamespace)
+	glog.Infof("Using namespace '%s'", functionNamespace)
 	glog.Infof("Starting HTTP server on port %v", port)
 	bootstrap.Serve(&bootstrapHandlers, &bootstrapConfig)
 }

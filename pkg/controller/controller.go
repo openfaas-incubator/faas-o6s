@@ -142,8 +142,6 @@ func (c *Controller) Run(threadiness int, stopCh <-chan struct{}) error {
 	defer c.workqueue.ShutDown()
 
 	// Start the informer factories to begin populating the informer caches
-	glog.Info("Starting OpenFaaS controller")
-
 	// Wait for the caches to be synced before starting workers
 	glog.Info("Waiting for informer caches to sync")
 	if ok := cache.WaitForCacheSync(stopCh, c.deploymentsSynced, c.functionsSynced); !ok {
@@ -261,7 +259,7 @@ func (c *Controller) syncHandler(key string) error {
 			// If an error occurs during Service Create, we'll requeue the item
 			return err
 		}
-		glog.Infof("Creating service and deployment for %v", function.Spec.Name)
+		glog.Infof("Creating service and deployment for '%s'", function.Spec.Name)
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(newDeployment(function))
 	}
 
@@ -282,7 +280,7 @@ func (c *Controller) syncHandler(key string) error {
 
 	// Update the Deployment resource if the Function definition differs
 	if deploymentNeedsUpdate(function, deployment) {
-		glog.Infof("Updating deployment for %v", function.Spec.Name)
+		glog.Infof("Updating deployment for '%s'", function.Spec.Name)
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(newDeployment(function))
 	}
 
@@ -362,7 +360,7 @@ func (c *Controller) handleObject(obj interface{}) {
 
 		function, err := c.functionsLister.Functions(object.GetNamespace()).Get(ownerRef.Name)
 		if err != nil {
-			glog.V(4).Infof("ignoring orphaned object '%s' of function '%s'", object.GetSelfLink(), ownerRef.Name)
+			glog.Infof("Function '%s' deleted. Ignoring orphaned object '%s'", ownerRef.Name, object.GetSelfLink())
 			return
 		}
 

@@ -31,6 +31,8 @@ func init() {
 func main() {
 	flag.Parse()
 
+	glog.Info("Starting OpenFaaS controller")
+
 	// set up signals so we handle the first shutdown signal gracefully
 	stopCh := signals.SetupSignalHandler()
 
