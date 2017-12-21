@@ -1,0 +1,23 @@
+sudo: required
+language: generic
+
+services:
+  - docker
+
+before_install:
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y install docker-ce
+  - sudo service docker restart
+  - sleep 1
+
+script:
+  - sudo docker build -t faas-o6a:latest-dev .
+
+after_success:
+  - if [ -z "DOCKER_USER" ]; then
+      echo "PR build, skipping Docker Hub push";
+    else
+      sudo docker login -u "$DOCKER_USER" -p "$DOCKER_PASS";
+    fi

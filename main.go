@@ -14,8 +14,8 @@ import (
 	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
 	informers "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions"
 	"github.com/openfaas-incubator/faas-o6s/pkg/controller"
-	"github.com/openfaas-incubator/faas-o6s/pkg/signals"
 	"github.com/openfaas-incubator/faas-o6s/pkg/server"
+	"github.com/openfaas-incubator/faas-o6s/pkg/signals"
 )
 
 var (

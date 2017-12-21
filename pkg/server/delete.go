@@ -5,10 +5,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/golang/glog"
 	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas/gateway/requests"
-	"github.com/golang/glog"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func makeDeleteHandler(namespace string, client clientset.Interface) http.HandlerFunc {

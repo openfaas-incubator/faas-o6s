@@ -1,4 +1,4 @@
-# faas-k8s
+# faas-o6s
 
 OpenFaaS Kubernetes CRD &amp; Controller
 
