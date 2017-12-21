@@ -67,6 +67,14 @@ Remove function:
 curl -d '{"functionName":"nodeinfo"}' -X DELETE http://localhost:9090/system/functions
 ```
 
+### Logging
+
+Verbosity levels:
+
+* `-v=0` CRUD actions via API and Controller including errors
+* `-v=2` function call duration (Proxy API)
+* `-v=4` Kubernetes informers events (highly verbose)
+
 ### Instrumentation
 
 Prometheus route:

@@ -209,7 +209,7 @@ func (c *Controller) processNextWorkItem() bool {
 		// Finally, if no error occurs we Forget this item so it does not
 		// get queued again until another change happens.
 		c.workqueue.Forget(obj)
-		glog.Infof("Successfully synced '%s'", key)
+		glog.V(4).Infof("Successfully synced '%s'", key)
 		return nil
 	}(obj)
 
@@ -261,6 +261,7 @@ func (c *Controller) syncHandler(key string) error {
 			// If an error occurs during Service Create, we'll requeue the item
 			return err
 		}
+		glog.Infof("Creating service and deployment for %v", function.Spec.Name)
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(newDeployment(function))
 	}
 
@@ -281,7 +282,7 @@ func (c *Controller) syncHandler(key string) error {
 
 	// Update the Deployment resource if the Function definition differs
 	if deploymentNeedsUpdate(function, deployment) {
-		glog.Infof("Deployment for %v needs to be updated", function.Spec.Name)
+		glog.Infof("Updating deployment for %v", function.Spec.Name)
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(newDeployment(function))
 	}
 

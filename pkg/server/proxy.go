@@ -45,7 +45,7 @@ func makeProxy(functionNamespace string) http.HandlerFunc {
 
 			defer func(when time.Time) {
 				seconds := time.Since(when).Seconds()
-				glog.Infof("%s took %f seconds", service, seconds)
+				glog.V(2).Infof("%s took %f seconds", service, seconds)
 			}(time.Now())
 
 			var addr string
