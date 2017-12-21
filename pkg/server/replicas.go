@@ -8,6 +8,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
+	"github.com/openfaas/faas-provider/types"
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -44,7 +45,7 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 		vars := mux.Vars(r)
 		functionName := vars["name"]
 
-		req := ScaleServiceRequest{}
+		req := types.ScaleServiceRequest{}
 		if r.Body != nil {
 			defer r.Body.Close()
 			bytesIn, _ := ioutil.ReadAll(r.Body)
@@ -74,9 +75,4 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 		glog.Infof("Function %v replica updated to %v", functionName, req.Replicas)
 		w.WriteHeader(http.StatusAccepted)
 	}
-}
-
-type ScaleServiceRequest struct {
-	ServiceName string `json:"serviceName"`
-	Replicas    uint64 `json:"replicas"`
 }

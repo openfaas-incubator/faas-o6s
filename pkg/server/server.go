@@ -49,12 +49,14 @@ func Start(client clientset.Interface) {
 		ReplicaReader:  makeReplicaReader(functionNamespace, client),
 		ReplicaUpdater: makeReplicaHandler(functionNamespace, client),
 		UpdateHandler:  makeApplyHandler(functionNamespace, client),
+		Health:         makeHealthHandler(),
 	}
 
 	bootstrapConfig := types.FaaSConfig{
 		ReadTimeout:  time.Duration(readTimeout) * time.Second,
 		WriteTimeout: time.Duration(writeTimeout) * time.Second,
 		TCPPort:      &port,
+		EnableHealth: true,
 	}
 
 	glog.Infof("Using namespace %v", functionNamespace)
