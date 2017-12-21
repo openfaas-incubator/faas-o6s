@@ -66,3 +66,28 @@ Remove function:
 ```bash
 curl -d '{"functionName":"nodeinfo"}' -X DELETE http://localhost:9090/system/functions
 ```
+
+### Instrumentation
+
+Prometheus route:
+
+```bash
+curl http://localhost:9090/metrics
+```
+
+Profiling is enabled by default, to disable it set `pprof` environment variable to `false`.
+
+Pprof web UI can be access at `http://localhost:9090/debug/pprof/`. The goroutine, heap and threadcreate 
+profilers are enabled along with the full goroutine stack dump.
+
+Run the heap profiler:
+
+```bash
+go tool pprof goprofex http://localhost:9090/debug/pprof/heap
+```
+
+Run the goroutine profiler:
+
+```bash
+go tool pprof goprofex http://localhost:9090/debug/pprof/goroutine
+```
