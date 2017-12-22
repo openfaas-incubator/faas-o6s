@@ -6,7 +6,7 @@ spec:
   name: nodeinfo
   replicas: 2
   handler: node main.js
-  image: functions/nodeinfo:burner
+  image: functions/nodeinfo
   labels:
     com.openfaas.scale.min: "2"
     com.openfaas.scale.max: "15"
@@ -21,4 +21,3 @@ spec:
     memory: "128Mi"
   constraints:
     - "cloud.google.com/gke-nodepool=default-pool"
-
