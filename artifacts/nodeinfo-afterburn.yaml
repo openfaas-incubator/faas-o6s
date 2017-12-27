@@ -1,0 +1,22 @@
+apiVersion: o6s.io/v1alpha1
+kind: Function
+metadata:
+  name: nodeinfo
+spec:
+  name: nodeinfo
+  replicas: 5
+  image: functions/nodeinfo:burner
+  labels:
+    com.openfaas.scale.min: "5"
+    com.openfaas.scale.max: "10"
+  environment:
+    output: "verbose"
+    debug: "true"
+  limits:
+    cpu: "1"
+    memory: "512Mb"
+  requests:
+    cpu: "0.2"
+    memory: "64Mi"
+  constraints:
+    - "cloud.google.com/gke-nodepool=default-pool"
