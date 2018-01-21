@@ -1,23 +1,27 @@
 sudo: required
-language: generic
+language: go
+
+go:
+  - 1.9.x
 
 services:
   - docker
 
-before_install:
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  - sudo apt-get update
-  - sudo apt-get -y install docker-ce
-  - sudo service docker restart
-  - sleep 1
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+install:
+  - echo "Please don't go get"
 
 script:
-  - sudo docker build -t faas-o6a:latest-dev .
+  - docker build -t functions/faas-o6a:latest-dev .
 
 after_success:
-  - if [ -z "DOCKER_USER" ]; then
+  - if [ -z "$DOCKER_USER" ]; then
       echo "PR build, skipping Docker Hub push";
     else
-      sudo docker login -u "$DOCKER_USER" -p "$DOCKER_PASS";
+      docker login -u "$DOCKER_USER" -p "$DOCKER_PASS";
+      docker push functions/faas-o6a:latest-dev;
     fi

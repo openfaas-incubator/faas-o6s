@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: faas-o6s
+  namespace: openfaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: faas-o6s
+  template:
+    metadata:
+      labels:
+        app: faas-o6s
+      annotations:
+        prometheus.io.scrape: 'true'
+    spec:
+      serviceAccountName: faas-o6s
+      containers:
+      - name: faas-o6s
+        image: stefanprodan/faas-o6s:latest-dev
+        imagePullPolicy: Always
+        command:
+          - ./faas-o6s
+          - -logtostderr
+          - -v=2
+        env:
+        - name: function_namespace
+          value: openfaas-fn
+        ports:
+        - containerPort: 8081
+          protocol: TCP
+        resources:
+          limits:
+            memory: 512Mi

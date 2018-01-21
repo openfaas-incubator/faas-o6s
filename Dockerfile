@@ -15,5 +15,5 @@ WORKDIR /root/
 
 COPY --from=0 /go/src/github.com/openfaas-incubator/faas-o6s/faas-o6s .
 
-ENTRYPOINT ["/faas-o6s"]
+ENTRYPOINT ["./faas-o6s"]
 CMD ["-logtostderr"]
