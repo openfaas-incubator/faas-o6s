@@ -1,12 +1,60 @@
 # faas-o6s
 
-OpenFaaS Kubernetes CRD &amp; Controller
+OpenFaaS Kubernetes CRD Controller
+
+### Deploy
+
+Deploy OpenFaaS with faas-netes:
+
+```bash
+git clone https://github.com/openfaas/faas-netes
+cd faas-netes
+kubectl apply -f ./namespaces.yml,./yaml
+```
+
+Deploy the CRD and faas-o6s controller in `openfaas` namespace:
+
+```bash
+# CRD
+kubectl create -f artifacts/o6s-crd.yaml
+# RBAC
+kubectl create -f artifacts/o6s-rbac.yaml
+# Service
+kubectl create -f artifacts/o6s-svc.yaml
+# Deployment
+kubectl create -f artifacts/o6s-dep.yaml
+```
+
+Modify the gateway deployment and switch from faas-netes to faas-o6s:
+
+```bash
+      containers:
+      - name: gateway
+        image: functions/gateway:0.6.16
+        imagePullPolicy: Always
+        env:
+        - name: functions_provider_url
+          value: "http://faas-o6s.openfaas:8081/"
+```
+
+Deploy a function with kubectl:
+
+```bash
+kubectl -n openfaas-fn apply -f ./artifacts/nodeinfo.yaml
+```
+
+List functions, services, deployments and pods:
+
+```bash
+kubectl -n openfaas-fn get functions
+kubectl -n openfaas-fn get all
+``` 
 
 ### Local run
 
 Create OpenFaaS CRD:
 ```bash
-$ kubectl create -f artifacts/openfaas-crd.yaml
+$ kubectl create -f artifacts/o6s-crd.yaml
 ```
 
 Start OpenFaaS controller (assumes you have a working kubeconfig on the machine):
