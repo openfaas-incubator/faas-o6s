@@ -57,7 +57,7 @@ func Start(client clientset.Interface) {
 	}
 
 	bootstrapHandlers := types.FaaSHandlers{
-		FunctionProxy:  makeProxy(functionNamespace),
+		FunctionProxy:  makeProxy(functionNamespace, time.Duration(readTimeout)*time.Second),
 		DeleteHandler:  makeDeleteHandler(functionNamespace, client),
 		DeployHandler:  makeApplyHandler(functionNamespace, client),
 		FunctionReader: makeListHandler(functionNamespace, client),
