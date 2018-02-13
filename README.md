@@ -16,13 +16,13 @@ Deploy the CRD and faas-o6s controller in `openfaas` namespace:
 
 ```bash
 # CRD
-kubectl create -f artifacts/o6s-crd.yaml
+kubectl apply -f artifacts/o6s-crd.yaml
 # RBAC
-kubectl create -f artifacts/o6s-rbac.yaml
+kubectl apply -f artifacts/o6s-rbac.yaml
 # Service
-kubectl create -f artifacts/o6s-svc.yaml
+kubectl apply -f artifacts/o6s-svc.yaml
 # Deployment
-kubectl create -f artifacts/o6s-dep.yaml
+kubectl apply -f artifacts/o6s-dep.yaml
 ```
 
 Modify the gateway deployment and switch from faas-netes to faas-o6s:
@@ -54,7 +54,7 @@ kubectl -n openfaas-fn get all
 
 Create OpenFaaS CRD:
 ```bash
-$ kubectl create -f artifacts/o6s-crd.yaml
+$ kubectl apply -f artifacts/o6s-crd.yaml
 ```
 
 Start OpenFaaS controller (assumes you have a working kubeconfig on the machine):
