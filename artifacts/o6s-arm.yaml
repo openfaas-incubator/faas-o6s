@@ -1,0 +1,123 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: faas-o6s
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: faas-o6s
+rules:
+- apiGroups: ["o6s.io"]
+  resources: ["functions"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["services", "events"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps", "extensions"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: faas-o6s
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: faas-o6s
+subjects:
+- kind: ServiceAccount
+  name: faas-o6s
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: faas-o6s
+  namespace: default
+  labels:
+    app: faas-o6s
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8081
+      protocol: TCP
+      targetPort: 8081
+  selector:
+    app: faas-o6s
+---
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: faas-o6s
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: faas-o6s
+  template:
+    metadata:
+      labels:
+        app: faas-o6s
+      annotations:
+        prometheus.io.scrape: 'true'
+    spec:
+      serviceAccountName: faas-o6s
+      containers:
+      - name: faas-o6s
+        image: stefanprodan/faas-o6s:arm
+        imagePullPolicy: Always
+        command:
+          - ./faas-o6s
+          - -logtostderr
+          - -v=2
+        env:
+        - name: function_namespace
+          value: default
+        ports:
+        - containerPort: 8081
+          protocol: TCP
+        resources:
+          limits:
+            memory: 100Mi
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+      - name: gateway
+        image: functions/gateway:0.7.3-armhf
+        imagePullPolicy: Always
+        env:
+        - name: functions_provider_url
+          value: "http://faas-o6s.default.svc.cluster.local:8081/"
+        - name: faas_nats_address
+          value: "nats.default"
+        - name: faas_nats_port
+          value: "4222"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          limits:
+            memory: 100Mi
