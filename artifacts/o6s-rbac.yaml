@@ -12,16 +12,16 @@ metadata:
 rules:
 - apiGroups: ["o6s.io"]
   resources: ["functions"]
-  verbs: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: [""]
   resources: ["services", "events"]
-  verbs: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: [""]
   resources: ["secrets"]
   verbs: ["get", "list", "watch"]
-- apiGroups: ["apps"]
+- apiGroups: ["apps", "extensions"]
   resources: ["deployments"]
-  verbs: ["*"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
