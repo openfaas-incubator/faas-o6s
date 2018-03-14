@@ -1,4 +1,4 @@
-FROM alexellis2/go-armhf:1.7.4
+FROM alexellis2/go-armhf:1.9
 
 RUN mkdir -p /go/src/github.com/openfaas-incubator/faas-o6s/
 
