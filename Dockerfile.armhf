@@ -1,4 +1,4 @@
-FROM alexellis2/go-armhf:1.9
+FROM golang:1.9
 
 RUN mkdir -p /go/src/github.com/openfaas-incubator/faas-o6s/
 
@@ -8,10 +8,11 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o faas-o6s .
 
-FROM alpine:3.5
+FROM alpine:3.6
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 COPY --from=0 /go/src/github.com/openfaas-incubator/faas-o6s/faas-o6s    .
 
-CMD ["./faas-o6s"]
+ENTRYPOINT ["./faas-o6s"]
+CMD ["-logtostderr"]
