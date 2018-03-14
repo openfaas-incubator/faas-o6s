@@ -26,6 +26,7 @@ func makeReplicaReader(namespace string, client clientset.Interface) http.Handle
 		}
 
 		result := &requests.Function{
+			AvailableReplicas: uint64(*k8sfunc.Spec.Replicas),
 			Replicas:   uint64(*k8sfunc.Spec.Replicas),
 			Labels:     k8sfunc.Spec.Labels,
 			Name:       k8sfunc.Spec.Name,
