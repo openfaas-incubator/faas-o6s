@@ -21,6 +21,12 @@ func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*
 	nodeSelector := makeNodeSelector(function.Spec.Constraints)
 	livenessProbe := makeLivenessProbe()
 
+	resources, err := makeResources(function)
+	if err != nil{
+		glog.Warningf("Function %s resources parsing failed: %v",
+			function.Spec.Name, err)
+	}
+
 	deploymentSpec := &appsv1beta2.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      function.Spec.Name,
@@ -58,6 +64,7 @@ func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*
 							},
 							ImagePullPolicy: corev1.PullAlways,
 							Env:             envVars,
+							Resources:       *resources,
 							LivenessProbe:   livenessProbe,
 							ReadinessProbe:  livenessProbe,
 						},
