@@ -4,8 +4,8 @@
 
 var app = angular.module('faasGateway', ['ngMaterial', 'faasGateway.funcStore']);
 
-app.controller("home", ['$scope', '$log', '$http', '$location', '$timeout', '$mdDialog', '$mdToast', '$mdSidenav',
-    function($scope, $log, $http, $location, $timeout, $mdDialog, $mdToast, $mdSidenav) {
+app.controller("home", ['$scope', '$log', '$http', '$location', '$interval', '$filter', '$mdDialog', '$mdToast', '$mdSidenav',
+    function($scope, $log, $http, $location, $interval, $filter, $mdDialog, $mdToast, $mdSidenav) {
         var newFuncTabIdx = 0;
         $scope.functions = [];
         $scope.invocationInProgress = false;
@@ -32,10 +32,28 @@ app.controller("home", ['$scope', '$log', '$http', '$location', '$timeout', '$md
         };
 
         $scope.invocation.request = "";
-
-        setInterval(function() {
+        var fetchFunctionsDelay = 3500;
+        var queryFunctionDelay = 2500;
+        
+        var fetchFunctionsInterval = $interval(function() {
             refreshData();
-        }, 1000);
+        }, fetchFunctionsDelay);
+
+        var queryFunctionInterval = $interval(function() {
+            if($scope.selectedFunction && $scope.selectedFunction.name) {
+                refreshFunction($scope.selectedFunction);
+            }
+        }, queryFunctionDelay);
+
+        var refreshFunction = function(functionInstance) {
+            $http.get("../system/function/" + functionInstance.name)
+            .then(function(response) {
+                functionInstance.ready = (response.data && response.data.availableReplicas && response.data.availableReplicas > 0);
+            })
+            .catch(function(err) {
+                console.error(err);
+            });
+        };
 
         var showPostInvokedToast = function(message, duration) {
             $mdToast.show(
@@ -53,7 +71,7 @@ app.controller("home", ['$scope', '$log', '$http', '$location', '$timeout', '$md
             }
 
             var options = {
-                url: "/function/" + $scope.selectedFunction.name,
+                url: "../function/" + $scope.selectedFunction.name,
                 data: $scope.invocation.request,
                 method: "POST",
                 headers: { "Content-Type": requestContentType },
@@ -91,9 +109,9 @@ app.controller("home", ['$scope', '$log', '$http', '$location', '$timeout', '$md
             }
 
             $http(options)
-                .success(function (data, status, headers) {
-
-                    var headerMap = headers();
+                .then(function (response) {
+                    var data = response.data;
+                    var status = response.status;
 
                     if($scope.invocation.contentType == "binary") {
                         var filename = uuidv4();
@@ -143,10 +161,18 @@ app.controller("home", ['$scope', '$log', '$http', '$location', '$timeout', '$md
             var previous = $scope.functions;
 
             var cl = function(previousItems) {
-                $http.get("/system/functions").then(function(response) {
+                $http.get("../system/functions").then(function(response) {
                     if (response && response.data) {
                         if (previousItems.length != response.data.length) {
                             $scope.functions = response.data;
+                            
+                            // update the selected function object because the newly fetched object from the API becomes a different object
+                            var filteredSelectedFunction = $filter('filter')($scope.functions, {name: $scope.selectedFunction.name}, true);
+                            if (filteredSelectedFunction && filteredSelectedFunction.length > 0) {
+                                $scope.selectedFunction = filteredSelectedFunction[0];
+                            } else {
+                                $scope.selectedFunction = undefined;
+                            }
                         } else {
                             for (var i = 0; i < $scope.functions.length; i++) {
                                 for (var j = 0; j < response.data.length; j++) {
@@ -164,7 +190,7 @@ app.controller("home", ['$scope', '$log', '$http', '$location', '$timeout', '$md
         }
 
         var fetch = function() {
-            $http.get("/system/functions").then(function(response) {
+            $http.get("../system/functions").then(function(response) {
                 $scope.functions = response.data;
             });
         };
@@ -227,7 +253,7 @@ app.controller("home", ['$scope', '$log', '$http', '$location', '$timeout', '$md
 
             $scope.createFunc = function() {
                 var options = {
-                    url: "/system/functions",
+                    url: "../system/functions",
                     data: $scope.item,
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -268,7 +294,7 @@ app.controller("home", ['$scope', '$log', '$http', '$location', '$timeout', '$md
             $mdDialog.show(confirm)
                 .then(function() {
                     var options = {
-                        url: "/system/functions",
+                        url: "../system/functions",
                         data: {
                             functionName: $scope.selectedFunction.name
                         },
@@ -294,8 +320,8 @@ app.controller("home", ['$scope', '$log', '$http', '$location', '$timeout', '$md
 ]);
 
 function uuidv4() {
-    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-    )
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, function(c) {
+      return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    })
   }
   

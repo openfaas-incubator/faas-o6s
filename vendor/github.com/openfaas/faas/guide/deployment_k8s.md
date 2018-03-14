@@ -46,23 +46,21 @@ This step assumes you are running `kubectl` on a master host.
 $ git clone https://github.com/openfaas/faas-netes
 ```
 
-Deploy a synchronous or asynchronous stack. If you're using OpenFaaS for the first time we recommend the synchronous stack. The asynchronous stack also includes NATS Streaming for queuing.
+Deploy a stack with asynchronous functionality provided by NATS Streaming.
 
-* Deploy the synchronous stack
+* Deploy the whole stack
 
-```
-$ cd faas-netes
-$ kubectl apply -f ./faas.yml,monitoring.yml,rbac.yml
-```
+This command is split into two parts so that the OpenFaaS namespaces are always created first:
 
-Or
-
-* Deploy the asynchronous stack
+* openfaas - for OpenFaaS services
+* openfaas-fn - for functions
 
 ```
-$ cd faas-netes
-$ kubectl apply -f ./faas.async.yml,nats.yml,monitoring.yml,rbac.yml
+$ cd faas-netes && \
+ kubectl apply -f ./namespaces.yml,./yaml
 ```
+
+Note: RBAC is optional but encouraged and enabled by default.
 
 Asynchronous invocation works by queuing requests with NATS Streaming. An alternative implementation is available with Kafka in an [open PR](https://github.com/openfaas/faas/pull/311).
 
@@ -96,16 +94,18 @@ There are currently no sample functions built into this stack, but we can deploy
 * Install the CLI 
 
 ```
-$ curl -sL cli.openfaas.com | sudo sh
+$ curl -sL https://cli.openfaas.com | sudo sh
 ```
 
-Then clone some samples to deploy on your cluster.
+If you like you can also run the script via a non-root user. Then the faas-cli binary is downloaded to the current working directory instead.
+
+* Then clone some samples to deploy on your cluster.
 
 ```
 $ git clone https://github.com/openfaas/faas-cli
 ```
 
-Edit samples.yml and change your gateway URL from `localhost:8080` to `kubernetes-node-ip:31112`.
+Edit samples.yml and change your gateway URL from `localhost:8080` to `kubernetes-node-ip:31112` or pass the `--gateway` / `-g` flag to commands.
 
 i.e.
 
@@ -134,7 +134,7 @@ $ faas-cli list -f samples.yml
 
 or
 
-$ faas-cli list  --gateway http://127.0.0.1:31112
+$ faas-cli list  -g http://127.0.0.1:31112
 Function                      	Invocations    	Replicas
 inception                     	0              	1    
 nodejs-echo                   	0              	1    
@@ -146,7 +146,7 @@ stronghash                    	2              	1
 Invoke a function:
 
 ```
-$ echo -n Test | faas-cli invoke stronghash --gateway http://127.0.0.1:31112
+$ echo -n "Test" | faas-cli invoke stronghash -g http://127.0.0.1:31112
 c6ee9e33cf5c6715a1d148fd73f7318884b41adcb916021e2bc0e800a5c5dd97f5142178f6ae88c8fdd98e1afb0ce4c8d2c54b5f37b30b7da1997bb33b0b8a31  -
 ```
 
@@ -181,3 +181,9 @@ The function can also be invoked through the CLI:
 $ echo -n "" | faas-cli invoke --gateway http://kubernetes-ip:31112 nodeinfo
 $ echo -n "verbose" | faas-cli invoke --gateway http://kubernetes-ip:31112 nodeinfo
 ```
+
+## Troubleshooting
+
+If you are running into any issues please check out the troubleshooting guide and search the documentation / past issues before raising an issue.
+
+* [Troubleshooting guide](https://github.com/openfaas/faas/blob/master/guide/troubleshooting.md)

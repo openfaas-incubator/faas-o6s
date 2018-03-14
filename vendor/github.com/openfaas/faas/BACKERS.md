@@ -1,6 +1,8 @@
 ## Project backers
 
-This page shows the project's backers and sponsors. Thank you for your help
+> Disclaimer: all Patrons regardless of the level of reward are making a monthly pledge to donate money to support Alex Ellis. This does not represent an investment, stake or ownership in the OpenFaaS project, OpenFaaS Ltd or any other related entity.
+
+Thank you for your help
 
 View this page for live data [on Patreon for everyone who has pledged](https://www.patreon.com/alexellis).
 
@@ -17,7 +19,15 @@ Listed by reward, followed by miscellaneous amounts. Names are (pending) until f
 * José Roberto Almaráz Da Cunha Júnior
 * Wesley Kennedy
 * Owen Dall Sotomayor
-* Glenn Grant (pending)
+* Theo Pack
+
+**#FaaSFriday**
+
+Toby Boudreaux
+
+**#TeamServerless backers**
+
+Pav Jimanov
 
 **OpenFaaS backers (reward)**
 
@@ -31,13 +41,9 @@ Listed by reward, followed by miscellaneous amounts. Names are (pending) until f
 * Weston Steimel
 * Ram	Gopinathan
 * Michael	Herman
-* Cody De Arkland (pending)
-* Richard Petersen-Hall (pending)
+* Cody De Arkland
+* Richard Petersen-Hall
 
 **OpenFaaS patrons (reward)**
 
-**OpenFaaS fanclub (reward)**
-
-**Misc. amount**
-
-1 person
+Miscellaneous amounts are not shown.
