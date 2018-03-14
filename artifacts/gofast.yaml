@@ -1,17 +1,20 @@
 apiVersion: o6s.io/v1alpha1
 kind: Function
 metadata:
-  name: nodeinfo
+  name: gofast
 spec:
-  name: nodeinfo
-  replicas: 5
-  image: functions/nodeinfo:burner
+  name: gofast
+  replicas: 2
+  image: alexellis/gofast023
   labels:
-    com.openfaas.scale.min: "5"
-    com.openfaas.scale.max: "10"
+    com.openfaas.scale.min: "2"
+    com.openfaas.scale.max: "5"
   environment:
     output: "verbose"
     debug: "true"
+  secrets:
+    token: faas-token
+    key: faas-key
   limits:
     cpu: "100m"
     memory: "128Mb"
