@@ -11,9 +11,10 @@ import (
 	"github.com/openfaas/faas-provider/types"
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
-func makeReplicaReader(namespace string, client clientset.Interface) http.HandlerFunc {
+func makeReplicaReader(namespace string, client clientset.Interface, kube kubernetes.Interface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		functionName := vars["name"]
@@ -25,13 +26,19 @@ func makeReplicaReader(namespace string, client clientset.Interface) http.Handle
 			return
 		}
 
+		availableReplicas, err := getAvailableReplicas(functionName, namespace, kube)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		result := &requests.Function{
-			AvailableReplicas: uint64(*k8sfunc.Spec.Replicas),
-			Replicas:   uint64(*k8sfunc.Spec.Replicas),
-			Labels:     k8sfunc.Spec.Labels,
-			Name:       k8sfunc.Spec.Name,
-			EnvProcess: k8sfunc.Spec.Handler,
-			Image:      k8sfunc.Spec.Image,
+			AvailableReplicas: availableReplicas,
+			Replicas:          uint64(*k8sfunc.Spec.Replicas),
+			Labels:            k8sfunc.Spec.Labels,
+			Name:              k8sfunc.Spec.Name,
+			EnvProcess:        k8sfunc.Spec.Handler,
+			Image:             k8sfunc.Spec.Image,
 		}
 
 		res, _ := json.Marshal(result)
@@ -39,6 +46,14 @@ func makeReplicaReader(namespace string, client clientset.Interface) http.Handle
 		w.WriteHeader(http.StatusOK)
 		w.Write(res)
 	}
+}
+
+func getAvailableReplicas(functionName string, namespace string, kube kubernetes.Interface) (uint64, error) {
+	dep, err := kube.AppsV1beta2().Deployments(namespace).Get(functionName, metav1.GetOptions{})
+	if err != nil {
+		return 0, err
+	}
+	return uint64(dep.Status.AvailableReplicas), nil
 }
 
 func makeReplicaHandler(namespace string, client clientset.Interface) http.HandlerFunc {

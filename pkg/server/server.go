@@ -12,6 +12,7 @@ import (
 	"github.com/openfaas/faas-provider"
 	"github.com/openfaas/faas-provider/types"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"k8s.io/client-go/kubernetes"
 )
 
 // TODO: Move to config pattern used else-where across project
@@ -21,7 +22,7 @@ const defaultReadTimeout = 8
 const defaultWriteTimeout = 8
 
 // Start starts HTTP Server for API
-func Start(client clientset.Interface) {
+func Start(client clientset.Interface, kube kubernetes.Interface) {
 	functionNamespace := "default"
 	if namespace, exists := os.LookupEnv("function_namespace"); exists {
 		functionNamespace = namespace
@@ -61,7 +62,7 @@ func Start(client clientset.Interface) {
 		DeleteHandler:  makeDeleteHandler(functionNamespace, client),
 		DeployHandler:  makeApplyHandler(functionNamespace, client),
 		FunctionReader: makeListHandler(functionNamespace, client),
-		ReplicaReader:  makeReplicaReader(functionNamespace, client),
+		ReplicaReader:  makeReplicaReader(functionNamespace, client, kube),
 		ReplicaUpdater: makeReplicaHandler(functionNamespace, client),
 		UpdateHandler:  makeApplyHandler(functionNamespace, client),
 		Health:         makeHealthHandler(),

@@ -143,7 +143,7 @@ curl -d '{"service":"nodeinfo","image":"functions/nodeinfo:burner","envProcess":
 List functions:
 
 ```bash
-curl http://localhost:8081/system/functions | jq .
+curl -s http://localhost:8081/system/functions | jq .
 ```
 
 Scale PODs up/down:
@@ -152,11 +152,18 @@ Scale PODs up/down:
 curl -d '{"serviceName":"nodeinfo", "replicas": 3}' -X POST http://localhost:8081/system/scale-function/nodeinfo
 ```
 
+Get available replicas:
+
+```bash
+curl -s http://localhost:8081/system/function/nodeinfo | jq .availableReplicas
+```
+
 Remove function:
 
 ```bash
 curl -d '{"functionName":"nodeinfo"}' -X DELETE http://localhost:8081/system/functions
 ```
+
 
 ### Logging
 
