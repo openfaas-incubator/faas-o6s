@@ -1,0 +1,20 @@
+apiVersion: o6s.io/v1alpha1
+kind: Function
+metadata:
+  name: figlet
+spec:
+  name: figlet
+  replicas: 2
+  image: functions/figlet:latest-armhf
+  labels:
+    com.openfaas.scale.min: "2"
+    com.openfaas.scale.max: "4"
+  environment:
+    output: "verbose"
+    debug: "true"
+  limits:
+    cpu: "200m"
+    memory: "1Gi"
+  requests:
+    cpu: "10m"
+    memory: "12Mi"
