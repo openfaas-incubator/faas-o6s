@@ -15,12 +15,12 @@ import (
 // newDeployment creates a new Deployment for a Function resource. It also sets
 // the appropriate OwnerReferences on the resource so handleObject can discover
 // the Function resource that 'owns' it.
-func newDeployment(function *faasv1alpha1.Function) *appsv1beta2.Deployment {
+func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*corev1.Secret) *appsv1beta2.Deployment {
 	envVars := makeEnvVars(function)
 	labels := makeLabels(function)
 	livenessProbe := makeLivenessProbe()
 
-	return &appsv1beta2.Deployment{
+	deploymentSpec := &appsv1beta2.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      function.Spec.Name,
 			Namespace: function.Namespace,
@@ -64,6 +64,13 @@ func newDeployment(function *faasv1alpha1.Function) *appsv1beta2.Deployment {
 			},
 		},
 	}
+
+	if err := UpdateSecrets(function, deploymentSpec, existingSecrets); err != nil {
+		glog.Warningf("Function %s secrets update failed: %v",
+			function.Spec.Name, err)
+	}
+
+	return deploymentSpec
 }
 
 func makeEnvVars(function *faasv1alpha1.Function) []corev1.EnvVar {
@@ -121,6 +128,7 @@ func makeLivenessProbe() *corev1.Probe {
 	return probe
 }
 
+// deploymentNeedsUpdate determines if the function spec is different from the deployment spec
 func deploymentNeedsUpdate(function *faasv1alpha1.Function, deployment *appsv1beta2.Deployment) bool {
 	needsUpdate := false
 
@@ -149,6 +157,12 @@ func deploymentNeedsUpdate(function *faasv1alpha1.Function, deployment *appsv1be
 	funcLabels := makeLabels(function)
 	if labelsNotEqual(currentLabels, funcLabels) {
 		glog.V(4).Infof("Function %s labels have changed",
+			function.Spec.Name)
+		needsUpdate = true
+	}
+
+	if secretsNotEqual(function.Spec.Secrets, deployment.Spec.Template.Spec.Volumes) {
+		glog.V(4).Infof("Function %s secrets have changed",
 			function.Spec.Name)
 		needsUpdate = true
 	}
@@ -188,6 +202,42 @@ func labelsNotEqual(a, b map[string]string) bool {
 		}
 	}
 	return false
+}
+
+func strArrayNotEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return true
+	}
+
+	for i, v := range a {
+		if v != b[i] {
+			return true
+		}
+	}
+	return false
+}
+
+func secretsNotEqual(secrets []string, volumes []corev1.Volume) bool {
+	if len(secrets) < 1 {
+		return false
+	}
+
+	if len(secrets) > 0 && len(volumes) < 1 {
+		return true
+	}
+
+	if len(secrets) > 0 && volumes[0].Projected == nil {
+		return true
+	}
+
+	sources := []string{}
+	for _, s := range volumes[0].Projected.Sources {
+		if s.Secret != nil {
+			sources = append(sources, s.Secret.Name)
+		}
+	}
+
+	return strArrayNotEqual(secrets, sources)
 }
 
 func int32p(i int32) *int32 {

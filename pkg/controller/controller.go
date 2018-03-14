@@ -259,8 +259,14 @@ func (c *Controller) syncHandler(key string) error {
 			// If an error occurs during Service Create, we'll requeue the item
 			return err
 		}
+
+		existingSecrets, err := c.getSecrets(function.Namespace, function.Spec.Secrets)
+		if err != nil {
+			return err
+		}
+
 		glog.Infof("Creating service and deployment for '%s'", function.Spec.Name)
-		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(newDeployment(function))
+		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(newDeployment(function, existingSecrets))
 	}
 
 	// If an error occurs during Get/Create, we'll requeue the item so we can
@@ -281,7 +287,13 @@ func (c *Controller) syncHandler(key string) error {
 	// Update the Deployment resource if the Function definition differs
 	if deploymentNeedsUpdate(function, deployment) {
 		glog.Infof("Updating deployment for '%s'", function.Spec.Name)
-		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(newDeployment(function))
+
+		existingSecrets, err := c.getSecrets(function.Namespace, function.Spec.Secrets)
+		if err != nil {
+			return err
+		}
+
+		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(newDeployment(function, existingSecrets))
 	}
 
 	// If an error occurs during Update, we'll requeue the item so we can
@@ -367,4 +379,19 @@ func (c *Controller) handleObject(obj interface{}) {
 		c.enqueueFunction(function)
 		return
 	}
+}
+
+// getSecrets queries Kubernetes for a list of secrets by name in the given k8s namespace.
+func (c *Controller) getSecrets(namespace string, secretNames []string) (map[string]*corev1.Secret, error) {
+	secrets := map[string]*corev1.Secret{}
+
+	for _, secretName := range secretNames {
+		secret, err := c.kubeclientset.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+		if err != nil {
+			return secrets, err
+		}
+		secrets[secretName] = secret
+	}
+
+	return secrets, nil
 }

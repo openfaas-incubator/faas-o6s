@@ -50,6 +50,26 @@ kubectl -n openfaas-fn get functions
 kubectl -n openfaas-fn get all
 ``` 
 
+Deploy a function with secrets:
+
+```bash
+kubectl -n openfaas-fn create secret generic faas-token --from-literal=faas-token=token
+kubectl -n openfaas-fn create secret generic faas-key --from-literal=faas-key=key
+kubectl -n openfaas-fn apply -f ./artifacts/gofast.yaml
+```
+
+Test that secrets are available inside the `gofast` pod:
+
+```bash
+kubectl -n openfaas-fn exec -it gofast-84fd464784-sd5ml -- sh
+
+~ $ cat /run/secrets/faas-key 
+key
+
+~ $ cat /run/secrets/faas-token 
+token
+``` 
+
 ### Local run
 
 Create OpenFaaS CRD:
@@ -61,7 +81,7 @@ Start OpenFaaS controller (assumes you have a working kubeconfig on the machine)
 
 ```bash
 $ go build \
-  && ./faas-o6s -kubeconfig=$HOME/.kube/config -logtostderr=true
+  && ./faas-o6s -kubeconfig=$HOME/.kube/config -logtostderr=true -v=4
 ```
 
 With `go run`
