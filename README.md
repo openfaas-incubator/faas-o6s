@@ -70,6 +70,19 @@ key
 token
 ``` 
 
+Test that node selectors work on GKE by adding the following to `gofast.yaml`:
+
+```yaml
+  constraints:
+    - "cloud.google.com/gke-nodepool=default-pool"
+```
+
+Apply the function and check the deployment specs with:
+
+```bash
+kubectl -n openfaas-fn describe deployment gofast
+```
+
 ### Local run
 
 Create OpenFaaS CRD:

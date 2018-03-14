@@ -2,14 +2,14 @@ package controller
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/golang/glog"
+	faasv1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/apis/o6sio/v1alpha1"
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-
-	faasv1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/apis/o6sio/v1alpha1"
 )
 
 // newDeployment creates a new Deployment for a Function resource. It also sets
@@ -18,6 +18,7 @@ import (
 func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*corev1.Secret) *appsv1beta2.Deployment {
 	envVars := makeEnvVars(function)
 	labels := makeLabels(function)
+	nodeSelector := makeNodeSelector(function.Spec.Constraints)
 	livenessProbe := makeLivenessProbe()
 
 	deploymentSpec := &appsv1beta2.Deployment{
@@ -47,6 +48,7 @@ func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*
 					Annotations: map[string]string{"prometheus.io.scrape": "false"},
 				},
 				Spec: corev1.PodSpec{
+					NodeSelector: nodeSelector,
 					Containers: []corev1.Container{
 						{
 							Name:  function.Spec.Name,
@@ -126,6 +128,22 @@ func makeLivenessProbe() *corev1.Probe {
 	}
 
 	return probe
+}
+
+func makeNodeSelector(constraints []string) map[string]string {
+	selector := make(map[string]string)
+
+	if len(constraints) > 0 {
+		for _, constraint := range constraints {
+			parts := strings.Split(constraint, "=")
+
+			if len(parts) == 2 {
+				selector[parts[0]] = parts[1]
+			}
+		}
+	}
+
+	return selector
 }
 
 // deploymentNeedsUpdate determines if the function spec is different from the deployment spec

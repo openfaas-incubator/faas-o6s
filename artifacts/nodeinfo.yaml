@@ -19,5 +19,3 @@ spec:
   requests:
     cpu: "10m"
     memory: "128Mi"
-  constraints:
-    - "cloud.google.com/gke-nodepool=default-pool"
