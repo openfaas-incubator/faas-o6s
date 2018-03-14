@@ -13,8 +13,8 @@ spec:
     output: "verbose"
     debug: "true"
   secrets:
-    token: faas-token
-    key: faas-key
+    - faas-token
+    - faas-key
   limits:
     cpu: "100m"
     memory: "128Mb"
