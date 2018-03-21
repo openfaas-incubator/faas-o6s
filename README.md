@@ -12,35 +12,30 @@ cd faas-netes
 kubectl apply -f ./namespaces.yml,./yaml
 ```
 
-Deploy the CRD and faas-o6s controller in `openfaas` namespace:
+Deploy the Gateway with faas-o6s sidecar in `openfaas` namespace:
 
 ```bash
 # CRD
 kubectl apply -f artifacts/o6s-crd.yaml
 # RBAC
 kubectl apply -f artifacts/o6s-rbac.yaml
-# Service
-kubectl apply -f artifacts/o6s-svc.yaml
-# Deployment
-kubectl apply -f artifacts/o6s-dep.yaml
-```
-
-Modify the gateway deployment and switch from faas-netes to faas-o6s:
-
-```bash
-      containers:
-      - name: gateway
-        image: functions/gateway:0.6.16
-        imagePullPolicy: Always
-        env:
-        - name: functions_provider_url
-          value: "http://faas-o6s.openfaas:8081/"
+# Deployment (use o6s-armhf.yaml for faas-netes/yaml_armhf)
+kubectl apply -f artifacts/o6s-amd64.yaml
+# Delete faas-netes
+kubectl -n openfaas delete deployment faas-netesd
+kubectl -n openfaas delete svc faas-netesd
 ```
 
 Deploy a function with kubectl:
 
 ```bash
 kubectl -n openfaas-fn apply -f ./artifacts/nodeinfo.yaml
+```
+
+On armhf use:
+
+```bash
+kubectl -n openfaas-fn apply -f ./artifacts/figlet-armhf.yaml
 ```
 
 List functions, services, deployments and pods:
