@@ -66,6 +66,7 @@ func Start(client clientset.Interface, kube kubernetes.Interface) {
 		ReplicaUpdater: makeReplicaHandler(functionNamespace, client),
 		UpdateHandler:  makeApplyHandler(functionNamespace, client),
 		Health:         makeHealthHandler(),
+		InfoHandler:    makeInfoHandler(),
 	}
 
 	bootstrapConfig := types.FaaSConfig{

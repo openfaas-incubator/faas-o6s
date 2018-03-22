@@ -16,6 +16,7 @@ import (
 	"github.com/openfaas-incubator/faas-o6s/pkg/controller"
 	"github.com/openfaas-incubator/faas-o6s/pkg/server"
 	"github.com/openfaas-incubator/faas-o6s/pkg/signals"
+	"github.com/openfaas-incubator/faas-o6s/pkg/version"
 )
 
 var (
@@ -31,7 +32,8 @@ func init() {
 func main() {
 	flag.Parse()
 
-	glog.Info("Starting OpenFaaS controller")
+	sha, release := version.GetReleaseInfo()
+	glog.Infof("Starting OpenFaaS controller version: %s commit: %s", release, sha)
 
 	// set up signals so we handle the first shutdown signal gracefully
 	stopCh := signals.SetupSignalHandler()

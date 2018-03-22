@@ -6,8 +6,13 @@ WORKDIR /go/src/github.com/openfaas-incubator/faas-o6s
 
 COPY . .
 
-RUN gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*") \
-  && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o faas-o6s .
+RUN gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*") && \
+  VERSION=$(git describe --all --exact-match `git rev-parse HEAD` | grep tags | sed 's/tags\///') && \
+  GIT_COMMIT=$(git rev-list -1 HEAD) && \
+  CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w \
+  -X github.com/openfaas-incubator/faas-o6s/pkg/version.Release=${VERSION} \
+  -X github.com/openfaas-incubator/faas-o6s/pkg/version.SHA=${GIT_COMMIT}" \
+  -a -installsuffix cgo -o faas-o6s .
 
 FROM alpine:3.7
 RUN apk --no-cache add ca-certificates

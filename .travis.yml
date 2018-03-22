@@ -16,12 +16,11 @@ install:
   - echo "Please don't go get"
 
 script:
-  - docker build -t functions/faas-o6s:latest-dev .
+  - make build
 
 after_success:
-  - if [ -z "$DOCKER_USER" ]; then
-      echo "PR build, skipping Docker Hub push";
-    else
-      docker login -u "$DOCKER_USER" -p "$DOCKER_PASS";
-      docker push functions/faas-o6s:latest-dev;
+  - if [ ! -s "$TRAVIS_TAG" ] ; then
+      docker tag functions/faas-o6s:latest functions/faas-o6s:$TRAVIS_TAG;
+      docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD;
+      docker push functions/faas-o6s:$TRAVIS_TAG;
     fi

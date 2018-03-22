@@ -22,7 +22,7 @@ func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*
 	livenessProbe := makeLivenessProbe()
 
 	resources, err := makeResources(function)
-	if err != nil{
+	if err != nil {
 		glog.Warningf("Function %s resources parsing failed: %v",
 			function.Spec.Name, err)
 	}
