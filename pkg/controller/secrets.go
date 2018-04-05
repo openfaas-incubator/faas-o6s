@@ -16,21 +16,29 @@ func UpdateSecrets(function *faasv1alpha1.Function, deployment *appsv1beta2.Depl
 
 	// Add / reference pre-existing secrets within Kubernetes
 	secretVolumeProjections := []corev1.VolumeProjection{}
+
 	for _, secretName := range function.Spec.Secrets {
 		deployedSecret, ok := existingSecrets[secretName]
 		if !ok {
 			return fmt.Errorf("required secret '%s' was not found in the cluster", secretName)
 		}
 
-		if deployedSecret.Type == corev1.SecretTypeDockercfg {
+		switch deployedSecret.Type {
+
+		case corev1.SecretTypeDockercfg,
+			corev1.SecretTypeDockerConfigJson:
+
 			deployment.Spec.Template.Spec.ImagePullSecrets = append(
 				deployment.Spec.Template.Spec.ImagePullSecrets,
 				corev1.LocalObjectReference{
 					Name: secretName,
 				},
 			)
-		} else {
-			// projectSecrets.VolumeSource.Sources = newProjections
+
+			break
+
+		default:
+
 			projectedPaths := []corev1.KeyToPath{}
 			for secretKey := range deployedSecret.Data {
 				projectedPaths = append(projectedPaths, corev1.KeyToPath{Key: secretKey, Path: secretKey})
@@ -43,6 +51,7 @@ func UpdateSecrets(function *faasv1alpha1.Function, deployment *appsv1beta2.Depl
 			}
 			secretVolumeProjections = append(secretVolumeProjections, secretProjection)
 
+			break
 		}
 	}
 
