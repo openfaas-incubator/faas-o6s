@@ -19,7 +19,7 @@ spec:
       serviceAccountName: faas-o6s
       containers:
       - name: gateway
-        image: functions/gateway:0.7.3
+        image: functions/gateway:0.7.8-rc1
         imagePullPolicy: Always
         env:
         - name: functions_provider_url
@@ -43,7 +43,7 @@ spec:
           limits:
             memory: 512Mi
       - name: faas-o6s
-        image: stefanprodan/faas-o6s:latest-dev
+        image: stefanprodan/faas-o6s:0.4.0
         imagePullPolicy: Always
         command:
           - ./faas-o6s
