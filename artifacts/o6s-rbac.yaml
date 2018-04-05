@@ -14,13 +14,7 @@ rules:
   resources: ["functions"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: [""]
-  resources: ["services", "events"]
-  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-- apiGroups: [""]
-  resources: ["secrets"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: ["apps", "extensions"]
-  resources: ["deployments"]
+  resources: ["events"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -35,4 +29,33 @@ subjects:
 - kind: ServiceAccount
   name: faas-o6s
   namespace: openfaas
-
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: faas-o6s-rw
+  namespace: openfaas-fn
+rules:
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps", "extensions"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: faas-o6s-rw
+  namespace: openfaas-fn
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: faas-o6s-rw
+subjects:
+- kind: ServiceAccount
+  name: faas-o6s
+  namespace: openfaas

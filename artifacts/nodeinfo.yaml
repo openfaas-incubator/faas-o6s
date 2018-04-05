@@ -2,6 +2,7 @@ apiVersion: o6s.io/v1alpha1
 kind: Function
 metadata:
   name: nodeinfo
+  namespace: openfaas-fn
 spec:
   name: nodeinfo
   replicas: 2

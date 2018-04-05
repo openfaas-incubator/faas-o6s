@@ -11,6 +11,8 @@ import (
 	// required to authenticate against GKE clusters
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
+	"os"
+
 	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
 	informers "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions"
 	"github.com/openfaas-incubator/faas-o6s/pkg/controller"
@@ -53,7 +55,12 @@ func main() {
 		glog.Fatalf("Error building OpenFaaS clientset: %s", err.Error())
 	}
 
-	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
+	functionNamespace := "openfaas-fn"
+	if namespace, exists := os.LookupEnv("function_namespace"); exists {
+		functionNamespace = namespace
+	}
+
+	kubeInformerFactory := kubeinformers.NewFilteredSharedInformerFactory(kubeClient, time.Second*30, functionNamespace, nil)
 	faasInformerFactory := informers.NewSharedInformerFactory(faasClient, time.Second*30)
 
 	ctrl := controller.NewController(kubeClient, faasClient, kubeInformerFactory, faasInformerFactory)

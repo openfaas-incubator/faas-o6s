@@ -2,6 +2,7 @@ apiVersion: o6s.io/v1alpha1
 kind: Function
 metadata:
   name: gofast
+  namespace: openfaas-fn
 spec:
   name: gofast
   replicas: 2
