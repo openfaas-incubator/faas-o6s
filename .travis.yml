@@ -22,6 +22,6 @@ script:
 after_success:
   - if [ ! -s "$TRAVIS_TAG" ] ; then
       docker tag functions/faas-o6s:latest functions/faas-o6s:$TRAVIS_TAG;
-      docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD;
+      echo $DOCKER_PASSWORD | docker login -u=$DOCKER_USERNAME --password-stdin;
       docker push functions/faas-o6s:$TRAVIS_TAG;
     fi
