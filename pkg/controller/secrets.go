@@ -13,7 +13,6 @@ import (
 // deployment spec as appropriate: secrets with type `SecretTypeDockercfg` are added as ImagePullSecrets
 // all other secrets are mounted as files in the deployments containers.
 func UpdateSecrets(function *faasv1alpha1.Function, deployment *appsv1beta2.Deployment, existingSecrets map[string]*corev1.Secret) error {
-
 	// Add / reference pre-existing secrets within Kubernetes
 	secretVolumeProjections := []corev1.VolumeProjection{}
 
@@ -55,32 +54,70 @@ func UpdateSecrets(function *faasv1alpha1.Function, deployment *appsv1beta2.Depl
 		}
 	}
 
-	if len(secretVolumeProjections) > 0 {
-		volumeName := fmt.Sprintf("%s-projected-secrets", function.Name)
-		projectedSecrets := corev1.Volume{
-			Name: volumeName,
-			VolumeSource: corev1.VolumeSource{
-				Projected: &corev1.ProjectedVolumeSource{
-					Sources: secretVolumeProjections,
-				},
+	volumeName := fmt.Sprintf("%s-projected-secrets", function.Spec.Name)
+	projectedSecrets := corev1.Volume{
+		Name: volumeName,
+		VolumeSource: corev1.VolumeSource{
+			Projected: &corev1.ProjectedVolumeSource{
+				Sources: secretVolumeProjections,
 			},
-		}
-		deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, projectedSecrets)
-
-		// add mount secret as a file
-		updatedContainers := []corev1.Container{}
-		for _, container := range deployment.Spec.Template.Spec.Containers {
-			mount := corev1.VolumeMount{
-				Name:      volumeName,
-				ReadOnly:  true,
-				MountPath: "/run/secrets",
-			}
-			container.VolumeMounts = append(container.VolumeMounts, mount)
-			updatedContainers = append(updatedContainers, container)
-		}
-
-		deployment.Spec.Template.Spec.Containers = updatedContainers
+		},
 	}
 
+	// remove the existing secrets volume, if we can find it. The update volume will be
+	// added below
+	existingVolumes := removeVolume(volumeName, deployment.Spec.Template.Spec.Volumes)
+	deployment.Spec.Template.Spec.Volumes = existingVolumes
+	if len(secretVolumeProjections) > 0 {
+		deployment.Spec.Template.Spec.Volumes = append(existingVolumes, projectedSecrets)
+	}
+
+	// add mount secret as a file
+	updatedContainers := []corev1.Container{}
+	for _, container := range deployment.Spec.Template.Spec.Containers {
+		mount := corev1.VolumeMount{
+			Name:      volumeName,
+			ReadOnly:  true,
+			MountPath: "/run/secrets",
+		}
+		// remove the existing secrets volume mount, if we can find it. We update it later.
+		container.VolumeMounts = removeVolumeMount(volumeName, container.VolumeMounts)
+		if len(secretVolumeProjections) > 0 {
+			container.VolumeMounts = append(container.VolumeMounts, mount)
+		}
+
+		updatedContainers = append(updatedContainers, container)
+	}
+
+	deployment.Spec.Template.Spec.Containers = updatedContainers
+
 	return nil
+}
+
+// removeVolume returns a Volume slice with any volumes matching volumeName removed.
+// Uses the filter without allocation technique
+// https://github.com/golang/go/wiki/SliceTricks#filtering-without-allocating
+func removeVolume(volumeName string, volumes []corev1.Volume) []corev1.Volume {
+	newVolumes := volumes[:0]
+	for _, v := range volumes {
+		if v.Name != volumeName {
+			newVolumes = append(newVolumes, v)
+		}
+	}
+
+	return newVolumes
+}
+
+// removeVolumeMount returns a VolumeMount slice with any mounts matching volumeName removed
+// Uses the filter without allocation technique
+// https://github.com/golang/go/wiki/SliceTricks#filtering-without-allocating
+func removeVolumeMount(volumeName string, mounts []corev1.VolumeMount) []corev1.VolumeMount {
+	newMounts := mounts[:0]
+	for _, v := range mounts {
+		if v.Name != volumeName {
+			newMounts = append(newMounts, v)
+		}
+	}
+
+	return newMounts
 }
