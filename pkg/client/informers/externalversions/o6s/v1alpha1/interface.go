@@ -9,7 +9,7 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package v1alpha1
 
 import (
-	internalinterfaces "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions/internalinterfaces"
+	internalinterfaces "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
+	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas-provider"
 	"github.com/openfaas/faas-provider/types"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

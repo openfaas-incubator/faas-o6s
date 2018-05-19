@@ -9,10 +9,10 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package v1alpha1
 
 import (
-	o6sio_v1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/apis/o6sio/v1alpha1"
-	versioned "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
-	internalinterfaces "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/client/listers/o6s/v1alpha1"
+	o6sio_v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/o6sio/v1alpha1"
+	versioned "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
+	internalinterfaces "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/o6s/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"

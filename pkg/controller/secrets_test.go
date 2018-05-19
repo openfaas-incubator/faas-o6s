@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	faasv1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/apis/o6sio/v1alpha1"
+	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/o6sio/v1alpha1"
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	corev1 "k8s.io/api/core/v1"
 )

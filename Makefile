@@ -1,10 +1,10 @@
 TAG?=latest
 
 build:
-	docker build -t functions/faas-o6s:$(TAG) . -f Dockerfile
+	docker build -t functions/openfaas-operator:$(TAG) . -f Dockerfile
 
 build-armhf:
-	docker build -t functions/faas-o6s:$(TAG)-armhf . -f Dockerfile.armhf
+	docker build -t functions/openfaas-operator:$(TAG)-armhf . -f Dockerfile.armhf
 
 push:
-	docker push functions/faas-o6s:$(TAG)
+	docker push functions/openfaas-operator:$(TAG)

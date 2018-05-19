@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/golang/glog"
-	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
+	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

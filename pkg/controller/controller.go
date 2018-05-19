@@ -20,11 +20,11 @@ import (
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
 
-	faasv1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/apis/o6sio/v1alpha1"
-	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
-	faasscheme "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned/scheme"
-	informers "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions"
-	listers "github.com/openfaas-incubator/faas-o6s/pkg/client/listers/o6s/v1alpha1"
+	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/o6sio/v1alpha1"
+	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
+	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
+	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
+	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/o6s/v1alpha1"
 )
 
 const controllerAgentName = "faas-k8s"

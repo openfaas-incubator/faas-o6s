@@ -1,11 +1,10 @@
-# faas-o6s
+# openfaas-operator
 
-
-[![Go Report Card](https://goreportcard.com/badge/github.com/openfaas-incubator/faas-o6s)](https://goreportcard.com/report/github.com/openfaas-incubator/faas-o6s) [![Build
-Status](https://travis-ci.org/openfaas-incubator/faas-o6s.svg?branch=master)](https://travis-ci.org/openfaas-incubator/faas-o6s) [![GoDoc](https://godoc.org/github.com/openfaas-incubator/faas-o6s?status.svg)](https://godoc.org/github.com/openfaas-incubator/faas-o6s) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Report Card](https://goreportcard.com/badge/github.com/openfaas-incubator/openfaas-operator)](https://goreportcard.com/report/github.com/openfaas-incubator/openfaas-operator) [![Build
+Status](https://travis-ci.org/openfaas-incubator/openfaas-operator.svg?branch=master)](https://travis-ci.org/openfaas-incubator/openfaas-operator) [![GoDoc](https://godoc.org/github.com/openfaas-incubator/openfaas-operator?status.svg)](https://godoc.org/github.com/openfaas-incubator/openfaas-operator) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenFaaS](https://img.shields.io/badge/openfaas-serverless-blue.svg)](https://www.openfaas.com)
 
-OpenFaaS Kubernetes CRD Controller
+OpenFaaS Kubernetes Operator
 
 ### Deploy
 
@@ -17,15 +16,15 @@ cd faas-netes
 kubectl apply -f ./namespaces.yml,./yaml
 ```
 
-Deploy the Gateway with faas-o6s sidecar in `openfaas` namespace:
+Deploy the Gateway with openfaas-operator sidecar in `openfaas` namespace:
 
 ```bash
 # CRD
-kubectl apply -f artifacts/o6s-crd.yaml
+kubectl apply -f artifacts/operator-crd.yaml
 # RBAC
-kubectl apply -f artifacts/o6s-rbac.yaml
-# Deployment (use o6s-armhf.yaml for faas-netes/yaml_armhf)
-kubectl apply -f artifacts/o6s-amd64.yaml
+kubectl apply -f artifacts/operator-rbac.yaml
+# Deployment (use operator-armhf.yaml for faas-netes/yaml_armhf)
+kubectl apply -f artifacts/operator-amd64.yaml
 # Delete faas-netes
 kubectl -n openfaas delete deployment faas-netesd
 kubectl -n openfaas delete svc faas-netesd
@@ -94,7 +93,7 @@ Start OpenFaaS controller (assumes you have a working kubeconfig on the machine)
 
 ```bash
 $ go build \
-  && ./faas-o6s -kubeconfig=$HOME/.kube/config -logtostderr=true -v=4
+  && ./openfaas-operator -kubeconfig=$HOME/.kube/config -logtostderr=true -v=4
 ```
 
 With `go run`

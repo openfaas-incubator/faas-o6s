@@ -14,7 +14,7 @@ spec:
       labels:
         app: gateway
     spec:
-      serviceAccountName: faas-o6s
+      serviceAccountName: openfaas-operator
       containers:
       - name: gateway
         image: functions/gateway:0.7.3-armhf
@@ -32,11 +32,11 @@ spec:
         resources:
           limits:
             memory: 100Mi
-      - name: faas-o6s
-        image: stefanprodan/faas-o6s:arm
+      - name: operator
+        image: functions/openfaas-operator:arm
         imagePullPolicy: Always
         command:
-          - ./faas-o6s
+          - ./openfaas-operator
           - -logtostderr
           - -v=2
         env:

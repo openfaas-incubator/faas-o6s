@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	v1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/apis/o6sio/v1alpha1"
-	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
+	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/o6sio/v1alpha1"
+	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

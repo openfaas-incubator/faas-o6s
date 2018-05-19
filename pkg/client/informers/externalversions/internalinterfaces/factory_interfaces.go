@@ -9,7 +9,7 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package internalinterfaces
 
 import (
-	versioned "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
+	versioned "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	cache "k8s.io/client-go/tools/cache"
 	time "time"

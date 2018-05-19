@@ -6,8 +6,8 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/openfaas-incubator/faas-o6s/pkg/apis/o6sio/v1alpha1"
-	scheme "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/o6sio/v1alpha1"
+	scheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"

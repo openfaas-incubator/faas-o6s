@@ -16,7 +16,7 @@ spec:
       annotations:
         prometheus.io.scrape: 'true'
     spec:
-      serviceAccountName: faas-o6s
+      serviceAccountName: openfaas-operator
       containers:
       - name: gateway
         image: functions/gateway:0.7.8-rc1
@@ -42,11 +42,11 @@ spec:
         resources:
           limits:
             memory: 512Mi
-      - name: faas-o6s
-        image: stefanprodan/faas-o6s:0.6.0
+      - name: operator
+        image: functions/openfaas-operator:0.6.0
         imagePullPolicy: Always
         command:
-          - ./faas-o6s
+          - ./openfaas-operator
           - -logtostderr
           - -v=2
         env:

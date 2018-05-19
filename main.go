@@ -13,12 +13,12 @@ import (
 
 	"os"
 
-	clientset "github.com/openfaas-incubator/faas-o6s/pkg/client/clientset/versioned"
-	informers "github.com/openfaas-incubator/faas-o6s/pkg/client/informers/externalversions"
-	"github.com/openfaas-incubator/faas-o6s/pkg/controller"
-	"github.com/openfaas-incubator/faas-o6s/pkg/server"
-	"github.com/openfaas-incubator/faas-o6s/pkg/signals"
-	"github.com/openfaas-incubator/faas-o6s/pkg/version"
+	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
+	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
+	"github.com/openfaas-incubator/openfaas-operator/pkg/controller"
+	"github.com/openfaas-incubator/openfaas-operator/pkg/server"
+	"github.com/openfaas-incubator/openfaas-operator/pkg/signals"
+	"github.com/openfaas-incubator/openfaas-operator/pkg/version"
 )
 
 var (
