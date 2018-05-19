@@ -17,6 +17,7 @@ install:
   - echo "Please don't go get"
 
 script:
+  - make test
   - make build
 
 after_success:

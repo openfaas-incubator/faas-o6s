@@ -8,3 +8,6 @@ build-armhf:
 
 push:
 	docker push functions/openfaas-operator:$(TAG)
+
+test:
+	go test ./...
