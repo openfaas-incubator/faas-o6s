@@ -23,9 +23,13 @@ func makeListHandler(namespace string, client clientset.Interface) http.HandlerF
 		}
 
 		for _, item := range res.Items {
+			replicas := uint64(1)
+			if item.Spec.Replicas != nil {
+				replicas = uint64(*item.Spec.Replicas)
+			}
 			function := requests.Function{
 				Name:     item.Spec.Name,
-				Replicas: uint64(*item.Spec.Replicas),
+				Replicas: replicas,
 				Image:    item.Spec.Image,
 				Labels:   item.Spec.Labels,
 			}
