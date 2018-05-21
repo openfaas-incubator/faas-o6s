@@ -61,7 +61,7 @@ func Start(client clientset.Interface, kube kubernetes.Interface) {
 		FunctionProxy:  makeProxy(functionNamespace, time.Duration(readTimeout)*time.Second),
 		DeleteHandler:  makeDeleteHandler(functionNamespace, client),
 		DeployHandler:  makeApplyHandler(functionNamespace, client),
-		FunctionReader: makeListHandler(functionNamespace, client),
+		FunctionReader: makeListHandler(functionNamespace, client, kube),
 		ReplicaReader:  makeReplicaReader(functionNamespace, client, kube),
 		ReplicaUpdater: makeReplicaHandler(functionNamespace, client),
 		UpdateHandler:  makeApplyHandler(functionNamespace, client),
