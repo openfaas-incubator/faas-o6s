@@ -8,9 +8,10 @@ import (
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
-func makeListHandler(namespace string, client clientset.Interface) http.HandlerFunc {
+func makeListHandler(namespace string, client clientset.Interface, kube kubernetes.Interface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		functions := []requests.Function{}
 
@@ -23,15 +24,19 @@ func makeListHandler(namespace string, client clientset.Interface) http.HandlerF
 		}
 
 		for _, item := range res.Items {
-			replicas := uint64(1)
-			if item.Spec.Replicas != nil {
-				replicas = uint64(*item.Spec.Replicas)
+			desiredReplicas, availableReplicas, err := getReplicas(item.Spec.Name, namespace, kube)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				glog.Errorf("Function listing getReplicas error: %v", err)
+				return
 			}
+
 			function := requests.Function{
-				Name:     item.Spec.Name,
-				Replicas: replicas,
-				Image:    item.Spec.Image,
-				Labels:   item.Spec.Labels,
+				Name:              item.Spec.Name,
+				Replicas:          desiredReplicas,
+				AvailableReplicas: availableReplicas,
+				Image:             item.Spec.Image,
+				Labels:            item.Spec.Labels,
 			}
 
 			functions = append(functions, function)

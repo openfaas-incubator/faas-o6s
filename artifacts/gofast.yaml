@@ -5,7 +5,6 @@ metadata:
   namespace: openfaas-fn
 spec:
   name: gofast
-  replicas: 2
   image: alexellis/gofast023
   labels:
     com.openfaas.scale.min: "2"

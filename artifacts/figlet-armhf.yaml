@@ -5,7 +5,6 @@ metadata:
   namespace: openfaas-fn
 spec:
   name: figlet
-  replicas: 2
   image: functions/figlet:latest-armhf
   labels:
     com.openfaas.scale.min: "2"

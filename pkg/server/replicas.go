@@ -26,15 +26,16 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 			return
 		}
 
-		availableReplicas, err := getAvailableReplicas(functionName, namespace, kube)
+		desiredReplicas, availableReplicas, err := getReplicas(functionName, namespace, kube)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			glog.Errorf("Function replica reader error: %v", err)
 			return
 		}
 
 		result := &requests.Function{
 			AvailableReplicas: availableReplicas,
-			Replicas:          uint64(*k8sfunc.Spec.Replicas),
+			Replicas:          desiredReplicas,
 			Labels:            k8sfunc.Spec.Labels,
 			Name:              k8sfunc.Spec.Name,
 			EnvProcess:        k8sfunc.Spec.Handler,
@@ -48,12 +49,15 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 	}
 }
 
-func getAvailableReplicas(functionName string, namespace string, kube kubernetes.Interface) (uint64, error) {
+func getReplicas(functionName string, namespace string, kube kubernetes.Interface) (uint64, uint64, error) {
 	dep, err := kube.AppsV1beta2().Deployments(namespace).Get(functionName, metav1.GetOptions{})
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-	return uint64(dep.Status.AvailableReplicas), nil
+	desiredReplicas := uint64(dep.Status.Replicas)
+	availableReplicas := uint64(dep.Status.AvailableReplicas)
+
+	return desiredReplicas, availableReplicas, nil
 }
 
 func makeReplicaHandler(namespace string, client clientset.Interface) http.HandlerFunc {
