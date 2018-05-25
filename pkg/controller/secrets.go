@@ -8,6 +8,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+const (
+	secretsMountPath = "/var/openfaas/secrets"
+)
+
 // UpdateSecrets will update the Deployment spec to include secrets that have been deployed
 // in the kubernetes cluster.  For each requested secret, we inspect the type and add it to the
 // deployment spec as appropriate: secrets with type `SecretTypeDockercfg` are added as ImagePullSecrets
@@ -78,7 +82,7 @@ func UpdateSecrets(function *faasv1alpha1.Function, deployment *appsv1beta2.Depl
 		mount := corev1.VolumeMount{
 			Name:      volumeName,
 			ReadOnly:  true,
-			MountPath: "/run/secrets",
+			MountPath: secretsMountPath,
 		}
 		// remove the existing secrets volume mount, if we can find it. We update it later.
 		container.VolumeMounts = removeVolumeMount(volumeName, container.VolumeMounts)
