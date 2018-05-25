@@ -10,6 +10,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // newDeployment creates a new Deployment for a Function resource. It also sets
@@ -41,6 +42,19 @@ func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*
 		},
 		Spec: appsv1beta2.DeploymentSpec{
 			Replicas: function.Spec.Replicas,
+			Strategy: appsv1beta2.DeploymentStrategy{
+				Type: appsv1beta2.RollingUpdateDeploymentStrategyType,
+				RollingUpdate: &appsv1beta2.RollingUpdateDeployment{
+					MaxUnavailable: &intstr.IntOrString{
+						Type:   intstr.Int,
+						IntVal: int32(0),
+					},
+					MaxSurge: &intstr.IntOrString{
+						Type:   intstr.Int,
+						IntVal: int32(1),
+					},
+				},
+			},
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app":        function.Spec.Name,

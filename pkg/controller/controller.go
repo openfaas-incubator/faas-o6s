@@ -299,6 +299,9 @@ func (c *Controller) syncHandler(key string) error {
 		}
 
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(newDeployment(function, existingSecrets))
+		if err != nil {
+			glog.Errorf("Updating deployment for '%s' failed: %v", function.Spec.Name, err)
+		}
 	}
 
 	// If an error occurs during Update, we'll requeue the item so we can
