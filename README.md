@@ -62,10 +62,10 @@ Test that secrets are available inside the `gofast` pod:
 ```bash
 kubectl -n openfaas-fn exec -it gofast-84fd464784-sd5ml -- sh
 
-~ $ cat /run/secrets/faas-key 
+~ $ cat /var/openfaas/faas-key 
 key
 
-~ $ cat /run/secrets/faas-token 
+~ $ cat /var/openfaas/faas-token 
 token
 ``` 
 
@@ -86,7 +86,7 @@ kubectl -n openfaas-fn describe deployment gofast
 
 Create OpenFaaS CRD:
 ```bash
-$ kubectl apply -f artifacts/o6s-crd.yaml
+$ kubectl apply -f artifacts/operator-crd.yaml
 ```
 
 Start OpenFaaS controller (assumes you have a working kubeconfig on the machine):
