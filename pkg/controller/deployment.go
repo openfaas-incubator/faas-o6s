@@ -158,14 +158,14 @@ func deploymentNeedsUpdate(function *faasv1alpha1.Function, deployment *appsv1be
 	needsUpdate := false
 
 	if function.Spec.Replicas != nil && *function.Spec.Replicas != *deployment.Spec.Replicas {
-		glog.V(4).Infof("Function %s replica count changed from %d to %d",
+		glog.V(2).Infof("Function %s replica count changed from %d to %d",
 			function.Spec.Name, *deployment.Spec.Replicas, *function.Spec.Replicas)
 		needsUpdate = true
 	}
 
 	currentImage := deployment.Spec.Template.Spec.Containers[0].Image
 	if function.Spec.Image != deployment.Spec.Template.Spec.Containers[0].Image {
-		glog.V(4).Infof("Function %s image changed from %d to %d",
+		glog.V(2).Infof("Function %s image changed from %d to %d",
 			function.Spec.Name, currentImage, function.Spec.Image)
 		needsUpdate = true
 	}
@@ -173,7 +173,7 @@ func deploymentNeedsUpdate(function *faasv1alpha1.Function, deployment *appsv1be
 	currentEnv := deployment.Spec.Template.Spec.Containers[0].Env
 	funcEnv := makeEnvVars(function)
 	if envVarsNotEqual(currentEnv, funcEnv) {
-		glog.V(4).Infof("Function %s envVars have changed",
+		glog.V(2).Infof("Function %s envVars have changed",
 			function.Spec.Name)
 		needsUpdate = true
 	}
@@ -181,13 +181,13 @@ func deploymentNeedsUpdate(function *faasv1alpha1.Function, deployment *appsv1be
 	currentLabels := deployment.Spec.Template.Labels
 	funcLabels := makeLabels(function)
 	if labelsNotEqual(currentLabels, funcLabels) {
-		glog.V(4).Infof("Function %s labels have changed",
+		glog.V(2).Infof("Function %s labels have changed",
 			function.Spec.Name)
 		needsUpdate = true
 	}
 
 	if secretsNotEqual(function.Spec.Secrets, deployment.Spec.Template.Spec.Volumes) {
-		glog.V(4).Infof("Function %s secrets have changed",
+		glog.V(2).Infof("Function %s secrets have changed",
 			function.Spec.Name)
 		needsUpdate = true
 	}
