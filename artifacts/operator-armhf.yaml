@@ -17,7 +17,7 @@ spec:
       serviceAccountName: openfaas-operator
       containers:
       - name: gateway
-        image: functions/gateway:0.7.3-armhf
+        image: functions/gateway:0.7.8-armhf
         imagePullPolicy: Always
         env:
         - name: functions_provider_url
@@ -33,7 +33,7 @@ spec:
           limits:
             memory: 100Mi
       - name: operator
-        image: functions/openfaas-operator:arm
+        image: functions/openfaas-operator:0.6.2-armhf
         imagePullPolicy: Always
         command:
           - ./openfaas-operator
