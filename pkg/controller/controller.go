@@ -255,9 +255,14 @@ func (c *Controller) syncHandler(key string) error {
 	deployment, err := c.deploymentsLister.Deployments(function.Namespace).Get(deploymentName)
 	// If the resource doesn't exist, we'll create it
 	if errors.IsNotFound(err) {
+		glog.Infof("Creating ClusterIP service for '%s'", function.Spec.Name)
 		if _, err := c.kubeclientset.CoreV1().Services(function.Namespace).Create(newService(function)); err != nil {
 			// If an error occurs during Service Create, we'll requeue the item
-			return err
+			if errors.IsAlreadyExists(err) {
+				glog.V(2).Infof("ClusterIP service '%s' already exists. Skipping creation.", function.Spec.Name)
+			} else {
+				return err
+			}
 		}
 
 		existingSecrets, err := c.getSecrets(function.Namespace, function.Spec.Secrets)
@@ -265,7 +270,7 @@ func (c *Controller) syncHandler(key string) error {
 			return err
 		}
 
-		glog.Infof("Creating service and deployment for '%s'", function.Spec.Name)
+		glog.Infof("Creating deployment for '%s'", function.Spec.Name)
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(newDeployment(function, existingSecrets))
 	}
 
