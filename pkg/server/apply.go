@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/o6sio/v1alpha1"
+	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -46,15 +46,15 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 		}
 
 		opts := metav1.GetOptions{}
-		oldFunc, _ := client.O6sV1alpha1().Functions(namespace).Get(req.Service, opts)
+		oldFunc, _ := client.OpenfaasV1alpha2().Functions(namespace).Get(req.Service, opts)
 		if oldFunc != nil {
 			newFunc.ResourceVersion = oldFunc.ResourceVersion
 		}
-		_, err = client.O6sV1alpha1().Functions(namespace).Update(newFunc)
+		_, err = client.OpenfaasV1alpha2().Functions(namespace).Update(newFunc)
 		if err != nil {
 			errMsg := err.Error()
 			if strings.Contains(errMsg, "not found") {
-				_, err = client.O6sV1alpha1().Functions(namespace).Create(newFunc)
+				_, err = client.OpenfaasV1alpha2().Functions(namespace).Create(newFunc)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					glog.Errorf("Function %s create error: %v", req.Service, err)

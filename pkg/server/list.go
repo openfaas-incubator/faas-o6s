@@ -16,7 +16,7 @@ func makeListHandler(namespace string, client clientset.Interface, kube kubernet
 		functions := []requests.Function{}
 
 		opts := metav1.ListOptions{}
-		res, err := client.O6sV1alpha1().Functions(namespace).List(opts)
+		res, err := client.OpenfaasV1alpha2().Functions(namespace).List(opts)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			glog.Errorf("Function listing error: %v", err)

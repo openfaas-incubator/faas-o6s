@@ -1,5 +1,5 @@
 /*
-Copyright YEAR OpenFaaS Project
+Copyright YEAR OpenFaaS Authors
 
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */

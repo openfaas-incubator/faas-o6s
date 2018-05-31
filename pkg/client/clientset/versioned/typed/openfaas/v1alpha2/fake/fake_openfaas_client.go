@@ -1,27 +1,27 @@
 /*
-Copyright 2017 OpenFaaS Project
+Copyright 2018 OpenFaaS Authors
 
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
 package fake
 
 import (
-	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/o6s/v1alpha1"
+	v1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeO6sV1alpha1 struct {
+type FakeOpenfaasV1alpha2 struct {
 	*testing.Fake
 }
 
-func (c *FakeO6sV1alpha1) Functions(namespace string) v1alpha1.FunctionInterface {
+func (c *FakeOpenfaasV1alpha2) Functions(namespace string) v1alpha2.FunctionInterface {
 	return &FakeFunctions{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeO6sV1alpha1) RESTClient() rest.Interface {
+func (c *FakeOpenfaasV1alpha2) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

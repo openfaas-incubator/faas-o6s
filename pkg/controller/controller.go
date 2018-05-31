@@ -20,11 +20,11 @@ import (
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
 
-	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/o6sio/v1alpha1"
+	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
 	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
-	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/o6s/v1alpha1"
+	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1alpha2"
 )
 
 const controllerAgentName = "faas-k8s"
@@ -78,7 +78,7 @@ func NewController(
 
 	// obtain references to shared index informers for the Deployment and Function types
 	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
-	faasInformer := faasInformerFactory.O6s().V1alpha1().Functions()
+	faasInformer := faasInformerFactory.Openfaas().V1alpha2().Functions()
 
 	// Create event broadcaster
 	// Add o6s types to the default Kubernetes Scheme so Events can be
@@ -332,7 +332,7 @@ func (c *Controller) updateFunctionStatus(function *faasv1alpha1.Function, deplo
 	// update the Status block of the Function resource. UpdateStatus will not
 	// allow changes to the Spec of the resource, which is ideal for ensuring
 	// nothing other than resource status has been updated.
-	_, err := c.faasclientset.O6sV1alpha1().Functions(function.Namespace).Update(functionCopy)
+	_, err := c.faasclientset.OpenfaasV1alpha2().Functions(function.Namespace).Update(functionCopy)
 	return err
 }
 

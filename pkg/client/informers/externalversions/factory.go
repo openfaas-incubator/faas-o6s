@@ -1,5 +1,5 @@
 /*
-Copyright 2017 OpenFaaS Project
+Copyright 2018 OpenFaaS Authors
 
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
@@ -11,7 +11,7 @@ package externalversions
 import (
 	versioned "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	internalinterfaces "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces"
-	o6s "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/o6s"
+	openfaas "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/openfaas"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
@@ -100,9 +100,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	O6s() o6s.Interface
+	Openfaas() openfaas.Interface
 }
 
-func (f *sharedInformerFactory) O6s() o6s.Interface {
-	return o6s.New(f)
+func (f *sharedInformerFactory) Openfaas() openfaas.Interface {
+	return openfaas.New(f)
 }

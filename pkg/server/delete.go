@@ -27,7 +27,7 @@ func makeDeleteHandler(namespace string, client clientset.Interface) http.Handle
 		}
 
 		opts := &metav1.DeleteOptions{}
-		err = client.O6sV1alpha1().Functions(namespace).Delete(request.FunctionName, opts)
+		err = client.OpenfaasV1alpha2().Functions(namespace).Delete(request.FunctionName, opts)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			glog.Errorf("Function %s delete error: %v", request.FunctionName, err)

@@ -1,5 +1,5 @@
 /*
-Copyright 2017 OpenFaaS Project
+Copyright 2018 OpenFaaS Authors
 
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
@@ -7,7 +7,7 @@ package versioned
 
 import (
 	glog "github.com/golang/glog"
-	o6sv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/o6s/v1alpha1"
+	openfaasv1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
@@ -15,27 +15,27 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
-	O6sV1alpha1() o6sv1alpha1.O6sV1alpha1Interface
+	OpenfaasV1alpha2() openfaasv1alpha2.OpenfaasV1alpha2Interface
 	// Deprecated: please explicitly pick a version if possible.
-	O6s() o6sv1alpha1.O6sV1alpha1Interface
+	Openfaas() openfaasv1alpha2.OpenfaasV1alpha2Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	o6sV1alpha1 *o6sv1alpha1.O6sV1alpha1Client
+	openfaasV1alpha2 *openfaasv1alpha2.OpenfaasV1alpha2Client
 }
 
-// O6sV1alpha1 retrieves the O6sV1alpha1Client
-func (c *Clientset) O6sV1alpha1() o6sv1alpha1.O6sV1alpha1Interface {
-	return c.o6sV1alpha1
+// OpenfaasV1alpha2 retrieves the OpenfaasV1alpha2Client
+func (c *Clientset) OpenfaasV1alpha2() openfaasv1alpha2.OpenfaasV1alpha2Interface {
+	return c.openfaasV1alpha2
 }
 
-// Deprecated: O6s retrieves the default version of O6sClient.
+// Deprecated: Openfaas retrieves the default version of OpenfaasClient.
 // Please explicitly pick a version.
-func (c *Clientset) O6s() o6sv1alpha1.O6sV1alpha1Interface {
-	return c.o6sV1alpha1
+func (c *Clientset) Openfaas() openfaasv1alpha2.OpenfaasV1alpha2Interface {
+	return c.openfaasV1alpha2
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -54,7 +54,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
-	cs.o6sV1alpha1, err = o6sv1alpha1.NewForConfig(&configShallowCopy)
+	cs.openfaasV1alpha2, err = openfaasv1alpha2.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
-	cs.o6sV1alpha1 = o6sv1alpha1.NewForConfigOrDie(c)
+	cs.openfaasV1alpha2 = openfaasv1alpha2.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -80,7 +80,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.o6sV1alpha1 = o6sv1alpha1.New(c)
+	cs.openfaasV1alpha2 = openfaasv1alpha2.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

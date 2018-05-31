@@ -9,5 +9,5 @@ CODEGEN_PKG=${CODEGEN_PKG:-$(cd ${SCRIPT_ROOT}; ls -d -1 ./vendor/k8s.io/code-ge
 
 vendor/k8s.io/code-generator/generate-groups.sh all \
   github.com/openfaas-incubator/openfaas-operator/pkg/client github.com/openfaas-incubator/openfaas-operator/pkg/apis \
-  o6sio:v1alpha1 \
+  openfaas:v1alpha2 \
   --go-header-file ${SCRIPT_ROOT}/hack/custom-boilerplate.go.txt

@@ -20,7 +20,7 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 		functionName := vars["name"]
 
 		opts := metav1.GetOptions{}
-		k8sfunc, err := client.O6sV1alpha1().Functions(namespace).Get(functionName, opts)
+		k8sfunc, err := client.OpenfaasV1alpha2().Functions(namespace).Get(functionName, opts)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -77,7 +77,7 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 		}
 
 		opts := metav1.GetOptions{}
-		k8sfunc, err := client.O6sV1alpha1().Functions(namespace).Get(functionName, opts)
+		k8sfunc, err := client.OpenfaasV1alpha2().Functions(namespace).Get(functionName, opts)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			glog.Errorf("Function %s get error: %v", functionName, err)
@@ -85,7 +85,7 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 		}
 
 		k8sfunc.Spec.Replicas = int32p(int32(req.Replicas))
-		_, err = client.O6sV1alpha1().Functions(namespace).Update(k8sfunc)
+		_, err = client.OpenfaasV1alpha2().Functions(namespace).Update(k8sfunc)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			glog.Errorf("Function %s update error: %v", functionName, err)

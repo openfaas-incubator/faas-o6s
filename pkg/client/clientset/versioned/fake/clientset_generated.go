@@ -1,5 +1,5 @@
 /*
-Copyright 2017 OpenFaaS Project
+Copyright 2018 OpenFaaS Authors
 
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
@@ -7,8 +7,8 @@ package fake
 
 import (
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	o6sv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/o6s/v1alpha1"
-	fakeo6sv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/o6s/v1alpha1/fake"
+	openfaasv1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2"
+	fakeopenfaasv1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -49,12 +49,12 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 var _ clientset.Interface = &Clientset{}
 
-// O6sV1alpha1 retrieves the O6sV1alpha1Client
-func (c *Clientset) O6sV1alpha1() o6sv1alpha1.O6sV1alpha1Interface {
-	return &fakeo6sv1alpha1.FakeO6sV1alpha1{Fake: &c.Fake}
+// OpenfaasV1alpha2 retrieves the OpenfaasV1alpha2Client
+func (c *Clientset) OpenfaasV1alpha2() openfaasv1alpha2.OpenfaasV1alpha2Interface {
+	return &fakeopenfaasv1alpha2.FakeOpenfaasV1alpha2{Fake: &c.Fake}
 }
 
-// O6s retrieves the O6sV1alpha1Client
-func (c *Clientset) O6s() o6sv1alpha1.O6sV1alpha1Interface {
-	return &fakeo6sv1alpha1.FakeO6sV1alpha1{Fake: &c.Fake}
+// Openfaas retrieves the OpenfaasV1alpha2Client
+func (c *Clientset) Openfaas() openfaasv1alpha2.OpenfaasV1alpha2Interface {
+	return &fakeopenfaasv1alpha2.FakeOpenfaasV1alpha2{Fake: &c.Fake}
 }

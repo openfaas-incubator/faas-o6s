@@ -1,12 +1,12 @@
 /*
-Copyright 2017 OpenFaaS Project
+Copyright 2018 OpenFaaS Authors
 
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
-package v1alpha1
+package v1alpha2
 
 import (
-	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/o6sio/v1alpha1"
+	v1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	scheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
@@ -22,14 +22,14 @@ type FunctionsGetter interface {
 
 // FunctionInterface has methods to work with Function resources.
 type FunctionInterface interface {
-	Create(*v1alpha1.Function) (*v1alpha1.Function, error)
-	Update(*v1alpha1.Function) (*v1alpha1.Function, error)
+	Create(*v1alpha2.Function) (*v1alpha2.Function, error)
+	Update(*v1alpha2.Function) (*v1alpha2.Function, error)
 	Delete(name string, options *v1.DeleteOptions) error
 	DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
-	Get(name string, options v1.GetOptions) (*v1alpha1.Function, error)
-	List(opts v1.ListOptions) (*v1alpha1.FunctionList, error)
+	Get(name string, options v1.GetOptions) (*v1alpha2.Function, error)
+	List(opts v1.ListOptions) (*v1alpha2.FunctionList, error)
 	Watch(opts v1.ListOptions) (watch.Interface, error)
-	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Function, err error)
+	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha2.Function, err error)
 	FunctionExpansion
 }
 
@@ -40,7 +40,7 @@ type functions struct {
 }
 
 // newFunctions returns a Functions
-func newFunctions(c *O6sV1alpha1Client, namespace string) *functions {
+func newFunctions(c *OpenfaasV1alpha2Client, namespace string) *functions {
 	return &functions{
 		client: c.RESTClient(),
 		ns:     namespace,
@@ -48,8 +48,8 @@ func newFunctions(c *O6sV1alpha1Client, namespace string) *functions {
 }
 
 // Get takes name of the function, and returns the corresponding function object, and an error if there is any.
-func (c *functions) Get(name string, options v1.GetOptions) (result *v1alpha1.Function, err error) {
-	result = &v1alpha1.Function{}
+func (c *functions) Get(name string, options v1.GetOptions) (result *v1alpha2.Function, err error) {
+	result = &v1alpha2.Function{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("functions").
@@ -61,8 +61,8 @@ func (c *functions) Get(name string, options v1.GetOptions) (result *v1alpha1.Fu
 }
 
 // List takes label and field selectors, and returns the list of Functions that match those selectors.
-func (c *functions) List(opts v1.ListOptions) (result *v1alpha1.FunctionList, err error) {
-	result = &v1alpha1.FunctionList{}
+func (c *functions) List(opts v1.ListOptions) (result *v1alpha2.FunctionList, err error) {
+	result = &v1alpha2.FunctionList{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("functions").
@@ -83,8 +83,8 @@ func (c *functions) Watch(opts v1.ListOptions) (watch.Interface, error) {
 }
 
 // Create takes the representation of a function and creates it.  Returns the server's representation of the function, and an error, if there is any.
-func (c *functions) Create(function *v1alpha1.Function) (result *v1alpha1.Function, err error) {
-	result = &v1alpha1.Function{}
+func (c *functions) Create(function *v1alpha2.Function) (result *v1alpha2.Function, err error) {
+	result = &v1alpha2.Function{}
 	err = c.client.Post().
 		Namespace(c.ns).
 		Resource("functions").
@@ -95,8 +95,8 @@ func (c *functions) Create(function *v1alpha1.Function) (result *v1alpha1.Functi
 }
 
 // Update takes the representation of a function and updates it. Returns the server's representation of the function, and an error, if there is any.
-func (c *functions) Update(function *v1alpha1.Function) (result *v1alpha1.Function, err error) {
-	result = &v1alpha1.Function{}
+func (c *functions) Update(function *v1alpha2.Function) (result *v1alpha2.Function, err error) {
+	result = &v1alpha2.Function{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("functions").
@@ -130,8 +130,8 @@ func (c *functions) DeleteCollection(options *v1.DeleteOptions, listOptions v1.L
 }
 
 // Patch applies the patch and returns the patched function.
-func (c *functions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Function, err error) {
-	result = &v1alpha1.Function{}
+func (c *functions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha2.Function, err error) {
+	result = &v1alpha2.Function{}
 	err = c.client.Patch(pt).
 		Namespace(c.ns).
 		Resource("functions").
