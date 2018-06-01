@@ -1,13 +1,13 @@
 package controller
 
 import (
-	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
 // makeResources creates deployment resource limits and requests requirements from function specs
-func makeResources(function *faasv1alpha1.Function) (*corev1.ResourceRequirements, error) {
+func makeResources(function *faasv1.Function) (*corev1.ResourceRequirements, error) {
 	resources := &corev1.ResourceRequirements{
 		Limits:   corev1.ResourceList{},
 		Requests: corev1.ResourceList{},

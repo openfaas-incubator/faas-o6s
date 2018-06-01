@@ -6,13 +6,13 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 )
 
 // newService creates a new ClusterIP Service for a Function resource. It also sets
 // the appropriate OwnerReferences on the resource so handleObject can discover
 // the Function resource that 'owns' it.
-func newService(function *faasv1alpha1.Function) *corev1.Service {
+func newService(function *faasv1.Function) *corev1.Service {
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        function.Spec.Name,
@@ -20,8 +20,8 @@ func newService(function *faasv1alpha1.Function) *corev1.Service {
 			Annotations: map[string]string{"prometheus.io.scrape": "false"},
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(function, schema.GroupVersionKind{
-					Group:   faasv1alpha1.SchemeGroupVersion.Group,
-					Version: faasv1alpha1.SchemeGroupVersion.Version,
+					Group:   faasv1.SchemeGroupVersion.Group,
+					Version: faasv1.SchemeGroupVersion.Version,
 					Kind:    faasKind,
 				}),
 			},

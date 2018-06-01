@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 
-	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -16,7 +16,7 @@ const (
 // in the kubernetes cluster.  For each requested secret, we inspect the type and add it to the
 // deployment spec as appropriate: secrets with type `SecretTypeDockercfg` are added as ImagePullSecrets
 // all other secrets are mounted as files in the deployments containers.
-func UpdateSecrets(function *faasv1alpha1.Function, deployment *appsv1beta2.Deployment, existingSecrets map[string]*corev1.Secret) error {
+func UpdateSecrets(function *faasv1.Function, deployment *appsv1beta2.Deployment, existingSecrets map[string]*corev1.Secret) error {
 	// Add / reference pre-existing secrets within Kubernetes
 	secretVolumeProjections := []corev1.VolumeProjection{}
 

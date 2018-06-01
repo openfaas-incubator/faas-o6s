@@ -33,7 +33,7 @@ spec:
           limits:
             memory: 100Mi
       - name: operator
-        image: functions/openfaas-operator:0.7.0-armhf
+        image: functions/openfaas-operator:0.7.1-armhf
         imagePullPolicy: Always
         command:
           - ./openfaas-operator

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
-	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,7 +16,7 @@ import (
 // newDeployment creates a new Deployment for a Function resource. It also sets
 // the appropriate OwnerReferences on the resource so handleObject can discover
 // the Function resource that 'owns' it.
-func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*corev1.Secret) *appsv1beta2.Deployment {
+func newDeployment(function *faasv1.Function, existingSecrets map[string]*corev1.Secret) *appsv1beta2.Deployment {
 	envVars := makeEnvVars(function)
 	labels := makeLabels(function)
 	nodeSelector := makeNodeSelector(function.Spec.Constraints)
@@ -34,8 +34,8 @@ func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*
 			Namespace: function.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(function, schema.GroupVersionKind{
-					Group:   faasv1alpha1.SchemeGroupVersion.Group,
-					Version: faasv1alpha1.SchemeGroupVersion.Version,
+					Group:   faasv1.SchemeGroupVersion.Group,
+					Version: faasv1.SchemeGroupVersion.Version,
 					Kind:    faasKind,
 				}),
 			},
@@ -96,7 +96,7 @@ func newDeployment(function *faasv1alpha1.Function, existingSecrets map[string]*
 	return deploymentSpec
 }
 
-func makeEnvVars(function *faasv1alpha1.Function) []corev1.EnvVar {
+func makeEnvVars(function *faasv1.Function) []corev1.EnvVar {
 	envVars := []corev1.EnvVar{}
 
 	if len(function.Spec.Handler) > 0 {
@@ -118,7 +118,7 @@ func makeEnvVars(function *faasv1alpha1.Function) []corev1.EnvVar {
 	return envVars
 }
 
-func makeLabels(function *faasv1alpha1.Function) map[string]string {
+func makeLabels(function *faasv1.Function) map[string]string {
 	labels := map[string]string{
 		"faas_function": function.Spec.Name,
 		"app":           function.Spec.Name,
@@ -168,7 +168,7 @@ func makeNodeSelector(constraints []string) map[string]string {
 }
 
 // deploymentNeedsUpdate determines if the function spec is different from the deployment spec
-func deploymentNeedsUpdate(function *faasv1alpha1.Function, deployment *appsv1beta2.Deployment) bool {
+func deploymentNeedsUpdate(function *faasv1.Function, deployment *appsv1beta2.Deployment) bool {
 	needsUpdate := false
 
 	if function.Spec.Replicas != nil && *function.Spec.Replicas != *deployment.Spec.Replicas {

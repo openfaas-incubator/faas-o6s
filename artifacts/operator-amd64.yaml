@@ -43,7 +43,7 @@ spec:
           limits:
             memory: 512Mi
       - name: operator
-        image: functions/openfaas-operator:0.7.0
+        image: functions/openfaas-operator:0.7.1
         imagePullPolicy: Always
         command:
           - ./openfaas-operator

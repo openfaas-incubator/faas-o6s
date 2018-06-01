@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	corev1 "k8s.io/api/core/v1"
 )
 
 func Test_UpdateSecrets_DoesNotAddVolumeIfRequestSecretsIsNil(t *testing.T) {
-	request := &faasv1alpha1.Function{
-		Spec: faasv1alpha1.FunctionSpec{
+	request := &faasv1.Function{
+		Spec: faasv1.FunctionSpec{
 			Name:    "testfunc",
 			Secrets: nil,
 		},
@@ -42,8 +42,8 @@ func Test_UpdateSecrets_DoesNotAddVolumeIfRequestSecretsIsNil(t *testing.T) {
 }
 
 func Test_UpdateSecrets_DoesNotAddVolumeIfRequestSecretsIsEmpty(t *testing.T) {
-	request := &faasv1alpha1.Function{
-		Spec: faasv1alpha1.FunctionSpec{
+	request := &faasv1.Function{
+		Spec: faasv1.FunctionSpec{
 			Name:    "testfunc",
 			Secrets: []string{},
 		},
@@ -75,8 +75,8 @@ func Test_UpdateSecrets_DoesNotAddVolumeIfRequestSecretsIsEmpty(t *testing.T) {
 
 func Test_UpdateSecrets_RemovesAllCopiesOfExitingSecretsVolumes(t *testing.T) {
 	volumeName := "testfunc-projected-secrets"
-	request := &faasv1alpha1.Function{
-		Spec: faasv1alpha1.FunctionSpec{
+	request := &faasv1.Function{
+		Spec: faasv1.FunctionSpec{
 			Name:    "testfunc",
 			Secrets: []string{},
 		},
@@ -126,8 +126,8 @@ func Test_UpdateSecrets_RemovesAllCopiesOfExitingSecretsVolumes(t *testing.T) {
 }
 
 func Test_UpdateSecrets_AddNewSecretVolume(t *testing.T) {
-	request := &faasv1alpha1.Function{
-		Spec: faasv1alpha1.FunctionSpec{
+	request := &faasv1.Function{
+		Spec: faasv1.FunctionSpec{
 			Name:    "testfunc",
 			Secrets: []string{"pullsecret", "testsecret"},
 		},
@@ -158,8 +158,8 @@ func Test_UpdateSecrets_AddNewSecretVolume(t *testing.T) {
 }
 
 func Test_UpdateSecrets_ReplacesPreviousSecretMountWithNewMount(t *testing.T) {
-	request := &faasv1alpha1.Function{
-		Spec: faasv1alpha1.FunctionSpec{
+	request := &faasv1.Function{
+		Spec: faasv1.FunctionSpec{
 			Name:    "testfunc",
 			Secrets: []string{"pullsecret", "testsecret"},
 		},
@@ -197,8 +197,8 @@ func Test_UpdateSecrets_ReplacesPreviousSecretMountWithNewMount(t *testing.T) {
 }
 
 func Test_UpdateSecrets_RemovesSecretsVolumeIfRequestSecretsIsEmptyOrNil(t *testing.T) {
-	request := &faasv1alpha1.Function{
-		Spec: faasv1alpha1.FunctionSpec{
+	request := &faasv1.Function{
+		Spec: faasv1.FunctionSpec{
 			Name:    "testfunc",
 			Secrets: []string{"pullsecret", "testsecret"},
 		},
@@ -226,8 +226,8 @@ func Test_UpdateSecrets_RemovesSecretsVolumeIfRequestSecretsIsEmptyOrNil(t *test
 
 	validateNewSecretVolumesAndMounts(t, deployment)
 
-	request = &faasv1alpha1.Function{
-		Spec: faasv1alpha1.FunctionSpec{
+	request = &faasv1.Function{
+		Spec: faasv1.FunctionSpec{
 			Name:    "testfunc",
 			Secrets: []string{},
 		},

@@ -20,14 +20,14 @@ import (
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
 
-	faasv1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
 	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
 	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1alpha2"
 )
 
-const controllerAgentName = "faas-k8s"
+const controllerAgentName = "openfaas-operator"
 const faasKind = "Function"
 const functionPort = 8080
 
@@ -322,7 +322,7 @@ func (c *Controller) syncHandler(key string) error {
 	return nil
 }
 
-func (c *Controller) updateFunctionStatus(function *faasv1alpha1.Function, deployment *appsv1beta2.Deployment) error {
+func (c *Controller) updateFunctionStatus(function *faasv1.Function, deployment *appsv1beta2.Deployment) error {
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use DeepCopy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
