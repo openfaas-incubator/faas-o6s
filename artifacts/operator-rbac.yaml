@@ -10,7 +10,7 @@ kind: ClusterRole
 metadata:
   name: openfaas-operator
 rules:
-- apiGroups: ["o6s.io"]
+- apiGroups: ["openfaas.com"]
   resources: ["functions"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: [""]
