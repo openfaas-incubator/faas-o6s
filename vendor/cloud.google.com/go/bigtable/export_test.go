@@ -1,5 +1,5 @@
 /*
-Copyright 2016 Google Inc. All Rights Reserved.
+Copyright 2016 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ type EmulatedEnv struct {
 
 // NewEmulatedEnv builds and starts the emulator based environment
 func NewEmulatedEnv(config IntegrationTestConfig) (*EmulatedEnv, error) {
-	srv, err := bttest.NewServer("127.0.0.1:0", grpc.MaxRecvMsgSize(200<<20), grpc.MaxSendMsgSize(100<<20))
+	srv, err := bttest.NewServer("localhost:0", grpc.MaxRecvMsgSize(200<<20), grpc.MaxSendMsgSize(100<<20))
 	if err != nil {
 		return nil, err
 	}

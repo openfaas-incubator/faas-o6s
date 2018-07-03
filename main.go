@@ -2,23 +2,21 @@ package main
 
 import (
 	"flag"
-	"time"
-
 	"github.com/golang/glog"
-	kubeinformers "k8s.io/client-go/informers"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-	// required to authenticate against GKE clusters
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-
-	"os"
-
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/controller"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/server"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/signals"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/version"
+	kubeinformers "k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"os"
+	"time"
+
+	// required to authenticate against GKE clusters
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
 var (
@@ -60,8 +58,10 @@ func main() {
 		functionNamespace = namespace
 	}
 
-	kubeInformerFactory := kubeinformers.NewFilteredSharedInformerFactory(kubeClient, time.Second*30, functionNamespace, nil)
-	faasInformerFactory := informers.NewSharedInformerFactory(faasClient, time.Second*30)
+	defaultResync := time.Second*30
+	informerOpt := kubeinformers.WithNamespace(functionNamespace)
+	kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, informerOpt)
+	faasInformerFactory := informers.NewSharedInformerFactory(faasClient, defaultResync)
 
 	ctrl := controller.NewController(kubeClient, faasClient, kubeInformerFactory, faasInformerFactory)
 

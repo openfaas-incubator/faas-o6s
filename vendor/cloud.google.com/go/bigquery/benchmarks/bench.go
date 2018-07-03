@@ -1,4 +1,4 @@
-// Copyright 2017 Google Inc. All Rights Reserved.
+// Copyright 2017 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,16 +17,15 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"flag"
 	"io/ioutil"
 	"log"
 	"time"
 
-	"google.golang.org/api/iterator"
-
 	"cloud.google.com/go/bigquery"
+	"golang.org/x/net/context"
+	"google.golang.org/api/iterator"
 )
 
 func main() {

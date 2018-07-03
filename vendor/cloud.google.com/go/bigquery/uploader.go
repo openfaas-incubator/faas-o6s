@@ -1,4 +1,4 @@
-// Copyright 2015 Google Inc. All Rights Reserved.
+// Copyright 2015 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"cloud.google.com/go/internal/trace"
 	"golang.org/x/net/context"
 	bq "google.golang.org/api/bigquery/v2"
 )
@@ -54,6 +55,9 @@ type Uploader struct {
 
 // Uploader returns an Uploader that can be used to append rows to t.
 // The returned Uploader may optionally be further configured before its Put method is called.
+//
+// To stream rows into a date-partitioned table at a particular date, add the
+// $yyyymmdd suffix to the table name when constructing the Table.
 func (t *Table) Uploader() *Uploader {
 	return &Uploader{t: t}
 }
@@ -77,7 +81,10 @@ func (t *Table) Uploader() *Uploader {
 // in duplicate rows if you do not use insert IDs. Also, if the error persists,
 // the call will run indefinitely. Pass a context with a timeout to prevent
 // hanging calls.
-func (u *Uploader) Put(ctx context.Context, src interface{}) error {
+func (u *Uploader) Put(ctx context.Context, src interface{}) (err error) {
+	ctx = trace.StartSpan(ctx, "cloud.google.com/go/bigquery.Uploader.Put")
+	defer func() { trace.EndSpan(ctx, err) }()
+
 	savers, err := valueSavers(src)
 	if err != nil {
 		return err
@@ -156,6 +163,9 @@ func (u *Uploader) putMulti(ctx context.Context, src []ValueSaver) error {
 	if err != nil {
 		return err
 	}
+	if req == nil {
+		return nil
+	}
 	call := u.t.c.bqs.Tabledata.InsertAll(u.t.ProjectID, u.t.DatasetID, u.t.TableID, req)
 	call = call.Context(ctx)
 	setClientHeader(call.Header())
@@ -171,6 +181,9 @@ func (u *Uploader) putMulti(ctx context.Context, src []ValueSaver) error {
 }
 
 func (u *Uploader) newInsertRequest(savers []ValueSaver) (*bq.TableDataInsertAllRequest, error) {
+	if savers == nil { // If there are no rows, do nothing.
+		return nil, nil
+	}
 	req := &bq.TableDataInsertAllRequest{
 		TemplateSuffix:      u.TableTemplateSuffix,
 		IgnoreUnknownValues: u.IgnoreUnknownValues,
