@@ -58,7 +58,7 @@ func main() {
 		functionNamespace = namespace
 	}
 
-	defaultResync := time.Second*30
+	defaultResync := time.Second * 30
 	informerOpt := kubeinformers.WithNamespace(functionNamespace)
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, informerOpt)
 	faasInformerFactory := informers.NewSharedInformerFactory(faasClient, defaultResync)

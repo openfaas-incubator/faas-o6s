@@ -323,6 +323,8 @@ func (c *Controller) syncHandler(key string) error {
 }
 
 func (c *Controller) updateFunctionStatus(function *faasv1.Function, deployment *appsv1beta2.Deployment) error {
+	// TODO: enable status on K8s 1.12
+	return nil
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use DeepCopy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
