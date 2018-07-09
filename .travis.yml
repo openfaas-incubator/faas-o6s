@@ -25,4 +25,8 @@ after_success:
       docker tag openfaas/openfaas-operator:latest openfaas/openfaas-operator:$TRAVIS_TAG;
       echo $DOCKER_PASSWORD | docker login -u=$DOCKER_USERNAME --password-stdin;
       docker push openfaas/openfaas-operator:$TRAVIS_TAG;
+
+      docker tag openfaas/openfaas-operator:latest quay.io/openfaas/openfaas-operator:$TRAVIS_TAG;
+      echo $QUAY_PASSWORD | docker login -u=$QUAY_USERNAME --password-stdin quay.io;
+      docker push quay.io/openfaas/openfaas-operator:$TRAVIS_TAG;
     fi
