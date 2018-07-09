@@ -21,8 +21,12 @@ script:
   - make build
 
 after_success:
+  - if [ -z $DOCKER_NS ] ; then
+      export DOCKER_NS=openfaas;
+    fi
+
   - if [ ! -s "$TRAVIS_TAG" ] ; then
-      docker tag functions/openfaas-operator:latest functions/openfaas-operator:$TRAVIS_TAG;
+      docker tag $DOCKER_NS/openfaas-operator:latest $DOCKER_NS/openfaas-operator:$TRAVIS_TAG;
       echo $DOCKER_PASSWORD | docker login -u=$DOCKER_USERNAME --password-stdin;
-      docker push functions/openfaas-operator:$TRAVIS_TAG;
+      docker push $DOCKER_NS/openfaas-operator:$TRAVIS_TAG;
     fi
