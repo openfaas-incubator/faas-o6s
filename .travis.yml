@@ -22,7 +22,7 @@ script:
 
 after_success:
   - if [ ! -s "$TRAVIS_TAG" ] ; then
-      docker tag functions/openfaas-operator:latest functions/openfaas-operator:$TRAVIS_TAG;
+      docker tag openfaas/openfaas-operator:latest openfaas/openfaas-operator:$TRAVIS_TAG;
       echo $DOCKER_PASSWORD | docker login -u=$DOCKER_USERNAME --password-stdin;
-      docker push functions/openfaas-operator:$TRAVIS_TAG;
+      docker push openfaas/openfaas-operator:$TRAVIS_TAG;
     fi
