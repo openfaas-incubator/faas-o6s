@@ -8,27 +8,23 @@ OpenFaaS Kubernetes Operator
 
 ### Deploy
 
-Deploy OpenFaaS with faas-netes:
+Deploy OpenFaaS Operator with Helm:
 
 ```bash
-git clone https://github.com/openfaas/faas-netes
-cd faas-netes
-kubectl apply -f ./namespaces.yml,./yaml
+# create OpenFaaS namespaces
+kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+
+# add OpenFaaS Helm repo
+helm repo add openfaas https://openfaas.github.io/faas-netes/
+
+# get latest chart version and install
+helm repo update && helm upgrade openfaas --install openfaas/openfaas \
+    --namespace openfaas  \
+    --set functionNamespace=openfaas-fn \
+    --set operator.create=true
 ```
 
-Deploy the Gateway with openfaas-operator sidecar in `openfaas` namespace:
-
-```bash
-# CRD
-kubectl apply -f artifacts/operator-crd.yaml
-# RBAC
-kubectl apply -f artifacts/operator-rbac.yaml
-# Deployment (use operator-armhf.yaml for faas-netes/yaml_armhf)
-kubectl apply -f artifacts/operator-amd64.yaml
-# Delete faas-netes
-kubectl -n openfaas delete deployment faas-netesd
-kubectl -n openfaas delete svc faas-netesd
-```
+If you are upgrading from faas-netes you need to remove all functions and redeploy them after installing the operator.
 
 Deploy a function with kubectl:
 
