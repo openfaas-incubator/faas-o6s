@@ -92,6 +92,8 @@ func newDeployment(
 		},
 	}
 
+	configureReadOnlyRootFilesystem(function, deploymentSpec)
+
 	if err := UpdateSecrets(function, deploymentSpec, existingSecrets); err != nil {
 		glog.Warningf("Function %s secrets update failed: %v",
 			function.Spec.Name, err)
@@ -210,6 +212,11 @@ func deploymentNeedsUpdate(function *faasv1.Function, deployment *appsv1beta2.De
 		needsUpdate = true
 	}
 
+	if function.Spec.ReadOnlyRootFilesystem != currentReadOnlyRootSetting(deployment) {
+		glog.V(2).Infof("Function %s ReadOnlyRootFilesystem has changed",
+			function.Spec.Name)
+		needsUpdate = true
+	}
 	return needsUpdate
 }
 
@@ -285,4 +292,58 @@ func secretsNotEqual(secrets []string, volumes []corev1.Volume) bool {
 
 func int32p(i int32) *int32 {
 	return &i
+}
+
+func currentReadOnlyRootSetting(deployment *appsv1beta2.Deployment) bool {
+	currentSecurityContext := deployment.Spec.Template.Spec.Containers[0].SecurityContext
+	if currentSecurityContext == nil {
+		return false
+	}
+
+	currentValue := currentSecurityContext.ReadOnlyRootFilesystem
+	if currentValue == nil {
+		return false
+	}
+
+	return *currentValue
+}
+
+// configureReadOnlyRootFilesystem will create or update the required settings and mounts to ensure
+// that the ReadOnlyRootFilesystem setting works as expected, meaning:
+// 1. when ReadOnlyRootFilesystem is true, the security context of the container will have ReadOnlyRootFilesystem also
+//    marked as true and a new `/tmp` folder mount will be added to the deployment spec
+// 2. when ReadOnlyRootFilesystem is false, the security context of the container will also have ReadOnlyRootFilesystem set
+//    to false and there will be no mount for the `/tmp` folder
+//
+// This method is safe for both create and update operations.
+func configureReadOnlyRootFilesystem(function *faasv1.Function, deployment *appsv1beta2.Deployment) {
+	if deployment.Spec.Template.Spec.Containers[0].SecurityContext != nil {
+		deployment.Spec.Template.Spec.Containers[0].SecurityContext.ReadOnlyRootFilesystem = &function.Spec.ReadOnlyRootFilesystem
+	} else {
+		deployment.Spec.Template.Spec.Containers[0].SecurityContext = &corev1.SecurityContext{
+			ReadOnlyRootFilesystem: &function.Spec.ReadOnlyRootFilesystem,
+		}
+	}
+
+	existingVolumes := removeVolume("temp", deployment.Spec.Template.Spec.Volumes)
+	deployment.Spec.Template.Spec.Volumes = existingVolumes
+
+	existingMounts := removeVolumeMount("temp", deployment.Spec.Template.Spec.Containers[0].VolumeMounts)
+	deployment.Spec.Template.Spec.Containers[0].VolumeMounts = existingMounts
+
+	if function.Spec.ReadOnlyRootFilesystem {
+		deployment.Spec.Template.Spec.Volumes = append(
+			existingVolumes,
+			corev1.Volume{
+				Name: "temp",
+				VolumeSource: corev1.VolumeSource{
+					EmptyDir: &corev1.EmptyDirVolumeSource{},
+				},
+			},
+		)
+		deployment.Spec.Template.Spec.Containers[0].VolumeMounts = append(
+			existingMounts,
+			corev1.VolumeMount{Name: "temp", MountPath: "/tmp", ReadOnly: false},
+		)
+	}
 }
