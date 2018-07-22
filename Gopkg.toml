@@ -1,5 +1,23 @@
 required = ["k8s.io/code-generator/cmd/client-gen"]
 
+[prune]
+  go-tests = true
+  unused-packages = true
+
+  [[prune.project]]
+    name = "k8s.io/code-generator"
+    unused-packages = false
+    go-tests = false
+
+  [[prune.project]]
+    name = "k8s.io/gengo"
+    unused-packages = false
+    go-tests = false
+
+[[override]]
+  name = "k8s.io/code-generator"
+  version = "kubernetes-1.11.0"
+
 [[constraint]]
   name = "k8s.io/apimachinery"
   version = "kubernetes-1.11.0"
