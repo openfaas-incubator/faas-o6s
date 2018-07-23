@@ -11,3 +11,6 @@ push:
 
 test:
 	go test ./...
+
+verify-codegen:
+	./hack/verify-codegen.sh
