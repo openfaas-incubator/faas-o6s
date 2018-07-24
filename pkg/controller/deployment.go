@@ -16,7 +16,11 @@ import (
 // newDeployment creates a new Deployment for a Function resource. It also sets
 // the appropriate OwnerReferences on the resource so handleObject can discover
 // the Function resource that 'owns' it.
-func newDeployment(function *faasv1.Function, existingSecrets map[string]*corev1.Secret) *appsv1beta2.Deployment {
+func newDeployment(
+	function *faasv1.Function,
+	existingSecrets map[string]*corev1.Secret,
+	imagePullPolicy corev1.PullPolicy) *appsv1beta2.Deployment {
+
 	envVars := makeEnvVars(function)
 	labels := makeLabels(function)
 	nodeSelector := makeNodeSelector(function.Spec.Constraints)
@@ -76,7 +80,7 @@ func newDeployment(function *faasv1.Function, existingSecrets map[string]*corev1
 							Ports: []corev1.ContainerPort{
 								{ContainerPort: int32(functionPort), Protocol: corev1.ProtocolTCP},
 							},
-							ImagePullPolicy: corev1.PullAlways,
+							ImagePullPolicy: imagePullPolicy,
 							Env:             envVars,
 							Resources:       *resources,
 							LivenessProbe:   livenessProbe,

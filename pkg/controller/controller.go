@@ -67,6 +67,8 @@ type Controller struct {
 	// recorder is an event recorder for recording Event resources to the
 	// Kubernetes API.
 	recorder record.EventRecorder
+
+	imagePullPolicy corev1.PullPolicy
 }
 
 // NewController returns a new OpenFaaS controller
@@ -74,7 +76,8 @@ func NewController(
 	kubeclientset kubernetes.Interface,
 	faasclientset clientset.Interface,
 	kubeInformerFactory kubeinformers.SharedInformerFactory,
-	faasInformerFactory informers.SharedInformerFactory) *Controller {
+	faasInformerFactory informers.SharedInformerFactory,
+	imagePullPolicy corev1.PullPolicy) *Controller {
 
 	// obtain references to shared index informers for the Deployment and Function types
 	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
@@ -271,7 +274,9 @@ func (c *Controller) syncHandler(key string) error {
 		}
 
 		glog.Infof("Creating deployment for '%s'", function.Spec.Name)
-		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(newDeployment(function, existingSecrets))
+		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(
+			newDeployment(function, existingSecrets, c.imagePullPolicy),
+		)
 	}
 
 	// If an error occurs during Get/Create, we'll requeue the item so we can
@@ -298,7 +303,10 @@ func (c *Controller) syncHandler(key string) error {
 			return err
 		}
 
-		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(newDeployment(function, existingSecrets))
+		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(
+			newDeployment(function, existingSecrets, c.imagePullPolicy),
+		)
+
 		if err != nil {
 			glog.Errorf("Updating deployment for '%s' failed: %v", function.Spec.Name, err)
 		}
