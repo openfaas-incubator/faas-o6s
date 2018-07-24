@@ -59,9 +59,12 @@ func main() {
 	}
 
 	defaultResync := time.Second * 30
-	informerOpt := kubeinformers.WithNamespace(functionNamespace)
-	kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, informerOpt)
-	faasInformerFactory := informers.NewSharedInformerFactory(faasClient, defaultResync)
+
+	kubeInformerOpt := kubeinformers.WithNamespace(functionNamespace)
+	kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, kubeInformerOpt)
+
+	faasInformerOpt := informers.WithNamespace(functionNamespace)
+	faasInformerFactory := informers.NewSharedInformerFactoryWithOptions(faasClient, defaultResync, faasInformerOpt)
 
 	ctrl := controller.NewController(kubeClient, faasClient, kubeInformerFactory, faasInformerFactory)
 

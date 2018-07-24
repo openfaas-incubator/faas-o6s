@@ -6,9 +6,10 @@ metadata:
   namespace: openfaas
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: Role
 metadata:
-  name: openfaas-operator
+  name: openfaas-operator-rw
+  namespace: openfaas-fn
 rules:
 - apiGroups: ["openfaas.com"]
   resources: ["functions"]
@@ -16,26 +17,6 @@ rules:
 - apiGroups: [""]
   resources: ["events"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: openfaas-operator
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: openfaas-operator
-subjects:
-- kind: ServiceAccount
-  name: openfaas-operator
-  namespace: openfaas
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: openfaas-operator-rw
-  namespace: openfaas-fn
-rules:
 - apiGroups: [""]
   resources: ["services"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]

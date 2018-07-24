@@ -4,7 +4,7 @@
 Status](https://travis-ci.org/openfaas-incubator/openfaas-operator.svg?branch=master)](https://travis-ci.org/openfaas-incubator/openfaas-operator) [![GoDoc](https://godoc.org/github.com/openfaas-incubator/openfaas-operator?status.svg)](https://godoc.org/github.com/openfaas-incubator/openfaas-operator) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenFaaS](https://img.shields.io/badge/openfaas-serverless-blue.svg)](https://www.openfaas.com)
 
-OpenFaaS Kubernetes Operator
+OpenFaaS Operator for Kubernetes 1.9 or newer
 
 ### Deploy
 
