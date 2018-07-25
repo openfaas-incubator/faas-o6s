@@ -5,7 +5,58 @@ metadata:
 spec:
   group: openfaas.com
   version: v1alpha2
+  versions:
+    - name: v1alpha2
+      served: true
+      storage: true
   names:
-    kind: Function
     plural: functions
+    singular: function
+    kind: Function
+    shortNames:
+    - fn
   scope: Namespaced
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          required:
+            - name
+            - image
+          properties:
+            name:
+              type: string
+              pattern: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+            image:
+              type: string
+            limits:
+              properties:
+                cpu:
+                  type: string
+                  pattern: "^[0-9]+(m)"
+                memory:
+                  type: string
+                  pattern: "^[0-9]+(Mi|Gi)"
+            requests:
+              properties:
+                cpu:
+                  type: string
+                  pattern: "^[0-9]+(m)"
+                memory:
+                  type: string
+                  pattern: "^[0-9]+(Mi|Gi)"
+            secrets:
+              type: array
+              items:
+                type: string
+            constraints:
+              type: array
+              items:
+                type: string
+            #TODO: add map validation available only in K8s 1.11 https://github.com/kubernetes/kubernetes/issues/59485
+            environment:
+              type: object
+            labels:
+              type: object
+            annotations:
+              type: object
