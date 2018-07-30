@@ -26,9 +26,7 @@ func makeListHandler(namespace string, client clientset.Interface, kube kubernet
 		for _, item := range res.Items {
 			desiredReplicas, availableReplicas, err := getReplicas(item.Spec.Name, namespace, kube)
 			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				glog.Errorf("Function listing getReplicas error: %v", err)
-				return
+				glog.Warningf("Function listing getReplicas error: %v", err)
 			}
 
 			function := requests.Function{

@@ -28,9 +28,7 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 
 		desiredReplicas, availableReplicas, err := getReplicas(functionName, namespace, kube)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			glog.Errorf("Function replica reader error: %v", err)
-			return
+			glog.Warningf("Function replica reader error: %v", err)
 		}
 
 		result := &requests.Function{
