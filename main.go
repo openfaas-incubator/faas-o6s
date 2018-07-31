@@ -26,10 +26,10 @@ var (
 	kubeconfig string
 )
 
-var pullPolicyOptions = map[string]bool {
-	"Always": true,
+var pullPolicyOptions = map[string]bool{
+	"Always":       true,
 	"IfNotPresent": true,
-	"Never": true,
+	"Never":        true,
 }
 
 func init() {
