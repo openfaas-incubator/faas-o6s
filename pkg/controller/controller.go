@@ -2,9 +2,15 @@ package controller
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang/glog"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
+	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
+	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
+	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1alpha2"
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -19,12 +25,6 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
-
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
-	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
-	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
-	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1alpha2"
 )
 
 const controllerAgentName = "openfaas-operator"
@@ -131,6 +131,23 @@ func NewController(
 			controller.handleObject(new)
 		},
 		DeleteFunc: controller.handleObject,
+	})
+
+	// Set up an event handler for when functions related resources like pods, deployments, replica sets
+	// can't be materialized. This logs abnormal events like ImagePullBackOff, back-off restarting failed container,
+	// failed to start container, oci runtime errors, etc
+	kubeInformerFactory.Core().V1().Events().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			key, err := cache.MetaNamespaceKeyFunc(obj)
+			if err == nil {
+				event := obj.(*corev1.Event)
+				since := time.Since(event.LastTimestamp.Time)
+				// log abnormal events occurred in the last minute
+				if since.Seconds() < 61 && strings.Contains(event.Type, "Warning") {
+					glog.Warningf("Abnormal event detected on %s %s: %s", event.LastTimestamp, key, event.Message)
+				}
+			}
+		},
 	})
 
 	return controller
