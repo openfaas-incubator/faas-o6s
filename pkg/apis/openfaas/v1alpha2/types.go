@@ -23,6 +23,7 @@ type FunctionSpec struct {
 	Image                  string             `json:"image"`
 	Replicas               *int32             `json:"replicas"`
 	Handler                string             `json:"handler"`
+	Annotations            *map[string]string `json:"annotations"`
 	Labels                 *map[string]string `json:"labels"`
 	Environment            *map[string]string `json:"environment"`
 	Constraints            []string           `json:"constraints"`

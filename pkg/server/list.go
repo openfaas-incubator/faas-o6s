@@ -35,6 +35,7 @@ func makeListHandler(namespace string, client clientset.Interface, kube kubernet
 				AvailableReplicas: availableReplicas,
 				Image:             item.Spec.Image,
 				Labels:            item.Spec.Labels,
+				Annotations:       item.Spec.Annotations,
 			}
 
 			functions = append(functions, function)

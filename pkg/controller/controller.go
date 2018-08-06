@@ -310,6 +310,17 @@ func (c *Controller) syncHandler(key string) error {
 		if err != nil {
 			glog.Errorf("Updating deployment for '%s' failed: %v", function.Spec.Name, err)
 		}
+
+		existingService, err := c.kubeclientset.CoreV1().Services(function.Namespace).Get(function.Spec.Name, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+
+		existingService.Annotations = makeAnnotations(function)
+		_, err = c.kubeclientset.CoreV1().Services(function.Namespace).Update(existingService)
+		if err != nil {
+			glog.Errorf("Updating service for '%s' failed: %v", function.Spec.Name, err)
+		}
 	}
 
 	// If an error occurs during Update, we'll requeue the item so we can

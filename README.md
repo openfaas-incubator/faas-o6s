@@ -78,6 +78,22 @@ Apply the function and check the deployment specs with:
 kubectl -n openfaas-fn describe deployment gofast
 ```
 
+#### Development build
+The OpenFaaS Operator runs as a sidecar in the gateway pod. For end to end testing you need to update the sidecar to use
+your development image.
+
+1. Build,tag and push your image to your own public docker repository: 
+i.e. `make build && docker tag openfaas/openfaas-operator:latest {user}/openfaas-operator:latest-dev`
+
+2. Update your helm deployment
+```
+helm upgrade openfaas --install openfaas/openfaas \
+    --namespace openfaas  \
+    --set functionNamespace=openfaas-fn \
+    --set operator.create=true \
+--set operator.image={user}/openfaas-operator:latest-dev
+```
+
 ### Local run
 
 Create OpenFaaS CRD:
@@ -158,7 +174,6 @@ Remove function:
 ```bash
 curl -d '{"functionName":"nodeinfo"}' -X DELETE http://localhost:8081/system/functions
 ```
-
 
 ### Logging
 

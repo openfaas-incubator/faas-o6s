@@ -10,6 +10,9 @@ spec:
   labels:
     com.openfaas.scale.min: "2"
     com.openfaas.scale.max: "15"
+  annotations:
+    current-time: Mon  6 Aug 23:42:00 BST 2018
+    next-time: Mon  6 Aug 23:42:00 BST 2019
   environment:
     output: "verbose"
     debug: "true"

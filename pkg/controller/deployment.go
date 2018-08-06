@@ -32,9 +32,12 @@ func newDeployment(
 			function.Spec.Name, err)
 	}
 
+	annotations := makeAnnotations(function)
+
 	deploymentSpec := &appsv1beta2.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      function.Spec.Name,
+			Annotations: annotations,
 			Namespace: function.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(function, schema.GroupVersionKind{
@@ -69,7 +72,7 @@ func newDeployment(
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels:      labels,
-					Annotations: map[string]string{"prometheus.io.scrape": "false"},
+					Annotations: annotations,
 				},
 				Spec: corev1.PodSpec{
 					NodeSelector: nodeSelector,
@@ -139,6 +142,19 @@ func makeLabels(function *faasv1.Function) map[string]string {
 	return labels
 }
 
+func makeAnnotations(function *faasv1.Function) map[string]string {
+	var annotations map[string]string
+	if function.Spec.Annotations != nil {
+		annotations = *function.Spec.Annotations
+	} else {
+		annotations = map[string]string{}
+	}
+
+	annotations["prometheus.io.scrape"] = "false"
+
+	return annotations
+}
+
 func makeLivenessProbe() *corev1.Probe {
 	path := filepath.Join("/tmp/", ".lock")
 	probe := &corev1.Probe{
@@ -200,8 +216,16 @@ func deploymentNeedsUpdate(function *faasv1.Function, deployment *appsv1beta2.De
 
 	currentLabels := deployment.Spec.Template.Labels
 	funcLabels := makeLabels(function)
-	if labelsNotEqual(currentLabels, funcLabels) {
+	if strMapsNotEqual(currentLabels, funcLabels) {
 		glog.V(2).Infof("Function %s labels have changed",
+			function.Spec.Name)
+		needsUpdate = true
+	}
+
+	currentAnnotations := deployment.Spec.Template.Annotations
+	funcAnnotations := makeAnnotations(function)
+	if strMapsNotEqual(currentAnnotations, funcAnnotations) {
+		glog.V(2).Infof("Function %s annotations have changed",
 			function.Spec.Name)
 		needsUpdate = true
 	}
@@ -237,7 +261,7 @@ func envVarsNotEqual(a, b []corev1.EnvVar) bool {
 	return false
 }
 
-func labelsNotEqual(a, b map[string]string) bool {
+func strMapsNotEqual(a, b map[string]string) bool {
 	if len(a) != len(b) {
 		return true
 	}

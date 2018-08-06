@@ -35,6 +35,7 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 			AvailableReplicas: availableReplicas,
 			Replicas:          desiredReplicas,
 			Labels:            k8sfunc.Spec.Labels,
+			Annotations:       k8sfunc.Spec.Annotations,
 			Name:              k8sfunc.Spec.Name,
 			EnvProcess:        k8sfunc.Spec.Handler,
 			Image:             k8sfunc.Spec.Image,

@@ -36,6 +36,7 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 				Image:                  req.Image,
 				Handler:                req.EnvProcess,
 				Labels:                 req.Labels,
+				Annotations:            req.Annotations,
 				Environment:            &req.EnvVars,
 				Constraints:            req.Constraints,
 				Secrets:                req.Secrets,
