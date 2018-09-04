@@ -31,6 +31,7 @@ func newService(function *faasv1.Function) *corev1.Service {
 			Selector: map[string]string{"faas_function": function.Spec.Name},
 			Ports: []corev1.ServicePort{
 				{
+					Name:     "http",
 					Protocol: corev1.ProtocolTCP,
 					Port:     functionPort,
 					TargetPort: intstr.IntOrString{
