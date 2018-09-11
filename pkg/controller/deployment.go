@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"strings"
 
@@ -11,6 +12,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/intstr"
+)
+
+const (
+	annotationFunctionSpec = "com.openfaas.function.spec"
 )
 
 // newDeployment creates a new Deployment for a Function resource. It also sets
@@ -36,9 +41,9 @@ func newDeployment(
 
 	deploymentSpec := &appsv1beta2.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      function.Spec.Name,
+			Name:        function.Spec.Name,
 			Annotations: annotations,
-			Namespace: function.Namespace,
+			Namespace:   function.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(function, schema.GroupVersionKind{
 					Group:   faasv1.SchemeGroupVersion.Group,
@@ -152,6 +157,9 @@ func makeAnnotations(function *faasv1.Function) map[string]string {
 
 	annotations["prometheus.io.scrape"] = "false"
 
+	specJSON, _ := json.Marshal(function.Spec)
+	annotations[annotationFunctionSpec] = string(specJSON)
+
 	return annotations
 }
 
@@ -191,52 +199,57 @@ func makeNodeSelector(constraints []string) map[string]string {
 
 // deploymentNeedsUpdate determines if the function spec is different from the deployment spec
 func deploymentNeedsUpdate(function *faasv1.Function, deployment *appsv1beta2.Deployment) bool {
+	previousFunctionSpec := deployment.ObjectMeta.Annotations[annotationFunctionSpec]
+	if previousFunctionSpec == "" {
+		// is a new deployment or is an old deployment that is missing the annotation
+		return true
+	}
+
+	previousFunction := &faasv1.FunctionSpec{}
+	err := json.Unmarshal([]byte(previousFunctionSpec), previousFunction)
+	if err != nil {
+		glog.V(2).Infof("Failed to parse previous function spec: %s", err.Error())
+		return true
+	}
+
 	needsUpdate := false
-
-	if function.Spec.Replicas != nil && *function.Spec.Replicas != *deployment.Spec.Replicas {
+	if function.Spec.Replicas != nil && *function.Spec.Replicas != *previousFunction.Replicas {
 		glog.V(2).Infof("Function %s replica count changed from %d to %d",
-			function.Spec.Name, *deployment.Spec.Replicas, *function.Spec.Replicas)
+			function.Spec.Name, *previousFunction.Replicas, *function.Spec.Replicas)
 		needsUpdate = true
 	}
 
-	currentImage := deployment.Spec.Template.Spec.Containers[0].Image
-	if function.Spec.Image != deployment.Spec.Template.Spec.Containers[0].Image {
+	if function.Spec.Image != previousFunction.Image {
 		glog.V(2).Infof("Function %s image changed from %d to %d",
-			function.Spec.Name, currentImage, function.Spec.Image)
+			function.Spec.Name, previousFunction.Image, function.Spec.Image)
 		needsUpdate = true
 	}
 
-	currentEnv := deployment.Spec.Template.Spec.Containers[0].Env
-	funcEnv := makeEnvVars(function)
-	if envVarsNotEqual(currentEnv, funcEnv) {
+	if strMapsPtrNotEqual(function.Spec.Environment, previousFunction.Environment) {
 		glog.V(2).Infof("Function %s envVars have changed",
 			function.Spec.Name)
 		needsUpdate = true
 	}
 
-	currentLabels := deployment.Spec.Template.Labels
-	funcLabels := makeLabels(function)
-	if strMapsNotEqual(currentLabels, funcLabels) {
+	if strMapsPtrNotEqual(function.Spec.Labels, previousFunction.Labels) {
 		glog.V(2).Infof("Function %s labels have changed",
 			function.Spec.Name)
 		needsUpdate = true
 	}
 
-	currentAnnotations := deployment.Spec.Template.Annotations
-	funcAnnotations := makeAnnotations(function)
-	if strMapsNotEqual(currentAnnotations, funcAnnotations) {
+	if strMapsPtrNotEqual(function.Spec.Annotations, previousFunction.Annotations) {
 		glog.V(2).Infof("Function %s annotations have changed",
 			function.Spec.Name)
 		needsUpdate = true
 	}
 
-	if secretsNotEqual(function.Spec.Secrets, deployment.Spec.Template.Spec.Volumes) {
+	if strArrayNotEqual(function.Spec.Secrets, previousFunction.Secrets) {
 		glog.V(2).Infof("Function %s secrets have changed",
 			function.Spec.Name)
 		needsUpdate = true
 	}
 
-	if function.Spec.ReadOnlyRootFilesystem != currentReadOnlyRootSetting(deployment) {
+	if function.Spec.ReadOnlyRootFilesystem != previousFunction.ReadOnlyRootFilesystem {
 		glog.V(2).Infof("Function %s ReadOnlyRootFilesystem has changed",
 			function.Spec.Name)
 		needsUpdate = true
@@ -259,6 +272,19 @@ func envVarsNotEqual(a, b []corev1.EnvVar) bool {
 		}
 	}
 	return false
+}
+
+func strMapsPtrNotEqual(a, b *map[string]string) bool {
+
+	if a == nil && b == nil {
+		return false
+	}
+
+	if a == nil || b == nil {
+		return true
+	}
+
+	return strMapsNotEqual(*a, *b)
 }
 
 func strMapsNotEqual(a, b map[string]string) bool {
@@ -291,45 +317,8 @@ func strArrayNotEqual(a, b []string) bool {
 	return false
 }
 
-func secretsNotEqual(secrets []string, volumes []corev1.Volume) bool {
-	if len(secrets) < 1 {
-		return false
-	}
-
-	if len(secrets) > 0 && len(volumes) < 1 {
-		return true
-	}
-
-	if len(secrets) > 0 && volumes[0].Projected == nil {
-		return true
-	}
-
-	sources := []string{}
-	for _, s := range volumes[0].Projected.Sources {
-		if s.Secret != nil {
-			sources = append(sources, s.Secret.Name)
-		}
-	}
-
-	return strArrayNotEqual(secrets, sources)
-}
-
 func int32p(i int32) *int32 {
 	return &i
-}
-
-func currentReadOnlyRootSetting(deployment *appsv1beta2.Deployment) bool {
-	currentSecurityContext := deployment.Spec.Template.Spec.Containers[0].SecurityContext
-	if currentSecurityContext == nil {
-		return false
-	}
-
-	currentValue := currentSecurityContext.ReadOnlyRootFilesystem
-	if currentValue == nil {
-		return false
-	}
-
-	return *currentValue
 }
 
 // configureReadOnlyRootFilesystem will create or update the required settings and mounts to ensure
