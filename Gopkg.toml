@@ -45,3 +45,7 @@ required = ["k8s.io/code-generator/cmd/client-gen"]
 [[constraint]]
   name = "github.com/prometheus/client_golang"
   version = "0.8.0"
+
+[[constraint]]
+  name = "github.com/google/go-cmp"
+  version = "v0.2.0"
