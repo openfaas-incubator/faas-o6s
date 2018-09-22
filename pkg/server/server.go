@@ -23,7 +23,7 @@ const defaultWriteTimeout = 8
 
 // Start starts HTTP Server for API
 func Start(client clientset.Interface, kube kubernetes.Interface) {
-	functionNamespace := "default"
+	functionNamespace := "openfaas-fn"
 	if namespace, exists := os.LookupEnv("function_namespace"); exists {
 		functionNamespace = namespace
 	}

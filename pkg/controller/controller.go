@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	"github.com/google/go-cmp/cmp"
 	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
@@ -71,6 +72,16 @@ type Controller struct {
 	imagePullPolicy corev1.PullPolicy
 }
 
+func checkCustomResourceType(obj interface{}) (faasv1.Function, bool) {
+	var fn *faasv1.Function
+	var ok bool
+	if fn, ok = obj.(*faasv1.Function); !ok {
+		glog.Errorf("Event Watch received an invalid object: %#v", obj)
+		return faasv1.Function{}, false
+	}
+	return *fn, true
+}
+
 // NewController returns a new OpenFaaS controller
 func NewController(
 	kubeclientset kubernetes.Interface,
@@ -109,7 +120,17 @@ func NewController(
 	faasInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: controller.enqueueFunction,
 		UpdateFunc: func(old, new interface{}) {
-			controller.enqueueFunction(new)
+			oldFn, ok := checkCustomResourceType(old)
+			if !ok {
+				return
+			}
+			newFn, ok := checkCustomResourceType(new)
+			if !ok {
+				return
+			}
+			if diff := cmp.Diff(oldFn.Spec, newFn.Spec); diff != "" {
+				controller.enqueueFunction(new)
+			}
 		},
 	})
 	// Set up an event handler for when Deployment resources change. This
@@ -136,6 +157,7 @@ func NewController(
 	// Set up an event handler for when functions related resources like pods, deployments, replica sets
 	// can't be materialized. This logs abnormal events like ImagePullBackOff, back-off restarting failed container,
 	// failed to start container, oci runtime errors, etc
+	// Enable this with -v=3
 	kubeInformerFactory.Core().V1().Events().Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			key, err := cache.MetaNamespaceKeyFunc(obj)
@@ -144,7 +166,7 @@ func NewController(
 				since := time.Since(event.LastTimestamp.Time)
 				// log abnormal events occurred in the last minute
 				if since.Seconds() < 61 && strings.Contains(event.Type, "Warning") {
-					glog.Warningf("Abnormal event detected on %s %s: %s", event.LastTimestamp, key, event.Message)
+					glog.V(3).Infof("Abnormal event detected on %s %s: %s", event.LastTimestamp, key, event.Message)
 				}
 			}
 		},

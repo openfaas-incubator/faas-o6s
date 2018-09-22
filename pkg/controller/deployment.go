@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
+	"github.com/google/go-cmp/cmp"
 	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	corev1 "k8s.io/api/core/v1"
@@ -148,18 +149,27 @@ func makeLabels(function *faasv1.Function) map[string]string {
 }
 
 func makeAnnotations(function *faasv1.Function) map[string]string {
-	var annotations map[string]string
-	if function.Spec.Annotations != nil {
-		annotations = *function.Spec.Annotations
-	} else {
-		annotations = map[string]string{}
-	}
+	annotations := make(map[string]string)
 
+	// disable scraping since the watchdog doesn't expose a metrics endpoint
 	annotations["prometheus.io.scrape"] = "false"
 
-	specJSON, _ := json.Marshal(function.Spec)
-	annotations[annotationFunctionSpec] = string(specJSON)
+	// copy function annotations
+	if function.Spec.Annotations != nil {
+		for k, v := range *function.Spec.Annotations {
+			annotations[k] = v
+		}
+	}
 
+	// save function spec in deployment annotations
+	// used to detect changes in function spec
+	specJSON, err := json.Marshal(function.Spec)
+	if err != nil {
+		glog.Errorf("Failed to marshal function spec: %s", err.Error())
+		return annotations
+	}
+
+	annotations[annotationFunctionSpec] = string(specJSON)
 	return annotations
 }
 
@@ -199,121 +209,29 @@ func makeNodeSelector(constraints []string) map[string]string {
 
 // deploymentNeedsUpdate determines if the function spec is different from the deployment spec
 func deploymentNeedsUpdate(function *faasv1.Function, deployment *appsv1beta2.Deployment) bool {
-	previousFunctionSpec := deployment.ObjectMeta.Annotations[annotationFunctionSpec]
-	if previousFunctionSpec == "" {
+	prevFnSpecJson := deployment.ObjectMeta.Annotations[annotationFunctionSpec]
+	if prevFnSpecJson == "" {
 		// is a new deployment or is an old deployment that is missing the annotation
 		return true
 	}
 
-	previousFunction := &faasv1.FunctionSpec{}
-	err := json.Unmarshal([]byte(previousFunctionSpec), previousFunction)
+	prevFnSpec := &faasv1.FunctionSpec{}
+	err := json.Unmarshal([]byte(prevFnSpecJson), prevFnSpec)
 	if err != nil {
-		glog.V(2).Infof("Failed to parse previous function spec: %s", err.Error())
+		glog.Errorf("Failed to parse previous function spec: %s", err.Error())
 		return true
 	}
-
-	needsUpdate := false
-	if function.Spec.Replicas != nil && *function.Spec.Replicas != *previousFunction.Replicas {
-		glog.V(2).Infof("Function %s replica count changed from %d to %d",
-			function.Spec.Name, *previousFunction.Replicas, *function.Spec.Replicas)
-		needsUpdate = true
+	prevFn := faasv1.Function{
+		Spec: *prevFnSpec,
 	}
 
-	if function.Spec.Image != previousFunction.Image {
-		glog.V(2).Infof("Function %s image changed from %d to %d",
-			function.Spec.Name, previousFunction.Image, function.Spec.Image)
-		needsUpdate = true
-	}
-
-	if strMapsPtrNotEqual(function.Spec.Environment, previousFunction.Environment) {
-		glog.V(2).Infof("Function %s envVars have changed",
-			function.Spec.Name)
-		needsUpdate = true
-	}
-
-	if strMapsPtrNotEqual(function.Spec.Labels, previousFunction.Labels) {
-		glog.V(2).Infof("Function %s labels have changed",
-			function.Spec.Name)
-		needsUpdate = true
-	}
-
-	if strMapsPtrNotEqual(function.Spec.Annotations, previousFunction.Annotations) {
-		glog.V(2).Infof("Function %s annotations have changed",
-			function.Spec.Name)
-		needsUpdate = true
-	}
-
-	if strArrayNotEqual(function.Spec.Secrets, previousFunction.Secrets) {
-		glog.V(2).Infof("Function %s secrets have changed",
-			function.Spec.Name)
-		needsUpdate = true
-	}
-
-	if function.Spec.ReadOnlyRootFilesystem != previousFunction.ReadOnlyRootFilesystem {
-		glog.V(2).Infof("Function %s ReadOnlyRootFilesystem has changed",
-			function.Spec.Name)
-		needsUpdate = true
-	}
-	return needsUpdate
-}
-
-func envVarsNotEqual(a, b []corev1.EnvVar) bool {
-	if len(a) != len(b) {
+	if diff := cmp.Diff(function.Spec, prevFn.Spec); diff != "" {
+		glog.V(2).Infof("Change detected for %s diff\n%s", function.Name, diff)
 		return true
-	}
-	mb := map[string]bool{}
-	for _, x := range b {
-		mb[x.Name+x.Value] = true
+	} else {
+		glog.V(3).Infof("No changes detected for %s", function.Name)
 	}
 
-	for _, x := range a {
-		if _, ok := mb[x.Name+x.Value]; !ok {
-			return true
-		}
-	}
-	return false
-}
-
-func strMapsPtrNotEqual(a, b *map[string]string) bool {
-
-	if a == nil && b == nil {
-		return false
-	}
-
-	if a == nil || b == nil {
-		return true
-	}
-
-	return strMapsNotEqual(*a, *b)
-}
-
-func strMapsNotEqual(a, b map[string]string) bool {
-	if len(a) != len(b) {
-		return true
-	}
-	mb := map[string]bool{}
-	for v, x := range b {
-		mb[v+x] = true
-	}
-
-	for v, x := range a {
-		if _, ok := mb[v+x]; !ok {
-			return true
-		}
-	}
-	return false
-}
-
-func strArrayNotEqual(a, b []string) bool {
-	if len(a) != len(b) {
-		return true
-	}
-
-	for i, v := range a {
-		if v != b[i] {
-			return true
-		}
-	}
 	return false
 }
 
