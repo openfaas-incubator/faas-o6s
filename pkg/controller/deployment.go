@@ -225,7 +225,7 @@ func deploymentNeedsUpdate(function *faasv1.Function, deployment *appsv1beta2.De
 		Spec: *prevFnSpec,
 	}
 
-	if diff := cmp.Diff(function.Spec, prevFn.Spec); diff != "" {
+	if diff := cmp.Diff(prevFn.Spec, function.Spec); diff != "" {
 		glog.V(2).Infof("Change detected for %s diff\n%s", function.Name, diff)
 		return true
 	} else {
