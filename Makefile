@@ -14,3 +14,9 @@ test:
 
 verify-codegen:
 	./hack/verify-codegen.sh
+
+ci-armhf-build:
+	docker build -t openfaas/openfaas-operator:$(TAG)-armhf . -f Dockerfile.armhf
+
+ci-armhf-push:
+	docker push openfaas/openfaas-operator:$(TAG)-armhf
