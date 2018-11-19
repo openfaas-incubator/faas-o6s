@@ -35,8 +35,8 @@ type FunctionSpec struct {
 
 // FunctionResources is used to set CPU and memory limits and requests
 type FunctionResources struct {
-	Memory string `json:"memory"`
-	CPU    string `json:"cpu"`
+	Memory string `json:"memory,omitempty"`
+	CPU    string `json:"cpu,omitempty"`
 }
 
 // FunctionStatus is the status for a Function resource
