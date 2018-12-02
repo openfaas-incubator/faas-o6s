@@ -1,4 +1,4 @@
-FROM golang:1.9
+FROM golang:1.10
 
 RUN mkdir -p /go/src/github.com/openfaas-incubator/openfaas-operator/
 
@@ -14,7 +14,7 @@ RUN gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*") && \
   -X github.com/openfaas-incubator/openfaas-operator/pkg/version.SHA=${GIT_COMMIT}" \
   -a -installsuffix cgo -o openfaas-operator .
 
-FROM alpine:3.6
+FROM alpine:3.8
 
 RUN addgroup -S app \
     && adduser -S -g app app \
