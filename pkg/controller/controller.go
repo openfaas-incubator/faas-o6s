@@ -92,6 +92,8 @@ func NewController(
 
 	// obtain references to shared index informers for the Deployment and Function types
 	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
+	serviceInformer := kubeInformerFactory.Core().V1().Services()
+
 	faasInformer := faasInformerFactory.Openfaas().V1alpha2().Functions()
 
 	// Create event broadcaster
@@ -133,6 +135,7 @@ func NewController(
 			}
 		},
 	})
+
 	// Set up an event handler for when Deployment resources change. This
 	// handler will lookup the owner of the given Deployment, and if it is
 	// owned by a Function resource will enqueue that Function resource for
@@ -146,6 +149,21 @@ func NewController(
 			oldDepl := old.(*appsv1beta2.Deployment)
 			if newDepl.ResourceVersion == oldDepl.ResourceVersion {
 				// Periodic resync will send update events for all known Deployments.
+				// Two different versions of the same Deployment will always have different RVs.
+				return
+			}
+			controller.handleObject(new)
+		},
+		DeleteFunc: controller.handleObject,
+	})
+
+	serviceInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: controller.handleObject,
+		UpdateFunc: func(old, new interface{}) {
+			newDepl := new.(*corev1.Service)
+			oldDepl := old.(*corev1.Service)
+			if newDepl.ResourceVersion == oldDepl.ResourceVersion {
+				// Periodic resync will send update events for all known Services.
 				// Two different versions of the same Deployment will always have different RVs.
 				return
 			}
@@ -297,16 +315,6 @@ func (c *Controller) syncHandler(key string) error {
 	deployment, err := c.deploymentsLister.Deployments(function.Namespace).Get(deploymentName)
 	// If the resource doesn't exist, we'll create it
 	if errors.IsNotFound(err) {
-		glog.Infof("Creating ClusterIP service for '%s'", function.Spec.Name)
-		if _, err := c.kubeclientset.CoreV1().Services(function.Namespace).Create(newService(function)); err != nil {
-			// If an error occurs during Service Create, we'll requeue the item
-			if errors.IsAlreadyExists(err) {
-				glog.V(2).Infof("ClusterIP service '%s' already exists. Skipping creation.", function.Spec.Name)
-			} else {
-				return err
-			}
-		}
-
 		existingSecrets, err := c.getSecrets(function.Namespace, function.Spec.Secrets)
 		if err != nil {
 			return err
@@ -316,6 +324,20 @@ func (c *Controller) syncHandler(key string) error {
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(
 			newDeployment(function, existingSecrets, c.imagePullPolicy),
 		)
+	}
+
+	svcGetOptions := metav1.GetOptions{}
+	_, getSvcErr := c.kubeclientset.CoreV1().Services(function.Namespace).Get(deploymentName, svcGetOptions)
+	if errors.IsNotFound(getSvcErr) {
+		glog.Infof("Creating ClusterIP service for '%s'", function.Spec.Name)
+		if _, err := c.kubeclientset.CoreV1().Services(function.Namespace).Create(newService(function)); err != nil {
+			// If an error occurs during Service Create, we'll requeue the item
+			if errors.IsAlreadyExists(err) {
+				glog.V(2).Infof("ClusterIP service '%s' already exists. Skipping creation.", function.Spec.Name)
+			} else {
+				return err
+			}
+		}
 	}
 
 	// If an error occurs during Get/Create, we'll requeue the item so we can
