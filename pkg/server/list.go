@@ -9,10 +9,16 @@ import (
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/listers/apps/v1beta2"
 )
 
-func makeListHandler(namespace string, client clientset.Interface, kube kubernetes.Interface) http.HandlerFunc {
+func makeListHandler(namespace string, client clientset.Interface, kube kubernetes.Interface, deploymentLister v1beta2.DeploymentNamespaceLister) http.HandlerFunc {
+
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Body != nil {
+			defer r.Body.Close()
+		}
+
 		functions := []requests.Function{}
 
 		opts := metav1.ListOptions{}
@@ -24,7 +30,8 @@ func makeListHandler(namespace string, client clientset.Interface, kube kubernet
 		}
 
 		for _, item := range res.Items {
-			desiredReplicas, availableReplicas, err := getReplicas(item.Spec.Name, namespace, kube)
+
+			desiredReplicas, availableReplicas, err := getReplicas(item.Spec.Name, namespace, deploymentLister)
 			if err != nil {
 				glog.Warningf("Function listing getReplicas error: %v", err)
 			}
@@ -45,5 +52,6 @@ func makeListHandler(namespace string, client clientset.Interface, kube kubernet
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(functionBytes)
+
 	}
 }

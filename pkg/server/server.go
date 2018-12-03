@@ -12,6 +12,7 @@ import (
 	"github.com/openfaas/faas-provider"
 	"github.com/openfaas/faas-provider/types"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -22,7 +23,7 @@ const defaultReadTimeout = 8
 const defaultWriteTimeout = 8
 
 // Start starts HTTP Server for API
-func Start(client clientset.Interface, kube kubernetes.Interface) {
+func Start(client clientset.Interface, kube kubernetes.Interface, kubeInformerFactory kubeinformers.SharedInformerFactory) {
 	functionNamespace := "openfaas-fn"
 	if namespace, exists := os.LookupEnv("function_namespace"); exists {
 		functionNamespace = namespace
@@ -57,12 +58,15 @@ func Start(client clientset.Interface, kube kubernetes.Interface) {
 		pprof = val
 	}
 
+	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
+	deploymentLister := deploymentInformer.Lister().Deployments(functionNamespace)
+
 	bootstrapHandlers := types.FaaSHandlers{
 		FunctionProxy:  makeProxy(functionNamespace, time.Duration(readTimeout)*time.Second),
 		DeleteHandler:  makeDeleteHandler(functionNamespace, client),
 		DeployHandler:  makeApplyHandler(functionNamespace, client),
-		FunctionReader: makeListHandler(functionNamespace, client, kube),
-		ReplicaReader:  makeReplicaReader(functionNamespace, client, kube),
+		FunctionReader: makeListHandler(functionNamespace, client, kube, deploymentLister),
+		ReplicaReader:  makeReplicaReader(functionNamespace, client, kube, deploymentLister),
 		ReplicaUpdater: makeReplicaHandler(functionNamespace, client),
 		UpdateHandler:  makeApplyHandler(functionNamespace, client),
 		Health:         makeHealthHandler(),

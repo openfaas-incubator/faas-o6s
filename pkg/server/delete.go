@@ -13,7 +13,11 @@ import (
 
 func makeDeleteHandler(namespace string, client clientset.Interface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
+
+		if r.Body != nil {
+			defer r.Body.Close()
+		}
+
 		body, _ := ioutil.ReadAll(r.Body)
 		request := requests.DeleteFunctionRequest{}
 		err := json.Unmarshal(body, &request)

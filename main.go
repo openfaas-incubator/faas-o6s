@@ -86,7 +86,7 @@ func main() {
 
 	go kubeInformerFactory.Start(stopCh)
 	go faasInformerFactory.Start(stopCh)
-	go server.Start(faasClient, kubeClient)
+	go server.Start(faasClient, kubeClient, kubeInformerFactory)
 
 	if err = ctrl.Run(2, stopCh); err != nil {
 		glog.Fatalf("Error running controller: %s", err.Error())

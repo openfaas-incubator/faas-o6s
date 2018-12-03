@@ -17,7 +17,11 @@ import (
 
 func makeApplyHandler(namespace string, client clientset.Interface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		defer r.Body.Close()
+
+		if r.Body != nil {
+			defer r.Body.Close()
+		}
+
 		body, _ := ioutil.ReadAll(r.Body)
 		req := requests.CreateFunctionRequest{}
 		err := json.Unmarshal(body, &req)

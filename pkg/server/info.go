@@ -11,6 +11,10 @@ import (
 // makeInfoHandler provides the system/info endpoint
 func makeInfoHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Body != nil {
+			defer r.Body.Close()
+		}
+
 		sha, release := version.GetReleaseInfo()
 		info := types.InfoRequest{
 			Orchestration: "kubernetes",

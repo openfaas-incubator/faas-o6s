@@ -12,9 +12,10 @@ import (
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/listers/apps/v1beta2"
 )
 
-func makeReplicaReader(namespace string, client clientset.Interface, kube kubernetes.Interface) http.HandlerFunc {
+func makeReplicaReader(namespace string, client clientset.Interface, kube kubernetes.Interface, lister v1beta2.DeploymentNamespaceLister) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		functionName := vars["name"]
@@ -26,7 +27,7 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 			return
 		}
 
-		desiredReplicas, availableReplicas, err := getReplicas(functionName, namespace, kube)
+		desiredReplicas, availableReplicas, err := getReplicas(functionName, namespace, lister)
 		if err != nil {
 			glog.Warningf("Function replica reader error: %v", err)
 		}
@@ -48,8 +49,8 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 	}
 }
 
-func getReplicas(functionName string, namespace string, kube kubernetes.Interface) (uint64, uint64, error) {
-	dep, err := kube.AppsV1beta2().Deployments(namespace).Get(functionName, metav1.GetOptions{})
+func getReplicas(functionName string, namespace string, lister v1beta2.DeploymentNamespaceLister) (uint64, uint64, error) {
+	dep, err := lister.Get(functionName)
 	if err != nil {
 		return 0, 0, err
 	}
