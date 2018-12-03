@@ -92,6 +92,7 @@ func NewController(
 
 	// obtain references to shared index informers for the Deployment and Function types
 	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
+
 	serviceInformer := kubeInformerFactory.Core().V1().Services()
 
 	faasInformer := faasInformerFactory.Openfaas().V1alpha2().Functions()
@@ -118,6 +119,9 @@ func NewController(
 	}
 
 	glog.Info("Setting up event handlers")
+
+	//  Add Function (OpenFaaS CRD-entry) Informer
+	//
 	// Set up an event handler for when Function resources change
 	faasInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: controller.enqueueFunction,
@@ -136,6 +140,8 @@ func NewController(
 		},
 	})
 
+	// Add Deployment Informer
+	//
 	// Set up an event handler for when Deployment resources change. This
 	// handler will lookup the owner of the given Deployment, and if it is
 	// owned by a Function resource will enqueue that Function resource for
@@ -149,7 +155,7 @@ func NewController(
 			oldDepl := old.(*appsv1beta2.Deployment)
 			if newDepl.ResourceVersion == oldDepl.ResourceVersion {
 				// Periodic resync will send update events for all known Deployments.
-				// Two different versions of the same Deployment will always have different RVs.
+				// Two different versions of the same Deployment will always have different RevisionVersions.
 				return
 			}
 			controller.handleObject(new)
@@ -157,14 +163,15 @@ func NewController(
 		DeleteFunc: controller.handleObject,
 	})
 
+	// Add Service Informer
 	serviceInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: controller.handleObject,
 		UpdateFunc: func(old, new interface{}) {
-			newDepl := new.(*corev1.Service)
-			oldDepl := old.(*corev1.Service)
-			if newDepl.ResourceVersion == oldDepl.ResourceVersion {
+			newSvc := new.(*corev1.Service)
+			oldSvc := old.(*corev1.Service)
+			if newSvc.ResourceVersion == oldSvc.ResourceVersion {
 				// Periodic resync will send update events for all known Services.
-				// Two different versions of the same Deployment will always have different RVs.
+				// Two different versions of the same Service will always have different RevisionVersions.
 				return
 			}
 			controller.handleObject(new)
