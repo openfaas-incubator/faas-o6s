@@ -1,3 +1,4 @@
+.PHONY: build build-armhf push test verify-codegen ci-armhf-build ci-armhf-push ci-arm64-build ci-arm64-push
 TAG?=latest
 
 build:
