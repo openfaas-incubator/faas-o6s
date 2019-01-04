@@ -90,3 +90,9 @@ type AsyncReport struct {
 type DeleteFunctionRequest struct {
 	FunctionName string `json:"functionName"`
 }
+
+// Secret for underlying orchestrator
+type Secret struct {
+	Name  string `json:"name"`
+	Value string `json:"value,omitempty"`
+}
