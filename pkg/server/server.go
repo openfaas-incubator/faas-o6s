@@ -23,7 +23,9 @@ const defaultReadTimeout = 8
 const defaultWriteTimeout = 8
 
 // Start starts HTTP Server for API
-func Start(client clientset.Interface, kube kubernetes.Interface, kubeInformerFactory kubeinformers.SharedInformerFactory) {
+func Start(client clientset.Interface,
+	kube kubernetes.Interface,
+	kubeInformerFactory kubeinformers.SharedInformerFactory) {
 	functionNamespace := "openfaas-fn"
 	if namespace, exists := os.LookupEnv("function_namespace"); exists {
 		functionNamespace = namespace
@@ -61,16 +63,20 @@ func Start(client clientset.Interface, kube kubernetes.Interface, kubeInformerFa
 	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
 	deploymentLister := deploymentInformer.Lister().Deployments(functionNamespace)
 
+	secretInformer := kubeInformerFactory.Core().V1().Secrets()
+	secretLister := secretInformer.Lister().Secrets(functionNamespace)
+
 	bootstrapHandlers := types.FaaSHandlers{
 		FunctionProxy:  makeProxy(functionNamespace, time.Duration(readTimeout)*time.Second),
 		DeleteHandler:  makeDeleteHandler(functionNamespace, client),
 		DeployHandler:  makeApplyHandler(functionNamespace, client),
-		FunctionReader: makeListHandler(functionNamespace, client, kube, deploymentLister),
+		FunctionReader: makeListHandler(functionNamespace, client, deploymentLister),
 		ReplicaReader:  makeReplicaReader(functionNamespace, client, kube, deploymentLister),
 		ReplicaUpdater: makeReplicaHandler(functionNamespace, client),
 		UpdateHandler:  makeApplyHandler(functionNamespace, client),
 		Health:         makeHealthHandler(),
 		InfoHandler:    makeInfoHandler(),
+		SecretHandler:  makeSecretHandler(functionNamespace, kube, secretLister),
 	}
 
 	bootstrapConfig := types.FaaSConfig{

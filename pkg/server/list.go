@@ -7,12 +7,13 @@ import (
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/listers/apps/v1beta2"
 	glog "k8s.io/klog"
 )
 
-func makeListHandler(namespace string, client clientset.Interface, kube kubernetes.Interface, deploymentLister v1beta2.DeploymentNamespaceLister) http.HandlerFunc {
+func makeListHandler(namespace string,
+	client clientset.Interface,
+	deploymentLister v1beta2.DeploymentNamespaceLister) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Body != nil {
