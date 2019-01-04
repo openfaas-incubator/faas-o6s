@@ -23,7 +23,7 @@ func Test_configureReadOnlyRootFilesystem_Disabled_To_Disabled(t *testing.T) {
 
 	function := &faasv1.Function{
 		Spec: faasv1.FunctionSpec{
-			Name: "testfunc",
+			Name:                   "testfunc",
 			ReadOnlyRootFilesystem: false,
 		},
 	}
@@ -47,7 +47,7 @@ func Test_configureReadOnlyRootFilesystem_Disabled_To_Enabled(t *testing.T) {
 
 	function := &faasv1.Function{
 		Spec: faasv1.FunctionSpec{
-			Name: "testfunc",
+			Name:                   "testfunc",
 			ReadOnlyRootFilesystem: true,
 		},
 	}
@@ -89,7 +89,7 @@ func Test_configureReadOnlyRootFilesystem_Enabled_To_Disabled(t *testing.T) {
 
 	function := &faasv1.Function{
 		Spec: faasv1.FunctionSpec{
-			Name: "testfunc",
+			Name:                   "testfunc",
 			ReadOnlyRootFilesystem: false,
 		},
 	}
@@ -131,7 +131,7 @@ func Test_configureReadOnlyRootFilesystem_Enabled_To_Enabled(t *testing.T) {
 
 	function := &faasv1.Function{
 		Spec: faasv1.FunctionSpec{
-			Name: "testfunc",
+			Name:                   "testfunc",
 			ReadOnlyRootFilesystem: true,
 		},
 	}
