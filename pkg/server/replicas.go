@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas-provider/types"
@@ -13,6 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/listers/apps/v1beta2"
+	glog "k8s.io/klog"
 )
 
 func makeReplicaReader(namespace string, client clientset.Interface, kube kubernetes.Interface, lister v1beta2.DeploymentNamespaceLister) http.HandlerFunc {

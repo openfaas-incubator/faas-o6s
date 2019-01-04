@@ -7,13 +7,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/golang/glog"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas-provider"
 	"github.com/openfaas/faas-provider/types"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	glog "k8s.io/klog"
 )
 
 // TODO: Move to config pattern used else-where across project

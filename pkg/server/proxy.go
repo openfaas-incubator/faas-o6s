@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"github.com/openfaas/faas/gateway/requests"
+	glog "k8s.io/klog"
 )
 
 // makeProxy creates a proxy for HTTP web requests which can be routed to a function.

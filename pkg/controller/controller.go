@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/google/go-cmp/cmp"
 	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
@@ -26,6 +25,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
+	glog "k8s.io/klog"
 )
 
 const controllerAgentName = "openfaas-operator"

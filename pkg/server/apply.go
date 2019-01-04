@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/golang/glog"
 	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	glog "k8s.io/klog"
 )
 
 func makeApplyHandler(namespace string, client clientset.Interface) http.HandlerFunc {
