@@ -194,47 +194,24 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:c8f4f7f673e672e0a8002cfc5da7e844d0364c38391769f914fa2d95d58a7299"
-  name = "github.com/openfaas-incubator/openfaas-operator"
-  packages = [
-    "pkg/apis/openfaas",
-    "pkg/apis/openfaas/v1alpha2",
-    "pkg/client/clientset/versioned",
-    "pkg/client/clientset/versioned/scheme",
-    "pkg/client/clientset/versioned/typed/openfaas/v1alpha2",
-    "pkg/client/clientset/versioned/typed/openfaas/v1alpha2/fake",
-    "pkg/client/informers/externalversions",
-    "pkg/client/informers/externalversions/internalinterfaces",
-    "pkg/client/informers/externalversions/openfaas",
-    "pkg/client/informers/externalversions/openfaas/v1alpha2",
-    "pkg/client/listers/openfaas/v1alpha2",
-    "pkg/controller",
-    "pkg/server",
-    "pkg/signals",
-    "pkg/version",
-  ]
-  pruneopts = "UT"
-  revision = "04827e0409b97bc0be790df1c933207d06503aff"
-  version = "0.8.12"
-
-[[projects]]
-  digest = "1:cd4844d2c87206efa7faa9ea920f936e4f16512ac3fa342e7534dfb6d804a63b"
+  digest = "1:4d6a80b49c67009aa822c9a9788d87a892be52809db9b7d4fb653ab5066f9b05"
   name = "github.com/openfaas/faas"
   packages = ["gateway/requests"]
   pruneopts = "UT"
-  revision = "8f0d2d1fd6c5e3c9d2e0a73d6d256c4e232b3737"
-  version = "0.8.9"
+  revision = "1261aadebefc21f88cc7071613c0e59298412c8f"
+  version = "0.9.13"
 
 [[projects]]
-  digest = "1:bea682b0fa01d19595a264f18e7bbbed8949eeaf7d5c640c3f7b49df623f79c5"
+  digest = "1:51ce680938533385fd69725839e0e419d6e100308897341ff93151571d73cd7f"
   name = "github.com/openfaas/faas-provider"
   packages = [
     ".",
+    "auth",
     "types",
   ]
   pruneopts = "UT"
-  revision = "ffce01238ccf01b0f4e573fb65b92b285a547a4b"
-  version = "0.6"
+  revision = "220324e98f5db5aa61f02d1ab13f03e91310796c"
+  version = "0.8.1"
 
 [[projects]]
   branch = "master"
@@ -708,24 +685,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/golang/glog",
     "github.com/google/go-cmp/cmp",
     "github.com/gorilla/mux",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2/fake",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/openfaas",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/openfaas/v1alpha2",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1alpha2",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/controller",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/server",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/signals",
-    "github.com/openfaas-incubator/openfaas-operator/pkg/version",
     "github.com/openfaas/faas-provider",
     "github.com/openfaas/faas-provider/types",
     "github.com/openfaas/faas/gateway/requests",
