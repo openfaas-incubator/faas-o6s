@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang/glog"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/controller"
@@ -16,6 +15,7 @@ import (
 	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	glog "k8s.io/klog"
 
 	// required to authenticate against GKE clusters
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -38,6 +38,7 @@ func init() {
 }
 
 func main() {
+	flag.Set("logtostderr", "true")
 	flag.Parse()
 
 	sha, release := version.GetReleaseInfo()

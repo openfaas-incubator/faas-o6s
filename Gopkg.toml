@@ -49,3 +49,7 @@ required = ["k8s.io/code-generator/cmd/client-gen"]
 [[constraint]]
   name = "github.com/google/go-cmp"
   version = "v0.2.0"
+
+[[override]]
+  name = "github.com/golang/glog"
+  source = "k8s.io/klog"
