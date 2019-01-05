@@ -63,9 +63,6 @@ func Start(client clientset.Interface,
 	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
 	deploymentLister := deploymentInformer.Lister().Deployments(functionNamespace)
 
-	secretInformer := kubeInformerFactory.Core().V1().Secrets()
-	secretLister := secretInformer.Lister().Secrets(functionNamespace)
-
 	bootstrapHandlers := types.FaaSHandlers{
 		FunctionProxy:  makeProxy(functionNamespace, time.Duration(readTimeout)*time.Second),
 		DeleteHandler:  makeDeleteHandler(functionNamespace, client),
@@ -76,7 +73,7 @@ func Start(client clientset.Interface,
 		UpdateHandler:  makeApplyHandler(functionNamespace, client),
 		Health:         makeHealthHandler(),
 		InfoHandler:    makeInfoHandler(),
-		SecretHandler:  makeSecretHandler(functionNamespace, kube, secretLister),
+		SecretHandler:  makeSecretHandler(functionNamespace, kube),
 	}
 
 	bootstrapConfig := types.FaaSConfig{

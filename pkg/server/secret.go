@@ -8,15 +8,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
-	corev1listers "k8s.io/client-go/listers/core/v1"
 	glog "k8s.io/klog"
 	"net/http"
 )
 
 // makeSecretHandler provides the secrets CRUD endpoint
-func makeSecretHandler(namespace string, kube kubernetes.Interface, secretLister corev1listers.SecretNamespaceLister) http.HandlerFunc {
+func makeSecretHandler(namespace string, kube kubernetes.Interface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Body != nil {
 			defer r.Body.Close()
@@ -24,17 +22,15 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface, secretLister
 
 		switch r.Method {
 		case http.MethodGet:
-			ls := map[string]string{
-				"owner": "openfaas",
-			}
-			res, err := secretLister.List(labels.SelectorFromSet(ls))
+			res, err := kube.CoreV1().Secrets(namespace).List(metav1.ListOptions{LabelSelector: "owner=openfaas"})
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				glog.Errorf("Secrets query error: %v", err)
 				return
 			}
+			//glog.Infof("secrets %v", res)
 			secrets := []requests.Secret{}
-			for _, item := range res {
+			for _, item := range res.Items {
 				secret := requests.Secret{
 					Name: item.Name,
 				}

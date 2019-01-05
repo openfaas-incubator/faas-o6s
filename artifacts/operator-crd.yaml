@@ -45,18 +45,3 @@ spec:
                 memory:
                   type: string
                   pattern: "^[0-9]+(Mi|Gi)"
-            secrets:
-              type: array
-              items:
-                type: string
-            constraints:
-              type: array
-              items:
-                type: string
-            #TODO: add map validation available only in K8s 1.11 https://github.com/kubernetes/kubernetes/issues/59485
-            environment:
-              type: object
-            labels:
-              type: object
-            annotations:
-              type: object
