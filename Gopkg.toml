@@ -3,6 +3,7 @@ required = ["k8s.io/code-generator/cmd/client-gen"]
 [prune]
   go-tests = true
   unused-packages = true
+  non-go = true
 
   [[prune.project]]
     name = "k8s.io/code-generator"
@@ -15,24 +16,20 @@ required = ["k8s.io/code-generator/cmd/client-gen"]
     go-tests = false
 
 [[override]]
-  name = "k8s.io/code-generator"
-  version = "kubernetes-1.11.0"
-
-[[constraint]]
   name = "k8s.io/apimachinery"
-  version = "kubernetes-1.11.0"
-
-[[constraint]]
-  name = "k8s.io/client-go"
-  version = "8.0.0"
-
-[[constraint]]
-  name = "k8s.io/code-generator"
-  branch = "release-1.11"
+  branch = "release-1.12"
 
 [[override]]
-  name = "github.com/json-iterator/go"
-  revision = "f2b4162afba35581b6d4a50d3b8f34e33c144682"
+  name = "k8s.io/code-generator"
+  branch = "release-1.12"
+
+[[override]]
+  name = "k8s.io/client-go"
+  version = "v9.0.0"
+
+[[constraint]]
+  name = "k8s.io/klog"
+  version = "v0.1.0"
 
 [[constraint]]
   name = "github.com/openfaas/faas-provider"
@@ -44,12 +41,10 @@ required = ["k8s.io/code-generator/cmd/client-gen"]
 
 [[constraint]]
   name = "github.com/prometheus/client_golang"
-  version = "0.8.0"
+  version = "v0.9.2"
 
 [[constraint]]
   name = "github.com/google/go-cmp"
   version = "v0.2.0"
 
-[[override]]
-  name = "github.com/golang/glog"
-  source = "k8s.io/klog"
+
