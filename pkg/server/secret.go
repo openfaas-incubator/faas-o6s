@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/openfaas/faas/gateway/requests"
 	"io"
 	"io/ioutil"
@@ -13,6 +14,11 @@ import (
 	"net/http"
 )
 
+const (
+	secretLabel      = "app.kubernetes.io/managed-by"
+	secretLabelValue = "openfaas"
+)
+
 // makeSecretHandler provides the secrets CRUD endpoint
 func makeSecretHandler(namespace string, kube kubernetes.Interface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +28,8 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface) http.Handler
 
 		switch r.Method {
 		case http.MethodGet:
-			res, err := kube.CoreV1().Secrets(namespace).List(metav1.ListOptions{LabelSelector: "owner=openfaas"})
+			selector := fmt.Sprintf("%s=%s", secretLabel, secretLabelValue)
+			res, err := kube.CoreV1().Secrets(namespace).List(metav1.ListOptions{LabelSelector: selector})
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				glog.Errorf("Secrets query error: %v", err)
@@ -46,7 +53,7 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface) http.Handler
 			w.WriteHeader(http.StatusOK)
 			w.Write(secretsBytes)
 		case http.MethodPost:
-			secret, err := getSecret(namespace, r.Body)
+			secret, err := parseSecret(namespace, r.Body)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				glog.Errorf("Secret unmarshal error: %v", err)
@@ -61,7 +68,7 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface) http.Handler
 			glog.Infof("Secret %s created", secret.GetName())
 			w.WriteHeader(http.StatusAccepted)
 		case http.MethodPut:
-			newSecret, err := getSecret(namespace, r.Body)
+			newSecret, err := parseSecret(namespace, r.Body)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				glog.Errorf("Secret unmarshal error: %v", err)
@@ -88,7 +95,7 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface) http.Handler
 			glog.Infof("Secret %s updated", secret.GetName())
 			w.WriteHeader(http.StatusAccepted)
 		case http.MethodDelete:
-			secret, err := getSecret(namespace, r.Body)
+			secret, err := parseSecret(namespace, r.Body)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				glog.Errorf("Secret unmarshal error: %v", err)
@@ -110,7 +117,7 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface) http.Handler
 	}
 }
 
-func getSecret(namespace string, r io.Reader) (*corev1.Secret, error) {
+func parseSecret(namespace string, r io.Reader) (*corev1.Secret, error) {
 	body, _ := ioutil.ReadAll(r)
 	req := requests.Secret{}
 	err := json.Unmarshal(body, &req)
@@ -123,7 +130,7 @@ func getSecret(namespace string, r io.Reader) (*corev1.Secret, error) {
 			Name:      req.Name,
 			Namespace: namespace,
 			Labels: map[string]string{
-				"owner": "openfaas",
+				secretLabel: secretLabelValue,
 			},
 		},
 		StringData: map[string]string{
