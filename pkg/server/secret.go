@@ -8,6 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	corev1listers "k8s.io/client-go/listers/core/v1"
 	glog "k8s.io/klog"
@@ -23,7 +24,10 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface, secretLister
 
 		switch r.Method {
 		case http.MethodGet:
-			res, err := secretLister.List(nil)
+			ls := map[string]string{
+				"owner": "openfaas",
+			}
+			res, err := secretLister.List(labels.SelectorFromSet(ls))
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				glog.Errorf("Secrets query error: %v", err)
@@ -58,6 +62,8 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface, secretLister
 				glog.Errorf("Secret create error: %v", err)
 				return
 			}
+			glog.Infof("Secret %s created", secret.GetName())
+			w.WriteHeader(http.StatusAccepted)
 		case http.MethodPut:
 			newSecret, err := getSecret(namespace, r.Body)
 			if err != nil {
@@ -83,6 +89,8 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface, secretLister
 				glog.Errorf("Secret update error: %v", err)
 				return
 			}
+			glog.Infof("Secret %s updated", secret.GetName())
+			w.WriteHeader(http.StatusAccepted)
 		case http.MethodDelete:
 			secret, err := getSecret(namespace, r.Body)
 			if err != nil {
@@ -97,12 +105,12 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface, secretLister
 				glog.Errorf("Secret %s delete error: %v", secret.GetName(), err)
 				return
 			}
+			glog.Infof("Secret %s deleted", secret.GetName())
+			w.WriteHeader(http.StatusAccepted)
 		default:
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-
-		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -118,6 +126,9 @@ func getSecret(namespace string, r io.Reader) (*corev1.Secret, error) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      req.Name,
 			Namespace: namespace,
+			Labels: map[string]string{
+				"owner": "openfaas",
+			},
 		},
 		StringData: map[string]string{
 			req.Name: req.Value,
