@@ -105,13 +105,13 @@ Start OpenFaaS controller (assumes you have a working kubeconfig on the machine)
 
 ```bash
 $ go build \
-  && ./openfaas-operator -kubeconfig=$HOME/.kube/config -logtostderr=true -v=4
+  && ./openfaas-operator -kubeconfig=$HOME/.kube/config -v=4
 ```
 
 With `go run`
 
 ```bash
-$ go run *.go -kubeconfig=$HOME/.kube/config -logtostderr=true
+$ go run *.go -kubeconfig=$HOME/.kube/config
 ```
 
 To use an alternative port set the `port` environmental variable to another value.
@@ -145,6 +145,8 @@ kubectl get all
 
 ### API calls
 
+#### Function CRUD
+
 Create or update a function:
 
 ```bash
@@ -173,6 +175,32 @@ Remove function:
 
 ```bash
 curl -d '{"functionName":"nodeinfo"}' -X DELETE http://localhost:8081/system/functions
+```
+
+#### Secret CRUD
+
+Create secret:
+
+```bash
+curl -d '{"name":"test","value":"test"}' -X POST http://localhost:8081/system/secrets
+```
+
+List secrets:
+
+```bash
+curl -X GET http://localhost:8081/system/secrets
+```
+
+Update secret:
+
+```bash
+curl -d '{"name":"test","value":"test update"}' -X PUT http://localhost:8081/system/secrets
+```
+
+Delete secret:
+
+```bash
+curl -d '{"name":"test"}' -X DELETE http://localhost:8081/system/secrets
 ```
 
 ### Logging
