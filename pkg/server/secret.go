@@ -67,7 +67,7 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface) http.Handler
 				glog.Errorf("Secret unmarshal error: %v", err)
 				return
 			}
-			secret, err := secretLister.Get(newSecret.GetName())
+			secret, err := kube.CoreV1().Secrets(namespace).Get(newSecret.GetName(), metav1.GetOptions{})
 			if errors.IsNotFound(err) {
 				w.WriteHeader(http.StatusNotFound)
 				glog.Warningf("Secret update error: %s not found", newSecret.GetName())
