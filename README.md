@@ -143,9 +143,9 @@ Check if nodeinfo pods, rc, deployment and service were removed:
 kubectl get all
 ```
 
-### API calls
+### Web API
 
-#### Function CRUD
+#### Functions management
 
 Create or update a function:
 
@@ -177,7 +177,7 @@ Remove function:
 curl -d '{"functionName":"nodeinfo"}' -X DELETE http://localhost:8081/system/functions
 ```
 
-#### Secret CRUD
+#### Secrets management
 
 Create secret:
 

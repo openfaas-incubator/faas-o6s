@@ -41,17 +41,7 @@ func main() {
 	flag.Set("logtostderr", "true")
 	flag.Parse()
 
-	klogFlags := flag.NewFlagSet("klog", flag.ExitOnError)
-	glog.InitFlags(klogFlags)
-
-	// Sync the glog and klog flags.
-	flag.CommandLine.VisitAll(func(f1 *flag.Flag) {
-		f2 := klogFlags.Lookup(f1.Name)
-		if f2 != nil {
-			value := f1.Value.String()
-			f2.Value.Set(value)
-		}
-	})
+	setupLogging()
 
 	sha, release := version.GetReleaseInfo()
 	glog.Infof("Starting OpenFaaS controller version: %s commit: %s", release, sha)
@@ -104,4 +94,18 @@ func main() {
 	if err = ctrl.Run(2, stopCh); err != nil {
 		glog.Fatalf("Error running controller: %s", err.Error())
 	}
+}
+
+func setupLogging() {
+	klogFlags := flag.NewFlagSet("klog", flag.ExitOnError)
+	glog.InitFlags(klogFlags)
+
+	// Sync the glog and klog flags.
+	flag.CommandLine.VisitAll(func(f1 *flag.Flag) {
+		f2 := klogFlags.Lookup(f1.Name)
+		if f2 != nil {
+			value := f1.Value.String()
+			f2.Value.Set(value)
+		}
+	})
 }
