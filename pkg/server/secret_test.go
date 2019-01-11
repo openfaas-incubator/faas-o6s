@@ -3,13 +3,15 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/openfaas/faas/gateway/requests"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	testclient "k8s.io/client-go/kubernetes/fake"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/openfaas/faas/gateway/requests"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	testclient "k8s.io/client-go/kubernetes/fake"
 )
 
 func Test_makeSecretHandler(t *testing.T) {
@@ -132,4 +134,26 @@ func Test_makeSecretHandler(t *testing.T) {
 			t.Errorf("expected not found error, got secret payload '%s'", actualSecret)
 		}
 	})
+}
+
+func Test_makeSecretHandler_WithEmptyList(t *testing.T) {
+	namespace := "openfaas-fn"
+	kube := testclient.NewSimpleClientset()
+	secretsHandler := makeSecretHandler(namespace, kube).ServeHTTP
+
+	req := httptest.NewRequest("GET", "http://system/secrets", nil)
+	w := httptest.NewRecorder()
+
+	secretsHandler(w, req)
+
+	resp := w.Result()
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected status code '%d', got '%d'", http.StatusOK, resp.StatusCode)
+	}
+
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	if string(body) == "null" {
+		t.Errorf(`want empty list to be valid json i.e. "[]", but was %q`, string(body))
+	}
 }

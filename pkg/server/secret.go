@@ -3,14 +3,15 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/openfaas/faas/gateway/requests"
 	"io"
 	"io/ioutil"
+	"net/http"
+
+	"github.com/openfaas/faas/gateway/requests"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	glog "k8s.io/klog"
-	"net/http"
 )
 
 const (
@@ -108,18 +109,22 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface) http.Handler
 }
 
 func getSecrets(namespace string, kube kubernetes.Interface) ([]requests.Secret, error) {
-	var secrets []requests.Secret
+	secrets := []requests.Secret{}
 	selector := fmt.Sprintf("%s=%s", secretLabel, secretLabelValue)
+
 	res, err := kube.CoreV1().Secrets(namespace).List(metav1.ListOptions{LabelSelector: selector})
+
 	if err != nil {
 		return secrets, err
 	}
+
 	for _, item := range res.Items {
 		secret := requests.Secret{
 			Name: item.Name,
 		}
 		secrets = append(secrets, secret)
 	}
+
 	return secrets, nil
 }
 
