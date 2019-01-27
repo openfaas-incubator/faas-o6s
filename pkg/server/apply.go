@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-
 	"strconv"
 	"strings"
 
@@ -27,6 +26,7 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 		err := json.Unmarshal(body, &req)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
 			return
 		}
 
@@ -63,6 +63,7 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 				_, err = client.OpenfaasV1alpha2().Functions(namespace).Create(newFunc)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(err.Error()))
 					glog.Errorf("Function %s create error: %v", req.Service, err)
 					return
 				} else {
@@ -70,6 +71,7 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 				}
 			} else {
 				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
 				glog.Errorf("Function %s update error: %v", req.Service, err)
 				return
 			}
