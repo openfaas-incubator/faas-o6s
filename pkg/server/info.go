@@ -25,9 +25,15 @@ func makeInfoHandler() http.HandlerFunc {
 			},
 		}
 
-		infoBytes, _ := json.Marshal(info)
+		infoBytes, err := json.Marshal(info)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(infoBytes)
 	}
+	
 }

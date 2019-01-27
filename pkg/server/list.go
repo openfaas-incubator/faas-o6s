@@ -26,6 +26,7 @@ func makeListHandler(namespace string,
 		res, err := client.OpenfaasV1alpha2().Functions(namespace).List(opts)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
 			glog.Errorf("Function listing error: %v", err)
 			return
 		}

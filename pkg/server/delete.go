@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -23,17 +24,21 @@ func makeDeleteHandler(namespace string, client clientset.Interface) http.Handle
 		err := json.Unmarshal(body, &request)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
 			return
 		}
 
 		if len(request.FunctionName) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
+			io.WriteString(w, "No function provided")
+			return
 		}
 
 		opts := &metav1.DeleteOptions{}
 		err = client.OpenfaasV1alpha2().Functions(namespace).Delete(request.FunctionName, opts)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 			glog.Errorf("Function %s delete error: %v", request.FunctionName, err)
 			return
 		}

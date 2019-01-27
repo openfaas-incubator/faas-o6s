@@ -24,6 +24,7 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 		k8sfunc, err := client.OpenfaasV1alpha2().Functions(namespace).Get(functionName, opts)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
 			return
 		}
 
@@ -72,6 +73,7 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 			if err := json.Unmarshal(bytesIn, &req); err != nil {
 				glog.Errorf("Function %s replica invalid JSON: %v", functionName, err)
 				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(err.Error()))
 				return
 			}
 		}
@@ -80,6 +82,7 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 		k8sfunc, err := client.OpenfaasV1alpha2().Functions(namespace).Get(functionName, opts)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 			glog.Errorf("Function %s get error: %v", functionName, err)
 			return
 		}
@@ -88,6 +91,7 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 		_, err = client.OpenfaasV1alpha2().Functions(namespace).Update(k8sfunc)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 			glog.Errorf("Function %s update error: %v", functionName, err)
 			return
 		}
