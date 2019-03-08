@@ -116,6 +116,7 @@ func NewController(
 		functionsSynced:   faasInformer.Informer().HasSynced,
 		workqueue:         workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "Functions"),
 		recorder:          recorder,
+		imagePullPolicy:   imagePullPolicy,
 	}
 
 	glog.Info("Setting up event handlers")
