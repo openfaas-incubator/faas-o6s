@@ -100,3 +100,7 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 		w.WriteHeader(http.StatusAccepted)
 	}
 }
+
+func int32p(i int32) *int32 {
+	return &i
+}

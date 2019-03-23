@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 
 	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
+	"github.com/openfaas-incubator/openfaas-operator/pkg/specutils"
 	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	glog "k8s.io/klog"
@@ -44,9 +44,9 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 				Environment:            &req.EnvVars,
 				Constraints:            req.Constraints,
 				Secrets:                req.Secrets,
-				Replicas:               getMinReplicaCount(req.Labels),
-				Limits:                 getResources(req.Limits),
-				Requests:               getResources(req.Requests),
+				Replicas:               int32p(specutils.GetMinReplicaCount(req.Labels)),
+				Limits:                 specutils.GetResources(req.Limits),
+				Requests:               specutils.GetResources(req.Requests),
 				ReadOnlyRootFilesystem: req.ReadOnlyRootFilesystem,
 			},
 		}
@@ -81,34 +81,4 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 
 		w.WriteHeader(http.StatusAccepted)
 	}
-}
-
-func getMinReplicaCount(labels *map[string]string) *int32 {
-	if labels != nil {
-		lb := *labels
-		if value, exists := lb["com.openfaas.scale.min"]; exists {
-			minReplicas, err := strconv.Atoi(value)
-			if err == nil && minReplicas > 0 {
-				return int32p(int32(minReplicas))
-			} else {
-				glog.Error(err)
-			}
-		}
-	}
-
-	return int32p(1)
-}
-
-func getResources(limits *requests.FunctionResources) *v1alpha1.FunctionResources {
-	if limits == nil {
-		return nil
-	}
-	return &v1alpha1.FunctionResources{
-		CPU:    limits.CPU,
-		Memory: limits.Memory,
-	}
-}
-
-func int32p(i int32) *int32 {
-	return &i
 }

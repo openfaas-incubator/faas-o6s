@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/openfaas-incubator/openfaas-operator/pkg/specutils"
+
 	"github.com/google/go-cmp/cmp"
 	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	appsv1beta2 "k8s.io/api/apps/v1beta2"
@@ -54,7 +56,7 @@ func newDeployment(
 			},
 		},
 		Spec: appsv1beta2.DeploymentSpec{
-			Replicas: function.Spec.Replicas,
+			Replicas: makeReplicas(function),
 			Strategy: appsv1beta2.DeploymentStrategy{
 				Type: appsv1beta2.RollingUpdateDeploymentStrategyType,
 				RollingUpdate: &appsv1beta2.RollingUpdateDeployment{
@@ -109,6 +111,26 @@ func newDeployment(
 	}
 
 	return deploymentSpec
+}
+
+func makeReplicas(function *faasv1.Function) *int32 {
+	maxCount := specutils.GetMaxReplicaCount(function.Spec.Labels)
+	minCount := specutils.GetMinReplicaCount(function.Spec.Labels)
+	value := function.Spec.Replicas
+
+	if value == nil {
+		return int32p(minCount)
+	}
+
+	if *value < minCount {
+		return int32p(minCount)
+	}
+
+	if maxCount < *value {
+		return int32p(maxCount)
+	}
+
+	return value
 }
 
 func makeEnvVars(function *faasv1.Function) []corev1.EnvVar {
