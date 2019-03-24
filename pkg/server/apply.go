@@ -44,12 +44,13 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 				Environment:            &req.EnvVars,
 				Constraints:            req.Constraints,
 				Secrets:                req.Secrets,
-				Replicas:               int32p(specutils.GetMinReplicaCount(req.Labels)),
 				Limits:                 specutils.GetResources(req.Limits),
 				Requests:               specutils.GetResources(req.Requests),
 				ReadOnlyRootFilesystem: req.ReadOnlyRootFilesystem,
 			},
 		}
+
+		newFunc.Spec.Replicas = specutils.MakeReplicas(newFunc)
 
 		opts := metav1.GetOptions{}
 		oldFunc, _ := client.OpenfaasV1alpha2().Functions(namespace).Get(req.Service, opts)

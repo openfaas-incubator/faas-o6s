@@ -11,7 +11,7 @@ push:
 	docker push openfaas/openfaas-operator:$(TAG)
 
 test:
-	go test ./...
+	go test -cover ./...
 
 verify-codegen:
 	./hack/verify-codegen.sh

@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/golang/glog"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 )
 
 const (
@@ -22,6 +23,32 @@ const (
 	// when there is no traffic.
 	LabelScaleToZero = "com.openfaas.scale.zero"
 )
+
+// MakeReplicas determines the correct initial replica value based on the labels and user supplied
+// replica value.  This will enforce system defaults and accounts for scaling configurations.
+func MakeReplicas(function *faasv1.Function) *int32 {
+	value := function.Spec.Replicas
+	scalingFactor := GetScalingFactor(function.Spec.Labels)
+	if scalingFactor == 0 {
+		return value
+	}
+
+	maxCount := GetMaxReplicaCount(function.Spec.Labels)
+	minCount := GetMinReplicaCount(function.Spec.Labels)
+	if value == nil {
+		return &minCount
+	}
+
+	if *value < minCount {
+		return &minCount
+	}
+
+	if maxCount < *value {
+		return &maxCount
+	}
+
+	return value
+}
 
 // GetMinReplicaCount parses the function min allowed replicas value form its labels
 func GetMinReplicaCount(labels *map[string]string) int32 {
