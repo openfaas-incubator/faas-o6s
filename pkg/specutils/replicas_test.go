@@ -45,3 +45,49 @@ func Test_GetMinReplicas(t *testing.T) {
 		})
 	}
 }
+
+func Test_GetScalingFactor(t *testing.T) {
+	scenarios := []struct {
+		name     string
+		labels   *map[string]string
+		expected int
+	}{
+		{"nil labels returns default factor", nil, defaultScalingFactor},
+		{"empty labels returns default factor", &map[string]string{}, defaultScalingFactor},
+		{"non-integer returns default factor", &map[string]string{LabelScalingFactor: "test"}, defaultScalingFactor},
+		{"0 value returns 0", &map[string]string{LabelScalingFactor: "0"}, 0},
+		{"negative value returns 0", &map[string]string{LabelScalingFactor: "-10"}, 0},
+		{"non-negative value returns supplied value", &map[string]string{LabelScalingFactor: "10"}, 10},
+		{"greater that 100 value returns 100", &map[string]string{LabelScalingFactor: "1000"}, 100},
+	}
+	for _, s := range scenarios {
+		t.Run(s.name, func(t *testing.T) {
+			value := GetScalingFactor(s.labels)
+			if s.expected != value {
+				t.Errorf("incorrect replicas scaling factor: expected %v, got %v", s.expected, value)
+			}
+		})
+	}
+}
+
+func Test_GetScaleToZero(t *testing.T) {
+	scenarios := []struct {
+		name     string
+		labels   *map[string]string
+		expected bool
+	}{
+		{"nil labels returns default factor", nil, defaultScaleToZero},
+		{"empty labels returns default factor", &map[string]string{}, defaultScaleToZero},
+		{"non-integer returns default factor", &map[string]string{LabelScaleToZero: "test"}, defaultScaleToZero},
+		{"true returns true", &map[string]string{LabelScaleToZero: "true"}, true},
+		{"false returns false", &map[string]string{LabelScaleToZero: "false"}, false},
+	}
+	for _, s := range scenarios {
+		t.Run(s.name, func(t *testing.T) {
+			value := GetScaleToZero(s.labels)
+			if s.expected != value {
+				t.Errorf("incorrect replicas scaling factor: expected %v, got %v", s.expected, value)
+			}
+		})
+	}
+}

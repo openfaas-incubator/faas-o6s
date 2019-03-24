@@ -15,6 +15,9 @@ func Test_newDeployment_replica_counts(t *testing.T) {
 		expected int32
 	}{
 		{"1 replica for the empty function", &faasv1.Function{}, 1},
+		{"return original replica value when scaling factor is explicitly 0", &faasv1.Function{Spec: faasv1.FunctionSpec{Labels: &map[string]string{specutils.LabelScalingFactor: "0"}, Replicas: int32p(110)}}, 110},
+		{"return original replica value when scaling factor is negative", &faasv1.Function{Spec: faasv1.FunctionSpec{Labels: &map[string]string{specutils.LabelScalingFactor: "-10"}, Replicas: int32p(110)}}, 110},
+		{"enforce labels when scaling factor is non-zero", &faasv1.Function{Spec: faasv1.FunctionSpec{Labels: &map[string]string{specutils.LabelScalingFactor: "25", specutils.LabelMaxReplicas: "10"}, Replicas: int32p(110)}}, 10},
 		{"too small replica returns default min", &faasv1.Function{Spec: faasv1.FunctionSpec{Replicas: int32p(0)}}, 1},
 		{"too small replica returns explicit min", &faasv1.Function{Spec: faasv1.FunctionSpec{Labels: &map[string]string{specutils.LabelMinReplicas: "5"}, Replicas: int32p(2)}}, 5},
 		{"too large replica returns default max", &faasv1.Function{Spec: faasv1.FunctionSpec{Replicas: int32p(1000)}}, 100},

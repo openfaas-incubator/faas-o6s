@@ -114,10 +114,14 @@ func newDeployment(
 }
 
 func makeReplicas(function *faasv1.Function) *int32 {
+	value := function.Spec.Replicas
+	scalingFactor := specutils.GetScalingFactor(function.Spec.Labels)
+	if scalingFactor == 0 {
+		return value
+	}
+
 	maxCount := specutils.GetMaxReplicaCount(function.Spec.Labels)
 	minCount := specutils.GetMinReplicaCount(function.Spec.Labels)
-	value := function.Spec.Replicas
-
 	if value == nil {
 		return int32p(minCount)
 	}
