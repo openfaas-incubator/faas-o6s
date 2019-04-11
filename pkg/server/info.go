@@ -35,5 +35,5 @@ func makeInfoHandler() http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 		w.Write(infoBytes)
 	}
-	
+
 }
