@@ -40,6 +40,15 @@ func newDeployment(
 
 	annotations := makeAnnotations(function)
 
+	var serviceAccount string
+
+	if function.Spec.Annotations != nil {
+		annotations := *function.Spec.Annotations
+		if val, ok := annotations["com.openfaas.serviceaccount"]; ok && len(val) > 0 {
+			serviceAccount = val
+		}
+	}
+
 	deploymentSpec := &appsv1beta2.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        function.Spec.Name,
@@ -99,6 +108,10 @@ func newDeployment(
 				},
 			},
 		},
+	}
+
+	if len(serviceAccount) > 0 {
+		deploymentSpec.Spec.Template.Spec.ServiceAccountName = serviceAccount
 	}
 
 	configureReadOnlyRootFilesystem(function, deploymentSpec)
