@@ -203,6 +203,25 @@ Delete secret:
 curl -d '{"name":"test"}' -X DELETE http://localhost:8081/system/secrets
 ```
 
+#### Configure the service account for your function
+
+Example service account:
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: build-robot
+  namespace: openfaas-fn
+```
+
+Set the following in your function spec:
+
+```yaml
+annotations:
+  com.openfaas.serviceaccount: "build-robot"
+```
+
 ### Logging
 
 Verbosity levels:
