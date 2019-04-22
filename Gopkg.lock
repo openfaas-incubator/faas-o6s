@@ -201,6 +201,14 @@
   version = "0.9.14"
 
 [[projects]]
+  digest = "1:21fd9c80efa30670d802551f0d2949a0c06fadb6764d1f1b65615f52bad315ea"
+  name = "github.com/openfaas/faas-netes"
+  packages = ["types"]
+  pruneopts = "UT"
+  revision = "aa7ebfc35f66fd881fa9fc26de1cd94f4e65731f"
+  version = "0.7.3"
+
+[[projects]]
   digest = "1:51ce680938533385fd69725839e0e419d6e100308897341ff93151571d73cd7f"
   name = "github.com/openfaas/faas-provider"
   packages = [
@@ -729,6 +737,7 @@
   input-imports = [
     "github.com/google/go-cmp/cmp",
     "github.com/gorilla/mux",
+    "github.com/openfaas/faas-netes/types",
     "github.com/openfaas/faas-provider",
     "github.com/openfaas/faas-provider/types",
     "github.com/openfaas/faas/gateway/requests",
