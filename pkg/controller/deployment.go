@@ -2,7 +2,7 @@ package controller
 
 import (
 	"encoding/json"
-	"path/filepath"
+	"github.com/openfaas/faas-netes/types"
 	"strings"
 
 	"github.com/google/go-cmp/cmp"
@@ -25,12 +25,12 @@ const (
 func newDeployment(
 	function *faasv1.Function,
 	existingSecrets map[string]*corev1.Secret,
-	imagePullPolicy corev1.PullPolicy) *appsv1beta2.Deployment {
+	config types.BootstrapConfig) *appsv1beta2.Deployment {
 
 	envVars := makeEnvVars(function)
 	labels := makeLabels(function)
 	nodeSelector := makeNodeSelector(function.Spec.Constraints)
-	livenessProbe := makeLivenessProbe()
+	probes := makeProbes(config)
 
 	resources, err := makeResources(function)
 	if err != nil {
@@ -98,11 +98,11 @@ func newDeployment(
 							Ports: []corev1.ContainerPort{
 								{ContainerPort: int32(functionPort), Protocol: corev1.ProtocolTCP},
 							},
-							ImagePullPolicy: imagePullPolicy,
+							ImagePullPolicy: corev1.PullPolicy(config.ImagePullPolicy),
 							Env:             envVars,
 							Resources:       *resources,
-							LivenessProbe:   livenessProbe,
-							ReadinessProbe:  livenessProbe,
+							LivenessProbe:   probes.Liveness,
+							ReadinessProbe:  probes.Readiness,
 						},
 					},
 				},
@@ -184,24 +184,6 @@ func makeAnnotations(function *faasv1.Function) map[string]string {
 
 	annotations[annotationFunctionSpec] = string(specJSON)
 	return annotations
-}
-
-func makeLivenessProbe() *corev1.Probe {
-	path := filepath.Join("/tmp/", ".lock")
-	probe := &corev1.Probe{
-		Handler: corev1.Handler{
-			Exec: &corev1.ExecAction{
-				Command: []string{"cat", path},
-			},
-		},
-		InitialDelaySeconds: 3,
-		TimeoutSeconds:      1,
-		PeriodSeconds:       5,
-		SuccessThreshold:    1,
-		FailureThreshold:    2,
-	}
-
-	return probe
 }
 
 func makeNodeSelector(constraints []string) map[string]string {

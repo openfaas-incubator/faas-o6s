@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"github.com/openfaas/faas-netes/types"
 	"strings"
 	"time"
 
@@ -69,7 +70,8 @@ type Controller struct {
 	// Kubernetes API.
 	recorder record.EventRecorder
 
-	imagePullPolicy corev1.PullPolicy
+	// OpenFaaS bootstrap config
+	config types.BootstrapConfig
 }
 
 func checkCustomResourceType(obj interface{}) (faasv1.Function, bool) {
@@ -88,7 +90,7 @@ func NewController(
 	faasclientset clientset.Interface,
 	kubeInformerFactory kubeinformers.SharedInformerFactory,
 	faasInformerFactory informers.SharedInformerFactory,
-	imagePullPolicy corev1.PullPolicy) *Controller {
+	config types.BootstrapConfig) *Controller {
 
 	// obtain references to shared index informers for the Deployment and Function types
 	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
@@ -116,7 +118,7 @@ func NewController(
 		functionsSynced:   faasInformer.Informer().HasSynced,
 		workqueue:         workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "Functions"),
 		recorder:          recorder,
-		imagePullPolicy:   imagePullPolicy,
+		config:            config,
 	}
 
 	glog.Info("Setting up event handlers")
@@ -330,7 +332,7 @@ func (c *Controller) syncHandler(key string) error {
 
 		glog.Infof("Creating deployment for '%s'", function.Spec.Name)
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(
-			newDeployment(function, existingSecrets, c.imagePullPolicy),
+			newDeployment(function, existingSecrets, c.config),
 		)
 	}
 
@@ -373,7 +375,7 @@ func (c *Controller) syncHandler(key string) error {
 		}
 
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(
-			newDeployment(function, existingSecrets, c.imagePullPolicy),
+			newDeployment(function, existingSecrets, c.config),
 		)
 
 		if err != nil {
