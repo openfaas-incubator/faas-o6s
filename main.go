@@ -11,7 +11,7 @@ import (
 	"github.com/openfaas-incubator/openfaas-operator/pkg/server"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/signals"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/version"
-	corev1 "k8s.io/api/core/v1"
+	"github.com/openfaas/faas-netes/types"
 	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -64,17 +64,17 @@ func main() {
 		glog.Fatalf("Error building OpenFaaS clientset: %s", err.Error())
 	}
 
+	readConfig := types.ReadConfig{}
+	osEnv := types.OsEnv{}
+	config := readConfig.Read(osEnv)
+
 	functionNamespace := "openfaas-fn"
 	if namespace, exists := os.LookupEnv("function_namespace"); exists {
 		functionNamespace = namespace
 	}
 
-	imagePullPolicy := corev1.PullAlways
-	if val, exists := os.LookupEnv("image_pull_policy"); exists {
-		if !pullPolicyOptions[val] {
-			glog.Fatalf("Invalid image_pull_policy configured: %s", val)
-		}
-		imagePullPolicy = corev1.PullPolicy(val)
+	if !pullPolicyOptions[config.ImagePullPolicy] {
+		glog.Fatalf("Invalid image_pull_policy configured: %s", config.ImagePullPolicy)
 	}
 
 	defaultResync := time.Second * 30
@@ -85,7 +85,13 @@ func main() {
 	faasInformerOpt := informers.WithNamespace(functionNamespace)
 	faasInformerFactory := informers.NewSharedInformerFactoryWithOptions(faasClient, defaultResync, faasInformerOpt)
 
-	ctrl := controller.NewController(kubeClient, faasClient, kubeInformerFactory, faasInformerFactory, imagePullPolicy)
+	ctrl := controller.NewController(
+		kubeClient,
+		faasClient,
+		kubeInformerFactory,
+		faasInformerFactory,
+		config,
+	)
 
 	go kubeInformerFactory.Start(stopCh)
 	go faasInformerFactory.Start(stopCh)
