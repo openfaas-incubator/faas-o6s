@@ -4,7 +4,6 @@ import (
 	"github.com/openfaas/faas-netes/types"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"os"
 	"path/filepath"
 )
 
@@ -29,7 +28,7 @@ func makeProbes(config types.BootstrapConfig) *FunctionProbes {
 			},
 		}
 	} else {
-		path := filepath.Join(os.TempDir(), ".lock")
+		path := filepath.Join("/tmp/", ".lock")
 		handler = corev1.Handler{
 			Exec: &corev1.ExecAction{
 				Command: []string{"cat", path},
