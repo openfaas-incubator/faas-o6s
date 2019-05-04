@@ -71,7 +71,7 @@ func Start(client clientset.Interface,
 		ReplicaReader:  makeReplicaReader(functionNamespace, client, kube, deploymentLister),
 		ReplicaUpdater: makeReplicaHandler(functionNamespace, client),
 		UpdateHandler:  makeApplyHandler(functionNamespace, client),
-		Health:         makeHealthHandler(),
+		HealthHandler:  makeHealthHandler(),
 		InfoHandler:    makeInfoHandler(),
 		SecretHandler:  makeSecretHandler(functionNamespace, kube),
 	}
