@@ -12,14 +12,14 @@ spec:
   environment:
     output: "verbose"
     debug: "true"
-  secrets:
-    - faas-token
-    - faas-key
+  # secrets:
+  #   - faas-token
+  #   - faas-key
   limits:
     cpu: "100m"
     memory: "128Mi"
   requests:
     cpu: "10m"
     memory: "64Mi"
-  constraints:
-    - "cloud.google.com/gke-nodepool=default-pool"
+  # constraints:
+  #   - "cloud.google.com/gke-nodepool=default-pool"

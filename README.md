@@ -6,9 +6,92 @@ Status](https://travis-ci.org/openfaas-incubator/openfaas-operator.svg?branch=ma
 
 OpenFaaS Operator for Kubernetes 1.9 or newer
 
-### Deploy
+### Example `Function` for `openfaas.com/v1alpha2` CRD
 
-Deploy OpenFaaS Operator with Helm:
+* Minimal example:
+
+```yaml
+apiVersion: openfaas.com/v1alpha2
+kind: Function
+metadata:
+  name: nodeinfo
+  namespace: openfaas-fn
+spec:
+  name: nodeinfo
+  image: functions/nodeinfo:latest
+```
+
+* Extended example:
+
+```yaml
+apiVersion: openfaas.com/v1alpha2
+kind: Function
+metadata:
+  name: nodeinfo
+  namespace: openfaas-fn
+spec:
+  name: nodeinfo
+  handler: node main.js
+  image: functions/nodeinfo:latest
+  labels:
+    com.openfaas.scale.min: "2"
+    com.openfaas.scale.max: "15"
+  annotations:
+    current-time: Mon 6 Aug 23:42:00 BST 2018
+    next-time: Mon 6 Aug 23:42:00 BST 2019
+  environment:
+    write_debug: "true"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+  requests:
+    cpu: "10m"
+    memory: "128Mi"
+  constraints:
+    - "cloud.google.com/gke-nodepool=default-pool"
+  secrets:
+    - nodeinfo-secret1
+```
+
+*Example adapted from [artifacts/nodeinfo.yaml](./artifacts/nodeinfo.yaml)*
+
+* Generate CRD from `stack.yml`
+
+You can generate CRD entries separated by `---` by running `faas-cli generate` in the same folder as a `stack.yml` file. Each function in the file will be outputted. If you want a CRD for one function only then you can also pass `--filter=function-name`.
+
+```bash
+# create a go function for Docker Hub user `alexellis2`
+faas-cli new --lang go --prefix alexellis2 crd-example
+
+# build and push an image
+faas-cli build -f crd-example.yaml
+faas-cli push -f crd-example.yaml
+
+# generate the CRD entry from the "stack.yml" file and apply in the cluster
+faas-cli generate -f crd-example.yaml | kubectl apply -f -
+```
+
+* Generate CRD from Function Store
+
+```bash
+
+# find a function in the store
+faas-cli store list
+...
+
+
+# generate to a file
+faas-cli generate --from-store="figlet" > figlet-crd.yaml
+kubectl apply -f figlet-crd.yaml
+```
+
+## Get started
+
+You can deploy OpenFaaS and the operator using helm, or generate static YAML through the `helm template` command.
+
+### Deploy OpenFaaS with the operator
+
+Two namespaces will be used - `openfaas` for the core services and `openfaas-fn` for functions.
 
 ```bash
 # create OpenFaaS namespaces
@@ -17,16 +100,27 @@ kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/na
 # add OpenFaaS Helm repo
 helm repo add openfaas https://openfaas.github.io/faas-netes/
 
-# get latest chart version and install
-helm repo update && helm upgrade openfaas --install openfaas/openfaas \
+# generate a random password
+PASSWORD=$(head -c 12 /dev/urandom | shasum| cut -d' ' -f1)
+
+kubectl -n openfaas create secret generic basic-auth \
+--from-literal=basic-auth-user=admin \
+--from-literal=basic-auth-password="$PASSWORD"
+
+# get latest chart version
+helm repo update
+
+# install with basic auth enabled
+helm upgrade openfaas --install openfaas/openfaas \
     --namespace openfaas  \
+    --set basic_auth=true \
     --set functionNamespace=openfaas-fn \
     --set operator.create=true
 ```
 
-If you are upgrading from faas-netes you need to remove all functions and redeploy them after installing the operator.
+> Note: If you are switching from the OpenFaaS `faas-netes` controller, then you will need to remove all functions and redeploy them after switching to the operator.
 
-Deploy a function with kubectl:
+#### Deploy a function with kubectl:
 
 ```bash
 kubectl -n openfaas-fn apply -f ./artifacts/nodeinfo.yaml
@@ -38,14 +132,14 @@ On armhf use:
 kubectl -n openfaas-fn apply -f ./artifacts/figlet-armhf.yaml
 ```
 
-List functions, services, deployments and pods:
+#### List functions, services, deployments and pods
 
 ```bash
 kubectl -n openfaas-fn get functions
 kubectl -n openfaas-fn get all
 ``` 
 
-Deploy a function with secrets:
+#### Deploy a function with secrets
 
 ```bash
 kubectl -n openfaas-fn create secret generic faas-token --from-literal=faas-token=token
@@ -79,36 +173,48 @@ kubectl -n openfaas-fn describe deployment gofast
 ```
 
 #### Development build
+
 The OpenFaaS Operator runs as a sidecar in the gateway pod. For end to end testing you need to update the sidecar to use
 your development image.
 
-1. Build,tag and push your image to your own public docker repository: 
-i.e. `make build && docker tag openfaas/openfaas-operator:latest {user}/openfaas-operator:latest-dev`
+1. Build, tag and push your image to your own public docker repository: 
+
+```bash
+export USERNAME="username"
+
+make build \
+ && docker tag openfaas/openfaas-operator:latest $USERNAME/openfaas-operator:latest-dev \
+ && docker push $USERNAME/openfaas-operator:latest-dev
+```
 
 2. Update your helm deployment
-```
+
+```bash
 helm upgrade openfaas --install openfaas/openfaas \
-    --namespace openfaas  \
+    --namespace openfaas \
     --set functionNamespace=openfaas-fn \
     --set operator.create=true \
---set operator.image={user}/openfaas-operator:latest-dev
+--set operator.image=$USERNAME/openfaas-operator:latest-dev
 ```
 
-### Local run
+### Run locally, without Docker
 
-Create OpenFaaS CRD:
+You will a KUBECONFIG file and accessible in your path.
+
+* Create the OpenFaaS CRD
+
 ```bash
 $ kubectl apply -f artifacts/operator-crd.yaml
 ```
 
-Start OpenFaaS controller (assumes you have a working kubeconfig on the machine):
+* Build and launch the OpenFaaS controller locally
 
 ```bash
 $ go build \
   && ./openfaas-operator -kubeconfig=$HOME/.kube/config -v=4
 ```
 
-With `go run`
+As an alternative, you can use `go run`
 
 ```bash
 $ go run *.go -kubeconfig=$HOME/.kube/config
@@ -117,23 +223,27 @@ $ go run *.go -kubeconfig=$HOME/.kube/config
 To use an alternative port set the `port` environmental variable to another value.
 
 Create a function:
+
 ```bash
 $ kubectl apply -f artifacts/nodeinfo.yaml
 ```
 
 Check if nodeinfo deployment and service were created through the CRD:
+
 ```bash
 $ kubectl get deployment nodeinfo
 $ kubectl get service nodeinfo
 ```
 
 Test if nodeinfo service can access the pods:
+
 ```bash
-$ kubectl run -it --rm --restart=Never curl --image=byrnedo/alpine-curl --command -- sh
+$ kubectl run -it --rm --restart=Never curl --image=byrnedo/alpine-curl:latest --command -- sh
 / # curl -d 'verbose' http://nodeinfo.default:8080
 ```
 
 Delete nodeinfo function:
+
 ```bash
 kubectl delete -f artifacts/nodeinfo.yaml 
 ```
@@ -143,9 +253,28 @@ Check if nodeinfo pods, rc, deployment and service were removed:
 kubectl get all
 ```
 
-### Web API
+### REST API
 
-#### Functions management
+The operator also implements the OpenFaaS REST API which provides an additional way to manage functions and secrets in addition to using the CRD with `kubectl` directly.
+
+If OpenFaaS is configured with the `basic_auth=true` flag then Basic Authentication is enabled on the REST API. If that is the case then reformat each `curl` command to also include the credentials.
+
+* Basic Auth off
+
+```bash
+curl -s http://localhost:8081/system/functions | jq .
+```
+
+* Basic Auth enabled
+
+```bash
+export USER=""
+export PASSWORD=""
+
+curl -s http://$USER:$PASSWORD@localhost:8081/system/functions | jq .
+```
+
+#### Function management
 
 Create or update a function:
 
@@ -177,7 +306,7 @@ Remove function:
 curl -d '{"functionName":"nodeinfo"}' -X DELETE http://localhost:8081/system/functions
 ```
 
-#### Secrets management
+#### Secret management
 
 Create secret:
 
@@ -203,7 +332,7 @@ Delete secret:
 curl -d '{"name":"test"}' -X DELETE http://localhost:8081/system/secrets
 ```
 
-#### Configure the service account for your function
+#### Configure a service account for your function
 
 Example service account:
 
@@ -240,7 +369,7 @@ curl http://localhost:8081/metrics
 
 Profiling is disabled by default, to enable it set `pprof` environment variable to `true`.
 
-Pprof web UI can be access at `http://localhost:8081/debug/pprof/`. The goroutine, heap and threadcreate 
+The `pprof` UI can be access at `http://localhost:8081/debug/pprof/`. The goroutine, heap and threadcreate 
 profilers are enabled along with the full goroutine stack dump.
 
 Run the heap profiler:
