@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/openfaas/faas-netes/k8s"
 	"os"
 	"time"
 
@@ -68,6 +69,25 @@ func main() {
 	osEnv := types.OsEnv{}
 	config := readConfig.Read(osEnv)
 
+	deployConfig := k8s.DeploymentConfig{
+		RuntimeHTTPPort: 8080,
+		HTTPProbe:       config.HTTPProbe,
+		SetNonRootUser:  config.SetNonRootUser,
+		ReadinessProbe: &k8s.ProbeConfig{
+			InitialDelaySeconds: int32(config.ReadinessProbeInitialDelaySeconds),
+			TimeoutSeconds:      int32(config.ReadinessProbeTimeoutSeconds),
+			PeriodSeconds:       int32(config.ReadinessProbePeriodSeconds),
+		},
+		LivenessProbe: &k8s.ProbeConfig{
+			InitialDelaySeconds: int32(config.LivenessProbeInitialDelaySeconds),
+			TimeoutSeconds:      int32(config.LivenessProbeTimeoutSeconds),
+			PeriodSeconds:       int32(config.LivenessProbePeriodSeconds),
+		},
+		ImagePullPolicy: config.ImagePullPolicy,
+	}
+
+	factory := controller.NewFunctionFactory(kubeClient, deployConfig)
+
 	functionNamespace := "openfaas-fn"
 	if namespace, exists := os.LookupEnv("function_namespace"); exists {
 		functionNamespace = namespace
@@ -90,14 +110,14 @@ func main() {
 		faasClient,
 		kubeInformerFactory,
 		faasInformerFactory,
-		config,
+		factory,
 	)
 
 	go kubeInformerFactory.Start(stopCh)
 	go faasInformerFactory.Start(stopCh)
 	go server.Start(faasClient, kubeClient, kubeInformerFactory)
 
-	if err = ctrl.Run(2, stopCh); err != nil {
+	if err = ctrl.Run(1, stopCh); err != nil {
 		glog.Fatalf("Error running controller: %s", err.Error())
 	}
 }

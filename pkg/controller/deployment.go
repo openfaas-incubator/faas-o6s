@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/openfaas/faas-netes/types"
 	"strings"
 
 	"github.com/google/go-cmp/cmp"
@@ -25,12 +24,16 @@ const (
 func newDeployment(
 	function *faasv1.Function,
 	existingSecrets map[string]*corev1.Secret,
-	config types.BootstrapConfig) *appsv1beta2.Deployment {
+	factory FunctionFactory) *appsv1beta2.Deployment {
 
 	envVars := makeEnvVars(function)
 	labels := makeLabels(function)
 	nodeSelector := makeNodeSelector(function.Spec.Constraints)
-	probes := makeProbes(config)
+	probes, err := factory.MakeProbes(function)
+	if err != nil {
+		glog.Warningf("Function %s probes parsing failed: %v",
+			function.Spec.Name, err)
+	}
 
 	resources, err := makeResources(function)
 	if err != nil {
@@ -98,7 +101,7 @@ func newDeployment(
 							Ports: []corev1.ContainerPort{
 								{ContainerPort: int32(functionPort), Protocol: corev1.ProtocolTCP},
 							},
-							ImagePullPolicy: corev1.PullPolicy(config.ImagePullPolicy),
+							ImagePullPolicy: corev1.PullPolicy(factory.Factory.Config.ImagePullPolicy),
 							Env:             envVars,
 							Resources:       *resources,
 							LivenessProbe:   probes.Liveness,
@@ -114,7 +117,7 @@ func newDeployment(
 		deploymentSpec.Spec.Template.Spec.ServiceAccountName = serviceAccount
 	}
 
-	configureReadOnlyRootFilesystem(function, deploymentSpec)
+	factory.ConfigureReadOnlyRootFilesystem(function, deploymentSpec)
 
 	if err := UpdateSecrets(function, deploymentSpec, existingSecrets); err != nil {
 		glog.Warningf("Function %s secrets update failed: %v",
@@ -232,44 +235,4 @@ func deploymentNeedsUpdate(function *faasv1.Function, deployment *appsv1beta2.De
 
 func int32p(i int32) *int32 {
 	return &i
-}
-
-// configureReadOnlyRootFilesystem will create or update the required settings and mounts to ensure
-// that the ReadOnlyRootFilesystem setting works as expected, meaning:
-// 1. when ReadOnlyRootFilesystem is true, the security context of the container will have ReadOnlyRootFilesystem also
-//    marked as true and a new `/tmp` folder mount will be added to the deployment spec
-// 2. when ReadOnlyRootFilesystem is false, the security context of the container will also have ReadOnlyRootFilesystem set
-//    to false and there will be no mount for the `/tmp` folder
-//
-// This method is safe for both create and update operations.
-func configureReadOnlyRootFilesystem(function *faasv1.Function, deployment *appsv1beta2.Deployment) {
-	if deployment.Spec.Template.Spec.Containers[0].SecurityContext != nil {
-		deployment.Spec.Template.Spec.Containers[0].SecurityContext.ReadOnlyRootFilesystem = &function.Spec.ReadOnlyRootFilesystem
-	} else {
-		deployment.Spec.Template.Spec.Containers[0].SecurityContext = &corev1.SecurityContext{
-			ReadOnlyRootFilesystem: &function.Spec.ReadOnlyRootFilesystem,
-		}
-	}
-
-	existingVolumes := removeVolume("temp", deployment.Spec.Template.Spec.Volumes)
-	deployment.Spec.Template.Spec.Volumes = existingVolumes
-
-	existingMounts := removeVolumeMount("temp", deployment.Spec.Template.Spec.Containers[0].VolumeMounts)
-	deployment.Spec.Template.Spec.Containers[0].VolumeMounts = existingMounts
-
-	if function.Spec.ReadOnlyRootFilesystem {
-		deployment.Spec.Template.Spec.Volumes = append(
-			existingVolumes,
-			corev1.Volume{
-				Name: "temp",
-				VolumeSource: corev1.VolumeSource{
-					EmptyDir: &corev1.EmptyDirVolumeSource{},
-				},
-			},
-		)
-		deployment.Spec.Template.Spec.Containers[0].VolumeMounts = append(
-			existingMounts,
-			corev1.VolumeMount{Name: "temp", MountPath: "/tmp", ReadOnly: false},
-		)
-	}
 }
