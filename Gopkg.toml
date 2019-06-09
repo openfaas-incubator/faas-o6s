@@ -40,7 +40,7 @@ required = ["k8s.io/code-generator/cmd/client-gen"]
 
 [[constraint]]
   name = "github.com/openfaas/faas-netes"
-  version = "0.7.3"
+  version = "0.7.8"
 
 [[constraint]]
   name = "github.com/prometheus/client_golang"

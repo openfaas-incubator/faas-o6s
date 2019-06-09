@@ -201,12 +201,15 @@
   version = "0.9.14"
 
 [[projects]]
-  digest = "1:21fd9c80efa30670d802551f0d2949a0c06fadb6764d1f1b65615f52bad315ea"
+  digest = "1:ac32981b74143d3e854c26e7142c2ac8f77a7ced8661fdd6c49085ade0adad7d"
   name = "github.com/openfaas/faas-netes"
-  packages = ["types"]
+  packages = [
+    "k8s",
+    "types",
+  ]
   pruneopts = "UT"
-  revision = "aa7ebfc35f66fd881fa9fc26de1cd94f4e65731f"
-  version = "0.7.3"
+  revision = "ded145c5f6edad96785465d5910a0f40b9f6e1e7"
+  version = "0.7.8"
 
 [[projects]]
   digest = "1:698444ab032d6e8528ae9171659941a2afea8003978c240e860936128e22a8c6"
@@ -737,6 +740,7 @@
   input-imports = [
     "github.com/google/go-cmp/cmp",
     "github.com/gorilla/mux",
+    "github.com/openfaas/faas-netes/k8s",
     "github.com/openfaas/faas-netes/types",
     "github.com/openfaas/faas-provider",
     "github.com/openfaas/faas-provider/types",
