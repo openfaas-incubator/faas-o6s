@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"github.com/openfaas/faas-netes/types"
 	"strings"
 	"time"
 
@@ -70,8 +69,8 @@ type Controller struct {
 	// Kubernetes API.
 	recorder record.EventRecorder
 
-	// OpenFaaS bootstrap config
-	config types.BootstrapConfig
+	// OpenFaaS function factory
+	factory FunctionFactory
 }
 
 func checkCustomResourceType(obj interface{}) (faasv1.Function, bool) {
@@ -90,13 +89,10 @@ func NewController(
 	faasclientset clientset.Interface,
 	kubeInformerFactory kubeinformers.SharedInformerFactory,
 	faasInformerFactory informers.SharedInformerFactory,
-	config types.BootstrapConfig) *Controller {
+	factory FunctionFactory) *Controller {
 
 	// obtain references to shared index informers for the Deployment and Function types
 	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
-
-	serviceInformer := kubeInformerFactory.Core().V1().Services()
-
 	faasInformer := faasInformerFactory.Openfaas().V1alpha2().Functions()
 
 	// Create event broadcaster
@@ -118,7 +114,7 @@ func NewController(
 		functionsSynced:   faasInformer.Informer().HasSynced,
 		workqueue:         workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "Functions"),
 		recorder:          recorder,
-		config:            config,
+		factory:           factory,
 	}
 
 	glog.Info("Setting up event handlers")
@@ -141,45 +137,6 @@ func NewController(
 				controller.enqueueFunction(new)
 			}
 		},
-	})
-
-	// Add Deployment Informer
-	//
-	// Set up an event handler for when Deployment resources change. This
-	// handler will lookup the owner of the given Deployment, and if it is
-	// owned by a Function resource will enqueue that Function resource for
-	// processing. This way, we don't need to implement custom logic for
-	// handling Deployment resources. More info on this pattern:
-	// https://github.com/kubernetes/community/blob/8cafef897a22026d42f5e5bb3f104febe7e29830/contributors/devel/controllers.md
-	deploymentInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: controller.handleObject,
-		UpdateFunc: func(old, new interface{}) {
-			newDepl := new.(*appsv1beta2.Deployment)
-			oldDepl := old.(*appsv1beta2.Deployment)
-			if newDepl.ResourceVersion == oldDepl.ResourceVersion {
-				// Periodic resync will send update events for all known Deployments.
-				// Two different versions of the same Deployment will always have different RevisionVersions.
-				return
-			}
-			controller.handleObject(new)
-		},
-		DeleteFunc: controller.handleObject,
-	})
-
-	// Add Service Informer
-	serviceInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: controller.handleObject,
-		UpdateFunc: func(old, new interface{}) {
-			newSvc := new.(*corev1.Service)
-			oldSvc := old.(*corev1.Service)
-			if newSvc.ResourceVersion == oldSvc.ResourceVersion {
-				// Periodic resync will send update events for all known Services.
-				// Two different versions of the same Service will always have different RevisionVersions.
-				return
-			}
-			controller.handleObject(new)
-		},
-		DeleteFunc: controller.handleObject,
 	})
 
 	// Set up an event handler for when functions related resources like pods, deployments, replica sets
@@ -247,37 +204,19 @@ func (c *Controller) processNextWorkItem() bool {
 		return false
 	}
 
-	// We wrap this block in a func so we can defer c.workqueue.Done.
 	err := func(obj interface{}) error {
-		// We call Done here so the workqueue knows we have finished
-		// processing this item. We also must remember to call Forget if we
-		// do not want this work item being re-queued. For example, we do
-		// not call Forget if a transient error occurs, instead the item is
-		// put back on the workqueue and attempted again after a back-off period.
 		defer c.workqueue.Done(obj)
 		var key string
 		var ok bool
-		// We expect strings to come off the workqueue. These are of the
-		// form namespace/name. We do this as the delayed nature of the
-		// workqueue means the items in the informer cache may actually be
-		// more up to date that when the item was initially put onto the workqueue.
 		if key, ok = obj.(string); !ok {
-			// As the item in the workqueue is actually invalid, we call
-			// Forget here else we'd go into a loop of attempting to
-			// process a work item that is invalid.
 			c.workqueue.Forget(obj)
 			runtime.HandleError(fmt.Errorf("expected string in workqueue but got %#v", obj))
 			return nil
 		}
-		// Run the syncHandler, passing it the namespace/name string of the
-		// Function resource to be synced.
 		if err := c.syncHandler(key); err != nil {
 			return fmt.Errorf("error syncing '%s': %s", key, err.Error())
 		}
-		// Finally, if no error occurs we Forget this item so it does not
-		// get queued again until another change happens.
 		c.workqueue.Forget(obj)
-		glog.V(4).Infof("Successfully synced '%s'", key)
 		return nil
 	}(obj)
 
@@ -325,6 +264,7 @@ func (c *Controller) syncHandler(key string) error {
 	deployment, err := c.deploymentsLister.Deployments(function.Namespace).Get(deploymentName)
 	// If the resource doesn't exist, we'll create it
 	if errors.IsNotFound(err) {
+		err = nil
 		existingSecrets, err := c.getSecrets(function.Namespace, function.Spec.Secrets)
 		if err != nil {
 			return err
@@ -332,7 +272,7 @@ func (c *Controller) syncHandler(key string) error {
 
 		glog.Infof("Creating deployment for '%s'", function.Spec.Name)
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(
-			newDeployment(function, existingSecrets, c.config),
+			newDeployment(function, existingSecrets, c.factory),
 		)
 	}
 
@@ -343,6 +283,7 @@ func (c *Controller) syncHandler(key string) error {
 		if _, err := c.kubeclientset.CoreV1().Services(function.Namespace).Create(newService(function)); err != nil {
 			// If an error occurs during Service Create, we'll requeue the item
 			if errors.IsAlreadyExists(err) {
+				err = nil
 				glog.V(2).Infof("ClusterIP service '%s' already exists. Skipping creation.", function.Spec.Name)
 			} else {
 				return err
@@ -354,7 +295,7 @@ func (c *Controller) syncHandler(key string) error {
 	// attempt processing again later. This could have been caused by a
 	// temporary network failure, or any other transient reason.
 	if err != nil {
-		return err
+		return fmt.Errorf("transient error: %v", err)
 	}
 
 	// If the Deployment is not controlled by this Function resource, we should log
@@ -375,7 +316,7 @@ func (c *Controller) syncHandler(key string) error {
 		}
 
 		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(
-			newDeployment(function, existingSecrets, c.config),
+			newDeployment(function, existingSecrets, c.factory),
 		)
 
 		if err != nil {
