@@ -3,19 +3,21 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/fake"
-	"github.com/openfaas/faas/gateway/requests"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/fake"
+
+	types "github.com/openfaas/faas-provider/types"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func Test_makeApplyHandler(t *testing.T) {
 	namespace := "openfaas-fn"
 	createVal := "test1"
 	updateVal := "test2"
-	fn := requests.CreateFunctionRequest{
+	fn := types.FunctionDeployment{
 		Service:                "nodeinfo",
 		Image:                  "functions/nodeinfo",
 		ReadOnlyRootFilesystem: true,

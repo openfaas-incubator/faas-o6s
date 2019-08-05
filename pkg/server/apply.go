@@ -9,7 +9,8 @@ import (
 
 	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	"github.com/openfaas/faas/gateway/requests"
+	"github.com/openfaas/faas-provider/types"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	glog "k8s.io/klog"
 )
@@ -22,7 +23,7 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 		}
 
 		body, _ := ioutil.ReadAll(r.Body)
-		req := requests.CreateFunctionRequest{}
+		req := types.FunctionDeployment{}
 		err := json.Unmarshal(body, &req)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -99,7 +100,7 @@ func getMinReplicaCount(labels *map[string]string) *int32 {
 	return int32p(1)
 }
 
-func getResources(limits *requests.FunctionResources) *v1alpha1.FunctionResources {
+func getResources(limits *types.FunctionResources) *v1alpha1.FunctionResources {
 	if limits == nil {
 		return nil
 	}

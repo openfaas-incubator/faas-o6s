@@ -193,26 +193,26 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:3f69624cb4ae8ab815a672f7d169d64786ee027a9d42eefab3c9d4e9debe0750"
+  digest = "1:0250441ac9f681c839722297897952ee6d633f2a37dc254eca9d6d21bd1e877d"
   name = "github.com/openfaas/faas"
   packages = ["gateway/requests"]
   pruneopts = "UT"
-  revision = "a65df4795bc66147c41161c48bfd4c72f60c7434"
-  version = "0.9.14"
+  revision = "df97efafae36ce7093ad353e3e6acc0e93d6300e"
+  version = "0.16.0"
 
 [[projects]]
-  digest = "1:ac32981b74143d3e854c26e7142c2ac8f77a7ced8661fdd6c49085ade0adad7d"
+  digest = "1:15a916a1057282a020b5b7959d5a235706475992294134a06052d164a5f7ddab"
   name = "github.com/openfaas/faas-netes"
   packages = [
     "k8s",
     "types",
   ]
   pruneopts = "UT"
-  revision = "ded145c5f6edad96785465d5910a0f40b9f6e1e7"
-  version = "0.7.8"
+  revision = "1e9f33b088356327cdaa6de1d1237cca36c2d41c"
+  version = "0.8.3"
 
 [[projects]]
-  digest = "1:698444ab032d6e8528ae9171659941a2afea8003978c240e860936128e22a8c6"
+  digest = "1:ddebc1e01b5a2ee0cb5059ba1607be5bc6827971cac7d91d51be2e17516193e8"
   name = "github.com/openfaas/faas-provider"
   packages = [
     ".",
@@ -220,8 +220,8 @@
     "types",
   ]
   pruneopts = "UT"
-  revision = "6a76a052deb12fd94b373c082963d8a8ad44d4d1"
-  version = "0.9.0"
+  revision = "a7f9772feb70aae25b0c4420dbb64ed31684c525"
+  version = "0.9.5"
 
 [[projects]]
   branch = "master"
@@ -238,6 +238,14 @@
   pruneopts = "UT"
   revision = "5f041e8faa004a95c88a202771f4cc3e991971e6"
   version = "v2.0.1"
+
+[[projects]]
+  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   digest = "1:93a746f1060a8acbcf69344862b2ceced80f854170e1caae089b2834c5fbf7f4"

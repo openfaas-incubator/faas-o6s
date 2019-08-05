@@ -3,8 +3,9 @@ package controller
 import (
 	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	"github.com/openfaas/faas-netes/k8s"
-	"github.com/openfaas/faas/gateway/requests"
+	"github.com/openfaas/faas-provider/types"
 	appsv1 "k8s.io/api/apps/v1beta2"
+
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -22,13 +23,13 @@ func NewFunctionFactory(clientset kubernetes.Interface, config k8s.DeploymentCon
 	}
 }
 
-func functionToFunctionRequest(in *faasv1.Function) requests.CreateFunctionRequest {
+func functionToFunctionRequest(in *faasv1.Function) types.FunctionDeployment {
 	env := make(map[string]string)
 	if in.Spec.Environment != nil {
 		env = *in.Spec.Environment
 	}
 	lim, req := functionToFunctionResources(in)
-	return requests.CreateFunctionRequest{
+	return types.FunctionDeployment{
 		Annotations:            in.Spec.Annotations,
 		Service:                in.Name,
 		Labels:                 &in.Labels,
@@ -42,15 +43,15 @@ func functionToFunctionRequest(in *faasv1.Function) requests.CreateFunctionReque
 	}
 }
 
-func functionToFunctionResources(in *faasv1.Function) (l *requests.FunctionResources, r *requests.FunctionResources) {
+func functionToFunctionResources(in *faasv1.Function) (l *types.FunctionResources, r *types.FunctionResources) {
 	if in.Spec.Limits != nil {
-		l = &requests.FunctionResources{
+		l = &types.FunctionResources{
 			Memory: in.Spec.Limits.Memory,
 			CPU:    in.Spec.Limits.CPU,
 		}
 	}
 	if in.Spec.Requests != nil {
-		r = &requests.FunctionResources{
+		r = &types.FunctionResources{
 			Memory: in.Spec.Requests.Memory,
 			CPU:    in.Spec.Requests.CPU,
 		}
