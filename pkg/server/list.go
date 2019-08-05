@@ -5,7 +5,8 @@ import (
 	"net/http"
 
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	"github.com/openfaas/faas/gateway/requests"
+	"github.com/openfaas/faas-provider/types"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/listers/apps/v1beta2"
 	glog "k8s.io/klog"
@@ -20,7 +21,7 @@ func makeListHandler(namespace string,
 			defer r.Body.Close()
 		}
 
-		functions := []requests.Function{}
+		functions := []types.FunctionStatus{}
 
 		opts := metav1.ListOptions{}
 		res, err := client.OpenfaasV1alpha2().Functions(namespace).List(opts)
@@ -38,7 +39,7 @@ func makeListHandler(namespace string,
 				glog.Warningf("Function listing getReplicas error: %v", err)
 			}
 
-			function := requests.Function{
+			function := types.FunctionStatus{
 				Name:              item.Spec.Name,
 				Replicas:          desiredReplicas,
 				AvailableReplicas: availableReplicas,

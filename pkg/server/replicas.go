@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/mux"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas-provider/types"
-	"github.com/openfaas/faas/gateway/requests"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/listers/apps/v1beta2"
@@ -33,7 +32,7 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 			glog.Warningf("Function replica reader error: %v", err)
 		}
 
-		result := &requests.Function{
+		result := &types.FunctionStatus{
 			AvailableReplicas: availableReplicas,
 			Replicas:          desiredReplicas,
 			Labels:            k8sfunc.Spec.Labels,
