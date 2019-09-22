@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
-	appsv1beta2 "k8s.io/api/apps/v1beta2"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -24,7 +24,7 @@ const (
 func newDeployment(
 	function *faasv1.Function,
 	existingSecrets map[string]*corev1.Secret,
-	factory FunctionFactory) *appsv1beta2.Deployment {
+	factory FunctionFactory) *appsv1.Deployment {
 
 	envVars := makeEnvVars(function)
 	labels := makeLabels(function)
@@ -52,7 +52,7 @@ func newDeployment(
 		}
 	}
 
-	deploymentSpec := &appsv1beta2.Deployment{
+	deploymentSpec := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        function.Spec.Name,
 			Annotations: annotations,
@@ -65,11 +65,11 @@ func newDeployment(
 				}),
 			},
 		},
-		Spec: appsv1beta2.DeploymentSpec{
+		Spec: appsv1.DeploymentSpec{
 			Replicas: function.Spec.Replicas,
-			Strategy: appsv1beta2.DeploymentStrategy{
-				Type: appsv1beta2.RollingUpdateDeploymentStrategyType,
-				RollingUpdate: &appsv1beta2.RollingUpdateDeployment{
+			Strategy: appsv1.DeploymentStrategy{
+				Type: appsv1.RollingUpdateDeploymentStrategyType,
+				RollingUpdate: &appsv1.RollingUpdateDeployment{
 					MaxUnavailable: &intstr.IntOrString{
 						Type:   intstr.Int,
 						IntVal: int32(0),
@@ -207,7 +207,7 @@ func makeNodeSelector(constraints []string) map[string]string {
 }
 
 // deploymentNeedsUpdate determines if the function spec is different from the deployment spec
-func deploymentNeedsUpdate(function *faasv1.Function, deployment *appsv1beta2.Deployment) bool {
+func deploymentNeedsUpdate(function *faasv1.Function, deployment *appsv1.Deployment) bool {
 	prevFnSpecJson := deployment.ObjectMeta.Annotations[annotationFunctionSpec]
 	if prevFnSpecJson == "" {
 		// is a new deployment or is an old deployment that is missing the annotation

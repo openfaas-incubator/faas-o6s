@@ -197,22 +197,22 @@
   name = "github.com/openfaas/faas"
   packages = ["gateway/requests"]
   pruneopts = "UT"
-  revision = "df97efafae36ce7093ad353e3e6acc0e93d6300e"
-  version = "0.16.0"
+  revision = "0a90125aba339a8133009f215ed6d2d8c19277f8"
+  version = "0.17.4"
 
 [[projects]]
-  digest = "1:15a916a1057282a020b5b7959d5a235706475992294134a06052d164a5f7ddab"
+  digest = "1:57c7042e9519e1e53f9507890fded28a8efa5ad44961f56d3ac7c152065ff442"
   name = "github.com/openfaas/faas-netes"
   packages = [
     "k8s",
     "types",
   ]
   pruneopts = "UT"
-  revision = "1e9f33b088356327cdaa6de1d1237cca36c2d41c"
-  version = "0.8.3"
+  revision = "c5a1b7bff20a6cc9e1da23d8484355be6e558e8d"
+  version = "0.9.2"
 
 [[projects]]
-  digest = "1:ddebc1e01b5a2ee0cb5059ba1607be5bc6827971cac7d91d51be2e17516193e8"
+  digest = "1:9dd8ab815d9379ac78c3ed7e57fa3846d2dd4e11dbd70b49a51c14356866dd21"
   name = "github.com/openfaas/faas-provider"
   packages = [
     ".",
@@ -220,8 +220,8 @@
     "types",
   ]
   pruneopts = "UT"
-  revision = "a7f9772feb70aae25b0c4420dbb64ed31684c525"
-  version = "0.9.5"
+  revision = "eafd85a3b360d8e0982c3a1db43e6d5fee9b85e2"
+  version = "0.10.2"
 
 [[projects]]
   branch = "master"
@@ -754,7 +754,7 @@
     "github.com/openfaas/faas-provider/types",
     "github.com/openfaas/faas/gateway/requests",
     "github.com/prometheus/client_golang/prometheus/promhttp",
-    "k8s.io/api/apps/v1beta2",
+    "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/api/resource",
@@ -775,7 +775,7 @@
     "k8s.io/client-go/kubernetes/fake",
     "k8s.io/client-go/kubernetes/scheme",
     "k8s.io/client-go/kubernetes/typed/core/v1",
-    "k8s.io/client-go/listers/apps/v1beta2",
+    "k8s.io/client-go/listers/apps/v1",
     "k8s.io/client-go/plugin/pkg/client/auth/gcp",
     "k8s.io/client-go/rest",
     "k8s.io/client-go/testing",

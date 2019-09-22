@@ -60,7 +60,7 @@ func Start(client clientset.Interface,
 		pprof = val
 	}
 
-	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
+	deploymentInformer := kubeInformerFactory.Apps().V1().Deployments()
 	deploymentLister := deploymentInformer.Lister().Deployments(functionNamespace)
 
 	bootstrapHandlers := types.FaaSHandlers{

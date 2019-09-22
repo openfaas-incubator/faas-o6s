@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
-	appsv1beta2 "k8s.io/api/apps/v1beta2"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -21,8 +21,8 @@ func Test_UpdateSecrets_DoesNotAddVolumeIfRequestSecretsIsNil(t *testing.T) {
 		"testsecret": {Type: corev1.SecretTypeOpaque, Data: map[string][]byte{"filename": []byte("contents")}},
 	}
 
-	deployment := &appsv1beta2.Deployment{
-		Spec: appsv1beta2.DeploymentSpec{
+	deployment := &appsv1.Deployment{
+		Spec: appsv1.DeploymentSpec{
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -53,8 +53,8 @@ func Test_UpdateSecrets_DoesNotAddVolumeIfRequestSecretsIsEmpty(t *testing.T) {
 		"testsecret": {Type: corev1.SecretTypeOpaque, Data: map[string][]byte{"filename": []byte("contents")}},
 	}
 
-	deployment := &appsv1beta2.Deployment{
-		Spec: appsv1beta2.DeploymentSpec{
+	deployment := &appsv1.Deployment{
+		Spec: appsv1.DeploymentSpec{
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -86,8 +86,8 @@ func Test_UpdateSecrets_RemovesAllCopiesOfExitingSecretsVolumes(t *testing.T) {
 		"testsecret": {Type: corev1.SecretTypeOpaque, Data: map[string][]byte{"filename": []byte("contents")}},
 	}
 
-	deployment := &appsv1beta2.Deployment{
-		Spec: appsv1beta2.DeploymentSpec{
+	deployment := &appsv1.Deployment{
+		Spec: appsv1.DeploymentSpec{
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -137,8 +137,8 @@ func Test_UpdateSecrets_AddNewSecretVolume(t *testing.T) {
 		"testsecret": {Type: corev1.SecretTypeOpaque, Data: map[string][]byte{"filename": []byte("contents")}},
 	}
 
-	deployment := &appsv1beta2.Deployment{
-		Spec: appsv1beta2.DeploymentSpec{
+	deployment := &appsv1.Deployment{
+		Spec: appsv1.DeploymentSpec{
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -169,8 +169,8 @@ func Test_UpdateSecrets_ReplacesPreviousSecretMountWithNewMount(t *testing.T) {
 		"testsecret": {Type: corev1.SecretTypeOpaque, Data: map[string][]byte{"filename": []byte("contents")}},
 	}
 
-	deployment := &appsv1beta2.Deployment{
-		Spec: appsv1beta2.DeploymentSpec{
+	deployment := &appsv1.Deployment{
+		Spec: appsv1.DeploymentSpec{
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -208,8 +208,8 @@ func Test_UpdateSecrets_RemovesSecretsVolumeIfRequestSecretsIsEmptyOrNil(t *test
 		"testsecret": {Type: corev1.SecretTypeOpaque, Data: map[string][]byte{"filename": []byte("contents")}},
 	}
 
-	deployment := &appsv1beta2.Deployment{
-		Spec: appsv1beta2.DeploymentSpec{
+	deployment := &appsv1.Deployment{
+		Spec: appsv1.DeploymentSpec{
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -240,7 +240,7 @@ func Test_UpdateSecrets_RemovesSecretsVolumeIfRequestSecretsIsEmptyOrNil(t *test
 	validateEmptySecretVolumesAndMounts(t, deployment)
 }
 
-func validateEmptySecretVolumesAndMounts(t *testing.T, deployment *appsv1beta2.Deployment) {
+func validateEmptySecretVolumesAndMounts(t *testing.T, deployment *appsv1.Deployment) {
 	numVolumes := len(deployment.Spec.Template.Spec.Volumes)
 	if numVolumes != 0 {
 		fmt.Printf("%+v", deployment.Spec.Template.Spec.Volumes)
@@ -254,7 +254,7 @@ func validateEmptySecretVolumesAndMounts(t *testing.T, deployment *appsv1beta2.D
 	}
 }
 
-func validateNewSecretVolumesAndMounts(t *testing.T, deployment *appsv1beta2.Deployment) {
+func validateNewSecretVolumesAndMounts(t *testing.T, deployment *appsv1.Deployment) {
 	numVolumes := len(deployment.Spec.Template.Spec.Volumes)
 	if numVolumes != 1 {
 		t.Errorf("Incorrect number of volumes: expected 1, got %d", numVolumes)

@@ -8,13 +8,13 @@ import (
 	"github.com/openfaas/faas-provider/types"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/listers/apps/v1beta2"
+	appsv1 "k8s.io/client-go/listers/apps/v1"
 	glog "k8s.io/klog"
 )
 
 func makeListHandler(namespace string,
 	client clientset.Interface,
-	deploymentLister v1beta2.DeploymentNamespaceLister) http.HandlerFunc {
+	deploymentLister appsv1.DeploymentNamespaceLister) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Body != nil {
