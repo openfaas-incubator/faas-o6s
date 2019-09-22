@@ -11,7 +11,7 @@ import (
 	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
 	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
 	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1alpha2"
-	appsv1beta2 "k8s.io/api/apps/v1beta2"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,7 +21,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	typedcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
-	appslisters "k8s.io/client-go/listers/apps/v1beta2"
+	appslisters "k8s.io/client-go/listers/apps/v1"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
@@ -92,7 +92,7 @@ func NewController(
 	factory FunctionFactory) *Controller {
 
 	// obtain references to shared index informers for the Deployment and Function types
-	deploymentInformer := kubeInformerFactory.Apps().V1beta2().Deployments()
+	deploymentInformer := kubeInformerFactory.Apps().V1().Deployments()
 	faasInformer := faasInformerFactory.Openfaas().V1alpha2().Functions()
 
 	// Create event broadcaster
@@ -271,7 +271,7 @@ func (c *Controller) syncHandler(key string) error {
 		}
 
 		glog.Infof("Creating deployment for '%s'", function.Spec.Name)
-		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Create(
+		deployment, err = c.kubeclientset.AppsV1().Deployments(function.Namespace).Create(
 			newDeployment(function, existingSecrets, c.factory),
 		)
 	}
@@ -315,7 +315,7 @@ func (c *Controller) syncHandler(key string) error {
 			return err
 		}
 
-		deployment, err = c.kubeclientset.AppsV1beta2().Deployments(function.Namespace).Update(
+		deployment, err = c.kubeclientset.AppsV1().Deployments(function.Namespace).Update(
 			newDeployment(function, existingSecrets, c.factory),
 		)
 
@@ -353,7 +353,7 @@ func (c *Controller) syncHandler(key string) error {
 	return nil
 }
 
-func (c *Controller) updateFunctionStatus(function *faasv1.Function, deployment *appsv1beta2.Deployment) error {
+func (c *Controller) updateFunctionStatus(function *faasv1.Function, deployment *appsv1.Deployment) error {
 	// TODO: enable status on K8s 1.12
 	return nil
 	// NEVER modify objects from the store. It's a read-only, local cache.

@@ -4,7 +4,7 @@ import (
 	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	"github.com/openfaas/faas-netes/k8s"
 	"github.com/openfaas/faas-provider/types"
-	appsv1 "k8s.io/api/apps/v1beta2"
+	appsv1 "k8s.io/api/apps/v1"
 
 	"k8s.io/client-go/kubernetes"
 )
