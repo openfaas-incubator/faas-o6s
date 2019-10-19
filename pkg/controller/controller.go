@@ -274,6 +274,9 @@ func (c *Controller) syncHandler(key string) error {
 		deployment, err = c.kubeclientset.AppsV1().Deployments(function.Namespace).Create(
 			newDeployment(function, existingSecrets, c.factory),
 		)
+		if err != nil {
+			return err
+		}
 	}
 
 	svcGetOptions := metav1.GetOptions{}
