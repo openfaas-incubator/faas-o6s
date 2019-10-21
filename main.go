@@ -1,8 +1,8 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"github.com/openfaas/faas-netes/k8s"
 	"os"
 	"time"
 
@@ -12,10 +12,14 @@ import (
 	"github.com/openfaas-incubator/openfaas-operator/pkg/server"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/signals"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/version"
+	"github.com/openfaas/faas-netes/k8s"
 	"github.com/openfaas/faas-netes/types"
+	"k8s.io/apimachinery/pkg/util/uuid"
 	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/leaderelection"
+	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	glog "k8s.io/klog"
 
 	// required to authenticate against GKE clusters
@@ -117,8 +121,31 @@ func main() {
 	go faasInformerFactory.Start(stopCh)
 	go server.Start(faasClient, kubeClient, kubeInformerFactory)
 
-	if err = ctrl.Run(1, stopCh); err != nil {
-		glog.Fatalf("Error running controller: %s", err.Error())
+	// leader election context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// cancel leader election context on shutdown signals
+	go func() {
+		<-stopCh
+		cancel()
+	}()
+
+	runController := func() {
+		if err = ctrl.Run(1, stopCh); err != nil {
+			glog.Fatalf("Error running controller: %s", err.Error())
+		}
+	}
+
+	enableLeaderElection := false
+	if _, exists := os.LookupEnv("enable_leader_election"); exists {
+		enableLeaderElection = true
+	}
+
+	if enableLeaderElection {
+		startLeaderElection(ctx, runController, functionNamespace, kubeClient)
+	} else {
+		runController()
 	}
 }
 
@@ -133,5 +160,50 @@ func setupLogging() {
 			value := f1.Value.String()
 			f2.Value.Set(value)
 		}
+	})
+}
+
+func startLeaderElection(ctx context.Context, run func(), ns string, kubeClient kubernetes.Interface) {
+	configMapName := "openfaas-leader-election"
+	id, err := os.Hostname()
+	if err != nil {
+		glog.Fatalf("Error running controller: %v", err)
+	}
+	id = id + "_" + string(uuid.NewUUID())
+
+	lock, err := resourcelock.New(
+		resourcelock.ConfigMapsResourceLock,
+		ns,
+		configMapName,
+		kubeClient.CoreV1(),
+		resourcelock.ResourceLockConfig{
+			Identity: id,
+		},
+	)
+	if err != nil {
+		glog.Fatalf("Error running controller: %v", err)
+	}
+
+	glog.Infof("Starting leader election id: %s configmap: %s namespace: %s", id, configMapName, ns)
+	leaderelection.RunOrDie(ctx, leaderelection.LeaderElectionConfig{
+		Lock:          lock,
+		LeaseDuration: 60 * time.Second,
+		RenewDeadline: 15 * time.Second,
+		RetryPeriod:   5 * time.Second,
+		Callbacks: leaderelection.LeaderCallbacks{
+			OnStartedLeading: func(ctx context.Context) {
+				glog.Info("Acting as elected leader")
+				run()
+			},
+			OnStoppedLeading: func() {
+				glog.Infof("Leadership lost")
+				os.Exit(1)
+			},
+			OnNewLeader: func(identity string) {
+				if identity != id {
+					glog.Infof("Another instance has been elected as leader: %v", identity)
+				}
+			},
+		},
 	})
 }
