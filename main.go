@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"k8s.io/client-go/tools/record"
 	"os"
 	"time"
 
@@ -14,9 +15,12 @@ import (
 	"github.com/openfaas-incubator/openfaas-operator/pkg/version"
 	"github.com/openfaas/faas-netes/k8s"
 	"github.com/openfaas/faas-netes/types"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/uuid"
 	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
+	typedcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/leaderelection"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
@@ -138,7 +142,7 @@ func main() {
 	}
 
 	enableLeaderElection := false
-	if _, exists := os.LookupEnv("enable_leader_election"); exists {
+	if val, exists := os.LookupEnv("enable_leader_election"); exists && val == "true" {
 		enableLeaderElection = true
 	}
 
@@ -171,13 +175,19 @@ func startLeaderElection(ctx context.Context, run func(), ns string, kubeClient 
 	}
 	id = id + "_" + string(uuid.NewUUID())
 
+	eventBroadcaster := record.NewBroadcaster()
+	eventBroadcaster.StartLogging(glog.V(4).Infof)
+	eventBroadcaster.StartRecordingToSink(&typedcorev1.EventSinkImpl{Interface: kubeClient.CoreV1().Events("")})
+	recorder := eventBroadcaster.NewRecorder(scheme.Scheme, corev1.EventSource{Component: "openfaas-operator"})
+
 	lock, err := resourcelock.New(
 		resourcelock.ConfigMapsResourceLock,
 		ns,
 		configMapName,
 		kubeClient.CoreV1(),
 		resourcelock.ResourceLockConfig{
-			Identity: id,
+			EventRecorder: recorder,
+			Identity:      id,
 		},
 	)
 	if err != nil {
