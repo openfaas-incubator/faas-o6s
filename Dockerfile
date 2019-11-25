@@ -6,7 +6,8 @@ WORKDIR /go/src/github.com/openfaas-incubator/openfaas-operator
 
 COPY . .
 
-RUN gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*") && \
+RUN go test ./... && \
+  gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*") && \
   VERSION=$(git describe --all --exact-match `git rev-parse HEAD` | grep tags | sed 's/tags\///') && \
   GIT_COMMIT=$(git rev-list -1 HEAD) && \
   CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w \
