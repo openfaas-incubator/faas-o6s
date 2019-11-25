@@ -46,6 +46,7 @@ func makeListHandler(namespace string,
 				Image:             item.Spec.Image,
 				Labels:            item.Spec.Labels,
 				Annotations:       item.Spec.Annotations,
+				Namespace:         namespace,
 			}
 
 			functions = append(functions, function)

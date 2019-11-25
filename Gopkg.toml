@@ -48,4 +48,4 @@ required = ["k8s.io/code-generator/cmd/client-gen"]
 
 [[constraint]]
   name = "github.com/openfaas/faas-netes"
-  version = "0.9.13"
+  version = "0.9.14"

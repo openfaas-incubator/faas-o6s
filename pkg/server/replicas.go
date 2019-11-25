@@ -10,7 +10,7 @@ import (
 	"github.com/openfaas/faas-provider/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/listers/apps/v1"
+	v1 "k8s.io/client-go/listers/apps/v1"
 	glog "k8s.io/klog"
 )
 
@@ -40,6 +40,7 @@ func makeReplicaReader(namespace string, client clientset.Interface, kube kubern
 			Name:              k8sfunc.Spec.Name,
 			EnvProcess:        k8sfunc.Spec.Handler,
 			Image:             k8sfunc.Spec.Image,
+			Namespace:         namespace,
 		}
 
 		res, _ := json.Marshal(result)

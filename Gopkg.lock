@@ -201,25 +201,25 @@
   version = "0.18.3"
 
 [[projects]]
-  digest = "1:31b0bad56cdf91e954a4a6bb7993629ef56b7003b2bb3a0cc75bad632f89f82c"
+  digest = "1:c5bae9b2b0ba2d92cb0026de84d535fce8163428df61020fbe8f9898353475f4"
   name = "github.com/openfaas/faas-netes"
   packages = [
-    "handlers",
     "k8s",
     "types",
   ]
   pruneopts = "UT"
-  revision = "c0076596d7cbf03e61c2ab4775c6f46ea9254c64"
-  version = "0.9.13"
+  revision = "21a960613d4c01b7f8667bc59cc43a4151f54405"
+  version = "0.9.14"
 
 [[projects]]
-  digest = "1:6e5bab2d783adc28115076def0cdc279aee07453be6983be54185fc0bb4f67ea"
+  digest = "1:a32a2587b7ec1ab3661ceaf1779e8dc65d98b3b9482b50184186a3829730c6a7"
   name = "github.com/openfaas/faas-provider"
   packages = [
     ".",
     "auth",
     "httputil",
     "logs",
+    "proxy",
     "types",
   ]
   pruneopts = "UT"
@@ -751,11 +751,11 @@
   input-imports = [
     "github.com/google/go-cmp/cmp",
     "github.com/gorilla/mux",
-    "github.com/openfaas/faas-netes/handlers",
     "github.com/openfaas/faas-netes/k8s",
     "github.com/openfaas/faas-netes/types",
     "github.com/openfaas/faas-provider",
     "github.com/openfaas/faas-provider/logs",
+    "github.com/openfaas/faas-provider/proxy",
     "github.com/openfaas/faas-provider/types",
     "github.com/openfaas/faas/gateway/requests",
     "github.com/prometheus/client_golang/prometheus/promhttp",
@@ -776,6 +776,8 @@
     "k8s.io/client-go/discovery",
     "k8s.io/client-go/discovery/fake",
     "k8s.io/client-go/informers",
+    "k8s.io/client-go/informers/apps/v1",
+    "k8s.io/client-go/informers/core/v1",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/fake",
     "k8s.io/client-go/kubernetes/scheme",
