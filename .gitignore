@@ -17,3 +17,4 @@ faas-o6s
 .idea/
 
 openfaas-operator
+/.kube

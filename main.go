@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
-	"github.com/openfaas/faas-netes/k8s"
 	"os"
 	"time"
+
+	"github.com/openfaas/faas-netes/k8s"
+	providertypes "github.com/openfaas/faas-provider/types"
 
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
@@ -66,8 +68,12 @@ func main() {
 	}
 
 	readConfig := types.ReadConfig{}
-	osEnv := types.OsEnv{}
-	config := readConfig.Read(osEnv)
+	osEnv := providertypes.OsEnv{}
+	config, err := readConfig.Read(osEnv)
+
+	if err != nil {
+		panic(err)
+	}
 
 	deployConfig := k8s.DeploymentConfig{
 		RuntimeHTTPPort: 8080,
