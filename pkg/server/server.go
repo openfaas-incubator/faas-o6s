@@ -8,13 +8,17 @@ import (
 	"time"
 
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
+	"github.com/openfaas/faas-netes/k8s"
 	faasnetesk8s "github.com/openfaas/faas-netes/k8s"
 	bootstrap "github.com/openfaas/faas-provider"
 
 	"github.com/openfaas/faas-provider/logs"
+	"github.com/openfaas/faas-provider/proxy"
 	"github.com/openfaas/faas-provider/types"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	kubeinformers "k8s.io/client-go/informers"
+
+	appsinformer "k8s.io/client-go/informers/apps/v1"
+	coreinformer "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
 	glog "k8s.io/klog"
 )
@@ -25,10 +29,12 @@ const defaultHTTPPort = 8081
 const defaultReadTimeout = 8
 const defaultWriteTimeout = 8
 
-// Start starts HTTP Server for API
-func Start(client clientset.Interface,
+// New creates HTTP server struct
+func New(client clientset.Interface,
 	kube kubernetes.Interface,
-	kubeInformerFactory kubeinformers.SharedInformerFactory) {
+	endpointsInformer coreinformer.EndpointsInformer,
+	deploymentsInformer appsinformer.DeploymentInformer) *Server {
+
 	functionNamespace := "openfaas-fn"
 	if namespace, exists := os.LookupEnv("function_namespace"); exists {
 		functionNamespace = namespace
@@ -63,16 +69,19 @@ func Start(client clientset.Interface,
 		pprof = val
 	}
 
-	deploymentInformer := kubeInformerFactory.Apps().V1().Deployments()
-	deploymentLister := deploymentInformer.Lister().Deployments(functionNamespace)
+	lister := endpointsInformer.Lister()
+	functionLookup := k8s.NewFunctionLookup(functionNamespace, lister)
+
+	deploymentLister := deploymentsInformer.Lister().Deployments(functionNamespace)
 	bootstrapConfig := types.FaaSConfig{
 		ReadTimeout:  time.Duration(readTimeout) * time.Second,
 		WriteTimeout: time.Duration(writeTimeout) * time.Second,
 		TCPPort:      &port,
 		EnableHealth: true,
 	}
+
 	bootstrapHandlers := types.FaaSHandlers{
-		FunctionProxy:        makeProxy(functionNamespace, time.Duration(readTimeout)*time.Second),
+		FunctionProxy:        proxy.NewHandlerFunc(bootstrapConfig, functionLookup),
 		DeleteHandler:        makeDeleteHandler(functionNamespace, client),
 		DeployHandler:        makeApplyHandler(functionNamespace, client),
 		FunctionReader:       makeListHandler(functionNamespace, client, deploymentLister),
@@ -95,4 +104,19 @@ func Start(client clientset.Interface,
 	glog.Infof("Using namespace '%s'", functionNamespace)
 	glog.Infof("Starting HTTP server on port %v", port)
 	bootstrap.Serve(&bootstrapHandlers, &bootstrapConfig)
+
+	return &Server{
+		BootstrapConfig:   &bootstrapConfig,
+		BootstrapHandlers: &bootstrapHandlers,
+	}
+}
+
+type Server struct {
+	BootstrapHandlers *types.FaaSHandlers
+	BootstrapConfig   *types.FaaSConfig
+}
+
+// Start begins the server
+func (s *Server) Start() {
+	bootstrap.Serve(s.BootstrapHandlers, s.BootstrapConfig)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"os"
 	"time"
 
@@ -103,13 +104,20 @@ func main() {
 		glog.Fatalf("Invalid image_pull_policy configured: %s", config.ImagePullPolicy)
 	}
 
-	defaultResync := time.Second * 30
+	defaultResync := time.Second * 5
 
 	kubeInformerOpt := kubeinformers.WithNamespace(functionNamespace)
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, kubeInformerOpt)
 
 	faasInformerOpt := informers.WithNamespace(functionNamespace)
 	faasInformerFactory := informers.NewSharedInformerFactoryWithOptions(faasClient, defaultResync, faasInformerOpt)
+
+	endpointsInformer := kubeInformerFactory.Core().V1().Endpoints()
+	deploymentInformer := kubeInformerFactory.Apps().V1().Deployments()
+
+	log.Printf("Waiting for cache sync in main")
+	kubeInformerFactory.WaitForCacheSync(stopCh)
+	log.Printf("Cache sync done")
 
 	ctrl := controller.NewController(
 		kubeClient,
@@ -119,10 +127,12 @@ func main() {
 		factory,
 	)
 
-	go kubeInformerFactory.Start(stopCh)
-	go faasInformerFactory.Start(stopCh)
-	go server.Start(faasClient, kubeClient, kubeInformerFactory)
+	srv := server.New(faasClient, kubeClient, endpointsInformer, deploymentInformer)
 
+	go faasInformerFactory.Start(stopCh)
+	go kubeInformerFactory.Start(stopCh)
+
+	go srv.Start()
 	if err = ctrl.Run(1, stopCh); err != nil {
 		glog.Fatalf("Error running controller: %s", err.Error())
 	}
