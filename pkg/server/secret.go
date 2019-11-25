@@ -7,7 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/openfaas/faas/gateway/requests"
+	faastypes "github.com/openfaas/faas-provider/types"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -108,8 +109,8 @@ func makeSecretHandler(namespace string, kube kubernetes.Interface) http.Handler
 	}
 }
 
-func getSecrets(namespace string, kube kubernetes.Interface) ([]requests.Secret, error) {
-	secrets := []requests.Secret{}
+func getSecrets(namespace string, kube kubernetes.Interface) ([]faastypes.Secret, error) {
+	secrets := []faastypes.Secret{}
 	selector := fmt.Sprintf("%s=%s", secretLabel, secretLabelValue)
 
 	res, err := kube.CoreV1().Secrets(namespace).List(metav1.ListOptions{LabelSelector: selector})
@@ -119,7 +120,7 @@ func getSecrets(namespace string, kube kubernetes.Interface) ([]requests.Secret,
 	}
 
 	for _, item := range res.Items {
-		secret := requests.Secret{
+		secret := faastypes.Secret{
 			Name: item.Name,
 		}
 		secrets = append(secrets, secret)
@@ -157,7 +158,7 @@ func deleteSecret(namespace string, kube kubernetes.Interface, secret *corev1.Se
 
 func parseSecret(namespace string, r io.Reader) (*corev1.Secret, error) {
 	body, _ := ioutil.ReadAll(r)
-	req := requests.Secret{}
+	req := faastypes.Secret{}
 	if err := json.Unmarshal(body, &req); err != nil {
 		return nil, err
 	}
