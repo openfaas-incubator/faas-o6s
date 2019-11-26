@@ -102,8 +102,6 @@ func New(client clientset.Interface,
 	bootstrap.Router().Path("/metrics").Handler(promhttp.Handler())
 
 	glog.Infof("Using namespace '%s'", functionNamespace)
-	glog.Infof("Starting HTTP server on port %v", port)
-	bootstrap.Serve(&bootstrapHandlers, &bootstrapConfig)
 
 	return &Server{
 		BootstrapConfig:   &bootstrapConfig,
@@ -118,5 +116,7 @@ type Server struct {
 
 // Start begins the server
 func (s *Server) Start() {
+	glog.Infof("Starting HTTP server on port %d", *s.BootstrapConfig.TCPPort)
+
 	bootstrap.Serve(s.BootstrapHandlers, s.BootstrapConfig)
 }
