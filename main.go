@@ -23,6 +23,7 @@ import (
 
 	// required to authenticate against GKE clusters
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	_ "k8s.io/code-generator/cmd/client-gen/generators"
 )
 
 var (

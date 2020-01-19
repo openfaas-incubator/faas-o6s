@@ -1,16 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -o errexit
 set -o nounset
 set -o pipefail
 
 SCRIPT_ROOT=$(dirname "${BASH_SOURCE}")/..
+
 DIFFROOT="${SCRIPT_ROOT}/pkg"
 TMP_DIFFROOT="${SCRIPT_ROOT}/_tmp/pkg"
 _tmp="${SCRIPT_ROOT}/_tmp"
 
 cleanup() {
-    rm -rf "${_tmp}"
+  rm -rf "${_tmp}"
 }
 trap "cleanup" EXIT SIGINT
 
@@ -26,8 +27,9 @@ diff -Naupr "${DIFFROOT}" "${TMP_DIFFROOT}" || ret=$?
 cp -a "${TMP_DIFFROOT}"/* "${DIFFROOT}"
 if [[ $ret -eq 0 ]]
 then
-    echo "${DIFFROOT} up to date."
+  echo "${DIFFROOT} up to date."
 else
-    echo "${DIFFROOT} is out of date. Please run hack/update-codegen.sh"
-    exit 1
+  echo "${DIFFROOT} is out of date. Please run hack/update-codegen.sh"
+  exit 1
 fi
+

@@ -1,5 +1,5 @@
 /*
-Copyright 2019 OpenFaaS Authors
+Copyright 2019-2020 OpenFaaS Authors
 
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
@@ -9,6 +9,8 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package v1alpha2
 
 import (
+	"time"
+
 	v1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	scheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -65,11 +67,16 @@ func (c *functions) Get(name string, options v1.GetOptions) (result *v1alpha2.Fu
 
 // List takes label and field selectors, and returns the list of Functions that match those selectors.
 func (c *functions) List(opts v1.ListOptions) (result *v1alpha2.FunctionList, err error) {
+	var timeout time.Duration
+	if opts.TimeoutSeconds != nil {
+		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
+	}
 	result = &v1alpha2.FunctionList{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("functions").
 		VersionedParams(&opts, scheme.ParameterCodec).
+		Timeout(timeout).
 		Do().
 		Into(result)
 	return
@@ -77,11 +84,16 @@ func (c *functions) List(opts v1.ListOptions) (result *v1alpha2.FunctionList, er
 
 // Watch returns a watch.Interface that watches the requested functions.
 func (c *functions) Watch(opts v1.ListOptions) (watch.Interface, error) {
+	var timeout time.Duration
+	if opts.TimeoutSeconds != nil {
+		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
+	}
 	opts.Watch = true
 	return c.client.Get().
 		Namespace(c.ns).
 		Resource("functions").
 		VersionedParams(&opts, scheme.ParameterCodec).
+		Timeout(timeout).
 		Watch()
 }
 
@@ -123,10 +135,15 @@ func (c *functions) Delete(name string, options *v1.DeleteOptions) error {
 
 // DeleteCollection deletes a collection of objects.
 func (c *functions) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+	var timeout time.Duration
+	if listOptions.TimeoutSeconds != nil {
+		timeout = time.Duration(*listOptions.TimeoutSeconds) * time.Second
+	}
 	return c.client.Delete().
 		Namespace(c.ns).
 		Resource("functions").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
+		Timeout(timeout).
 		Body(options).
 		Do().
 		Error()
