@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
 	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
@@ -73,16 +72,6 @@ type Controller struct {
 	factory FunctionFactory
 }
 
-func checkCustomResourceType(obj interface{}) (faasv1.Function, bool) {
-	var fn *faasv1.Function
-	var ok bool
-	if fn, ok = obj.(*faasv1.Function); !ok {
-		glog.Errorf("Event Watch received an invalid object: %#v", obj)
-		return faasv1.Function{}, false
-	}
-	return *fn, true
-}
-
 // NewController returns a new OpenFaaS controller
 func NewController(
 	kubeclientset kubernetes.Interface,
@@ -125,17 +114,7 @@ func NewController(
 	faasInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: controller.enqueueFunction,
 		UpdateFunc: func(old, new interface{}) {
-			oldFn, ok := checkCustomResourceType(old)
-			if !ok {
-				return
-			}
-			newFn, ok := checkCustomResourceType(new)
-			if !ok {
-				return
-			}
-			if diff := cmp.Diff(oldFn.Spec, newFn.Spec); diff != "" {
-				controller.enqueueFunction(new)
-			}
+			controller.enqueueFunction(new)
 		},
 	})
 
