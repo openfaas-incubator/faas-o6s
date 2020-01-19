@@ -51,12 +51,6 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 				ReadOnlyRootFilesystem: req.ReadOnlyRootFilesystem,
 			},
 		}
-
-		opts := metav1.GetOptions{}
-		oldFunc, _ := client.OpenfaasV1alpha2().Functions(namespace).Get(req.Service, opts)
-		if oldFunc != nil {
-			newFunc.ResourceVersion = oldFunc.ResourceVersion
-		}
 		_, err = client.OpenfaasV1alpha2().Functions(namespace).Update(newFunc)
 		if err != nil {
 			errMsg := err.Error()
