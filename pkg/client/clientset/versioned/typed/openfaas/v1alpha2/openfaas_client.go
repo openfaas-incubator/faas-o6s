@@ -1,5 +1,5 @@
 /*
-Copyright 2019 OpenFaaS Authors
+Copyright 2019-2020 OpenFaaS Authors
 
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
@@ -11,7 +11,6 @@ package v1alpha2
 import (
 	v1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
-	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
 )
 
@@ -61,7 +60,7 @@ func setConfigDefaults(config *rest.Config) error {
 	gv := v1alpha2.SchemeGroupVersion
 	config.GroupVersion = &gv
 	config.APIPath = "/apis"
-	config.NegotiatedSerializer = serializer.DirectCodecFactory{CodecFactory: scheme.Codecs}
+	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
 
 	if config.UserAgent == "" {
 		config.UserAgent = rest.DefaultKubernetesUserAgent()

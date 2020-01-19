@@ -1,4 +1,4 @@
-FROM golang:1.11
+FROM golang:1.13
 
 RUN mkdir -p /go/src/github.com/openfaas-incubator/openfaas-operator/
 
@@ -15,7 +15,7 @@ RUN go test ./... && \
   -X github.com/openfaas-incubator/openfaas-operator/pkg/version.SHA=${GIT_COMMIT}" \
   -a -installsuffix cgo -o openfaas-operator .
 
-FROM alpine:3.9
+FROM alpine:3.11
 
 RUN addgroup -S app \
     && adduser -S -g app app \

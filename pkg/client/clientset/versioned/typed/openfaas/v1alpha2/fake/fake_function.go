@@ -1,5 +1,5 @@
 /*
-Copyright 2019 OpenFaaS Authors
+Copyright 2019-2020 OpenFaaS Authors
 
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
@@ -109,7 +109,7 @@ func (c *FakeFunctions) DeleteCollection(options *v1.DeleteOptions, listOptions 
 // Patch applies the patch and returns the patched function.
 func (c *FakeFunctions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha2.Function, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(functionsResource, c.ns, name, data, subresources...), &v1alpha2.Function{})
+		Invokes(testing.NewPatchSubresourceAction(functionsResource, c.ns, name, pt, data, subresources...), &v1alpha2.Function{})
 
 	if obj == nil {
 		return nil, err
