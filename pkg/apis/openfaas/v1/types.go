@@ -1,4 +1,4 @@
-package v1alpha2
+package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,15 +13,13 @@ type Function struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   FunctionSpec   `json:"spec"`
-	Status FunctionStatus `json:"status"`
+	Spec FunctionSpec `json:"spec"`
 }
 
 // FunctionSpec is the spec for a Function resource
 type FunctionSpec struct {
 	Name                   string             `json:"name"`
 	Image                  string             `json:"image"`
-	Replicas               *int32             `json:"replicas"`
 	Handler                string             `json:"handler"`
 	Annotations            *map[string]string `json:"annotations"`
 	Labels                 *map[string]string `json:"labels"`
@@ -37,11 +35,6 @@ type FunctionSpec struct {
 type FunctionResources struct {
 	Memory string `json:"memory,omitempty"`
 	CPU    string `json:"cpu,omitempty"`
-}
-
-// FunctionStatus is the status for a Function resource
-type FunctionStatus struct {
-	AvailableReplicas int32 `json:"availableReplicas"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

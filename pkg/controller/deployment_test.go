@@ -1,7 +1,7 @@
 package controller
 
 import (
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
 	"github.com/openfaas/faas-netes/k8s"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -44,7 +44,7 @@ func Test_newDeployment(t *testing.T) {
 
 	secrets := map[string]*corev1.Secret{}
 
-	deployment := newDeployment(function, secrets, factory)
+	deployment := newDeployment(function, nil, secrets, factory)
 
 	if deployment.Spec.Template.Spec.ServiceAccountName != "kubesec" {
 		t.Errorf("ServiceAccountName should be %s", "kubesec")

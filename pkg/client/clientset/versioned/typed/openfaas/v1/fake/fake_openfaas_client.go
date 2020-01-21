@@ -9,22 +9,22 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package fake
 
 import (
-	v1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2"
+	v1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeOpenfaasV1alpha2 struct {
+type FakeOpenfaasV1 struct {
 	*testing.Fake
 }
 
-func (c *FakeOpenfaasV1alpha2) Functions(namespace string) v1alpha2.FunctionInterface {
+func (c *FakeOpenfaasV1) Functions(namespace string) v1.FunctionInterface {
 	return &FakeFunctions{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeOpenfaasV1alpha2) RESTClient() rest.Interface {
+func (c *FakeOpenfaasV1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

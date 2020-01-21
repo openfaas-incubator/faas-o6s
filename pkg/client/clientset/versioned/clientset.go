@@ -11,7 +11,7 @@ package versioned
 import (
 	"fmt"
 
-	openfaasv1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2"
+	openfaasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
@@ -19,19 +19,19 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
-	OpenfaasV1alpha2() openfaasv1alpha2.OpenfaasV1alpha2Interface
+	OpenfaasV1() openfaasv1.OpenfaasV1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	openfaasV1alpha2 *openfaasv1alpha2.OpenfaasV1alpha2Client
+	openfaasV1 *openfaasv1.OpenfaasV1Client
 }
 
-// OpenfaasV1alpha2 retrieves the OpenfaasV1alpha2Client
-func (c *Clientset) OpenfaasV1alpha2() openfaasv1alpha2.OpenfaasV1alpha2Interface {
-	return c.openfaasV1alpha2
+// OpenfaasV1 retrieves the OpenfaasV1Client
+func (c *Clientset) OpenfaasV1() openfaasv1.OpenfaasV1Interface {
+	return c.openfaasV1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -55,7 +55,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	}
 	var cs Clientset
 	var err error
-	cs.openfaasV1alpha2, err = openfaasv1alpha2.NewForConfig(&configShallowCopy)
+	cs.openfaasV1, err = openfaasv1.NewForConfig(&configShallowCopy)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 // panics if there is an error in the config.
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
-	cs.openfaasV1alpha2 = openfaasv1alpha2.NewForConfigOrDie(c)
+	cs.openfaasV1 = openfaasv1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -80,7 +80,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.openfaasV1alpha2 = openfaasv1alpha2.New(c)
+	cs.openfaasV1 = openfaasv1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

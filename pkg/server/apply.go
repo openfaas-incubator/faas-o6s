@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 
-	v1alpha1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas-provider/types"
 
@@ -31,12 +30,12 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 			return
 		}
 
-		newFunc := &v1alpha1.Function{
+		newFunc := &faasv1.Function{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      req.Service,
 				Namespace: namespace,
 			},
-			Spec: v1alpha1.FunctionSpec{
+			Spec: faasv1.FunctionSpec{
 				Name:                   req.Service,
 				Image:                  req.Image,
 				Handler:                req.EnvProcess,
@@ -45,17 +44,16 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 				Environment:            &req.EnvVars,
 				Constraints:            req.Constraints,
 				Secrets:                req.Secrets,
-				Replicas:               getMinReplicaCount(req.Labels),
 				Limits:                 getResources(req.Limits),
 				Requests:               getResources(req.Requests),
 				ReadOnlyRootFilesystem: req.ReadOnlyRootFilesystem,
 			},
 		}
-		_, err = client.OpenfaasV1alpha2().Functions(namespace).Update(newFunc)
+		_, err = client.OpenfaasV1().Functions(namespace).Update(newFunc)
 		if err != nil {
 			errMsg := err.Error()
 			if strings.Contains(errMsg, "not found") {
-				_, err = client.OpenfaasV1alpha2().Functions(namespace).Create(newFunc)
+				_, err = client.OpenfaasV1().Functions(namespace).Create(newFunc)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					w.Write([]byte(err.Error()))
@@ -78,27 +76,11 @@ func makeApplyHandler(namespace string, client clientset.Interface) http.Handler
 	}
 }
 
-func getMinReplicaCount(labels *map[string]string) *int32 {
-	if labels != nil {
-		lb := *labels
-		if value, exists := lb["com.openfaas.scale.min"]; exists {
-			minReplicas, err := strconv.Atoi(value)
-			if err == nil && minReplicas > 0 {
-				return int32p(int32(minReplicas))
-			} else {
-				glog.Error(err)
-			}
-		}
-	}
-
-	return int32p(1)
-}
-
-func getResources(limits *types.FunctionResources) *v1alpha1.FunctionResources {
+func getResources(limits *types.FunctionResources) *faasv1.FunctionResources {
 	if limits == nil {
 		return nil
 	}
-	return &v1alpha1.FunctionResources{
+	return &faasv1.FunctionResources{
 		CPU:    limits.CPU,
 		Memory: limits.Memory,
 	}

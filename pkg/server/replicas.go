@@ -14,13 +14,13 @@ import (
 	glog "k8s.io/klog"
 )
 
-func makeReplicaReader(namespace string, client clientset.Interface, kube kubernetes.Interface, lister v1.DeploymentNamespaceLister) http.HandlerFunc {
+func makeReplicaReader(namespace string, client clientset.Interface, lister v1.DeploymentNamespaceLister) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		functionName := vars["name"]
 
 		opts := metav1.GetOptions{}
-		k8sfunc, err := client.OpenfaasV1alpha2().Functions(namespace).Get(functionName, opts)
+		k8sfunc, err := client.OpenfaasV1().Functions(namespace).Get(functionName, opts)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(err.Error()))
@@ -61,7 +61,7 @@ func getReplicas(functionName string, namespace string, lister v1.DeploymentName
 	return desiredReplicas, availableReplicas, nil
 }
 
-func makeReplicaHandler(namespace string, client clientset.Interface) http.HandlerFunc {
+func makeReplicaHandler(namespace string, kube kubernetes.Interface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		functionName := vars["name"]
@@ -79,7 +79,7 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 		}
 
 		opts := metav1.GetOptions{}
-		k8sfunc, err := client.OpenfaasV1alpha2().Functions(namespace).Get(functionName, opts)
+		dep, err := kube.AppsV1().Deployments(namespace).Get(functionName, opts)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -87,8 +87,8 @@ func makeReplicaHandler(namespace string, client clientset.Interface) http.Handl
 			return
 		}
 
-		k8sfunc.Spec.Replicas = int32p(int32(req.Replicas))
-		_, err = client.OpenfaasV1alpha2().Functions(namespace).Update(k8sfunc)
+		dep.Spec.Replicas = int32p(int32(req.Replicas))
+		_, err = kube.AppsV1().Deployments(namespace).Update(dep)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
