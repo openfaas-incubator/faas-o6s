@@ -9,7 +9,7 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package fake
 
 import (
-	v1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	openfaasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -20,29 +20,29 @@ import (
 
 // FakeFunctions implements FunctionInterface
 type FakeFunctions struct {
-	Fake *FakeOpenfaasV1alpha2
+	Fake *FakeOpenfaasV1
 	ns   string
 }
 
-var functionsResource = schema.GroupVersionResource{Group: "openfaas.com", Version: "v1alpha2", Resource: "functions"}
+var functionsResource = schema.GroupVersionResource{Group: "openfaas.com", Version: "v1", Resource: "functions"}
 
-var functionsKind = schema.GroupVersionKind{Group: "openfaas.com", Version: "v1alpha2", Kind: "Function"}
+var functionsKind = schema.GroupVersionKind{Group: "openfaas.com", Version: "v1", Kind: "Function"}
 
 // Get takes name of the function, and returns the corresponding function object, and an error if there is any.
-func (c *FakeFunctions) Get(name string, options v1.GetOptions) (result *v1alpha2.Function, err error) {
+func (c *FakeFunctions) Get(name string, options v1.GetOptions) (result *openfaasv1.Function, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(functionsResource, c.ns, name), &v1alpha2.Function{})
+		Invokes(testing.NewGetAction(functionsResource, c.ns, name), &openfaasv1.Function{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha2.Function), err
+	return obj.(*openfaasv1.Function), err
 }
 
 // List takes label and field selectors, and returns the list of Functions that match those selectors.
-func (c *FakeFunctions) List(opts v1.ListOptions) (result *v1alpha2.FunctionList, err error) {
+func (c *FakeFunctions) List(opts v1.ListOptions) (result *openfaasv1.FunctionList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(functionsResource, functionsKind, c.ns, opts), &v1alpha2.FunctionList{})
+		Invokes(testing.NewListAction(functionsResource, functionsKind, c.ns, opts), &openfaasv1.FunctionList{})
 
 	if obj == nil {
 		return nil, err
@@ -52,8 +52,8 @@ func (c *FakeFunctions) List(opts v1.ListOptions) (result *v1alpha2.FunctionList
 	if label == nil {
 		label = labels.Everything()
 	}
-	list := &v1alpha2.FunctionList{ListMeta: obj.(*v1alpha2.FunctionList).ListMeta}
-	for _, item := range obj.(*v1alpha2.FunctionList).Items {
+	list := &openfaasv1.FunctionList{ListMeta: obj.(*openfaasv1.FunctionList).ListMeta}
+	for _, item := range obj.(*openfaasv1.FunctionList).Items {
 		if label.Matches(labels.Set(item.Labels)) {
 			list.Items = append(list.Items, item)
 		}
@@ -69,31 +69,31 @@ func (c *FakeFunctions) Watch(opts v1.ListOptions) (watch.Interface, error) {
 }
 
 // Create takes the representation of a function and creates it.  Returns the server's representation of the function, and an error, if there is any.
-func (c *FakeFunctions) Create(function *v1alpha2.Function) (result *v1alpha2.Function, err error) {
+func (c *FakeFunctions) Create(function *openfaasv1.Function) (result *openfaasv1.Function, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(functionsResource, c.ns, function), &v1alpha2.Function{})
+		Invokes(testing.NewCreateAction(functionsResource, c.ns, function), &openfaasv1.Function{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha2.Function), err
+	return obj.(*openfaasv1.Function), err
 }
 
 // Update takes the representation of a function and updates it. Returns the server's representation of the function, and an error, if there is any.
-func (c *FakeFunctions) Update(function *v1alpha2.Function) (result *v1alpha2.Function, err error) {
+func (c *FakeFunctions) Update(function *openfaasv1.Function) (result *openfaasv1.Function, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(functionsResource, c.ns, function), &v1alpha2.Function{})
+		Invokes(testing.NewUpdateAction(functionsResource, c.ns, function), &openfaasv1.Function{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha2.Function), err
+	return obj.(*openfaasv1.Function), err
 }
 
 // Delete takes name of the function and deletes it. Returns an error if one occurs.
 func (c *FakeFunctions) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(functionsResource, c.ns, name), &v1alpha2.Function{})
+		Invokes(testing.NewDeleteAction(functionsResource, c.ns, name), &openfaasv1.Function{})
 
 	return err
 }
@@ -102,17 +102,17 @@ func (c *FakeFunctions) Delete(name string, options *v1.DeleteOptions) error {
 func (c *FakeFunctions) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
 	action := testing.NewDeleteCollectionAction(functionsResource, c.ns, listOptions)
 
-	_, err := c.Fake.Invokes(action, &v1alpha2.FunctionList{})
+	_, err := c.Fake.Invokes(action, &openfaasv1.FunctionList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched function.
-func (c *FakeFunctions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha2.Function, err error) {
+func (c *FakeFunctions) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *openfaasv1.Function, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(functionsResource, c.ns, name, pt, data, subresources...), &v1alpha2.Function{})
+		Invokes(testing.NewPatchSubresourceAction(functionsResource, c.ns, name, pt, data, subresources...), &openfaasv1.Function{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha2.Function), err
+	return obj.(*openfaasv1.Function), err
 }

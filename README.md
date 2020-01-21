@@ -4,14 +4,14 @@
 Status](https://travis-ci.org/openfaas-incubator/openfaas-operator.svg?branch=master)](https://travis-ci.org/openfaas-incubator/openfaas-operator) [![GoDoc](https://godoc.org/github.com/openfaas-incubator/openfaas-operator?status.svg)](https://godoc.org/github.com/openfaas-incubator/openfaas-operator) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenFaaS](https://img.shields.io/badge/openfaas-serverless-blue.svg)](https://www.openfaas.com)
 
-OpenFaaS Operator for Kubernetes 1.9 or newer
+OpenFaaS Operator for Kubernetes 1.11 or newer
 
-### Example `Function` for `openfaas.com/v1alpha2` CRD
+### Example `Function` for `openfaas.com/v1` CRD
 
 * Minimal example:
 
 ```yaml
-apiVersion: openfaas.com/v1alpha2
+apiVersion: openfaas.com/v1
 kind: Function
 metadata:
   name: nodeinfo
@@ -24,7 +24,7 @@ spec:
 * Extended example:
 
 ```yaml
-apiVersion: openfaas.com/v1alpha2
+apiVersion: openfaas.com/v1
 kind: Function
 metadata:
   name: nodeinfo
@@ -126,12 +126,6 @@ helm upgrade openfaas --install openfaas/openfaas \
 kubectl -n openfaas-fn apply -f ./artifacts/nodeinfo.yaml
 ```
 
-On armhf use:
-
-```bash
-kubectl -n openfaas-fn apply -f ./artifacts/figlet-armhf.yaml
-```
-
 #### List functions, services, deployments and pods
 
 ```bash
@@ -144,13 +138,20 @@ kubectl -n openfaas-fn get all
 ```bash
 kubectl -n openfaas-fn create secret generic faas-token --from-literal=faas-token=token
 kubectl -n openfaas-fn create secret generic faas-key --from-literal=faas-key=key
-kubectl -n openfaas-fn apply -f ./artifacts/gofast.yaml
 ```
 
-Test that secrets are available inside the `gofast` pod:
+Add the secrets section in `nodeinfo.yaml` and re-apply the function:
+
+```yaml
+  secrets:
+   - faas-token
+   - faas-key
+```
+
+Test that secrets are available inside the `nodeinfo` pod:
 
 ```bash
-kubectl -n openfaas-fn exec -it gofast-84fd464784-sd5ml -- sh
+kubectl -n openfaas-fn exec -it nodeinfo-84fd464784-sd5ml -- sh
 
 ~ $ cat /var/openfaas/faas-key 
 key
@@ -159,7 +160,7 @@ key
 token
 ``` 
 
-Test that node selectors work on GKE by adding the following to `gofast.yaml`:
+Test that node selectors work on GKE by adding the following to `nodeinfo.yaml`:
 
 ```yaml
   constraints:
@@ -169,7 +170,7 @@ Test that node selectors work on GKE by adding the following to `gofast.yaml`:
 Apply the function and check the deployment specs with:
 
 ```bash
-kubectl -n openfaas-fn describe deployment gofast
+kubectl -n openfaas-fn describe deployment nodeinfo
 ```
 
 #### Development build
@@ -291,7 +292,7 @@ curl -s http://localhost:8081/system/functions | jq .
 Scale PODs up/down:
 
 ```bash
-curl -d '{"serviceName":"nodeinfo", "replicas": 3}' -X POST http://localhost:8081/system/scale-function/nodeinfo
+curl -d '{"serviceName":"nodeinfo", "replicas": 1}' -X POST http://localhost:8081/system/scale-function/nodeinfo
 ```
 
 Get available replicas:

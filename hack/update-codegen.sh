@@ -32,7 +32,7 @@ chmod +x ${CODEGEN_PKG}/generate-groups.sh
 
 ${CODEGEN_PKG}/generate-groups.sh all \
     github.com/openfaas-incubator/openfaas-operator/pkg/client github.com/openfaas-incubator/openfaas-operator/pkg/apis \
-    openfaas:v1alpha2 \
+    openfaas:v1 \
     --output-base "${TEMP_DIR}" \
     --go-header-file ${SCRIPT_ROOT}/hack/boilerplate.go.txt
 

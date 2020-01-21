@@ -1,4 +1,4 @@
-apiVersion: openfaas.com/v1alpha2
+apiVersion: openfaas.com/v1
 kind: Function
 metadata:
   name: kubesec
@@ -10,6 +10,3 @@ spec:
   annotations:
     com.openfaas.health.http.initialDelay: 10s
     com.openfaas.health.http.path: /healthz
-  labels:
-    com.openfaas.scale.min: "1"
-    com.openfaas.scale.max: "5"

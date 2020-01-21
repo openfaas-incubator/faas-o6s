@@ -3,11 +3,11 @@ package controller
 import (
 	"testing"
 
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
 )
 
 func Test_makeAnnotations_NoKeys(t *testing.T) {
-	annotationVal := `{"name":"","image":"","replicas":null,"handler":"","annotations":null,"labels":null,"environment":null,"constraints":null,"secrets":null,"limits":null,"requests":null,"readOnlyRootFilesystem":false}`
+	annotationVal := `{"name":"","image":"","handler":"","annotations":null,"labels":null,"environment":null,"constraints":null,"secrets":null,"limits":null,"requests":null,"readOnlyRootFilesystem":false}`
 
 	spec := faasv1.Function{
 		Spec: faasv1.FunctionSpec{},
@@ -36,7 +36,7 @@ func Test_makeAnnotations_NoKeys(t *testing.T) {
 }
 
 func Test_makeAnnotations_WithKeyAndValue(t *testing.T) {
-	annotationVal := `{"name":"","image":"","replicas":null,"handler":"","annotations":{"key":"value","key2":"value2"},"labels":null,"environment":null,"constraints":null,"secrets":null,"limits":null,"requests":null,"readOnlyRootFilesystem":false}`
+	annotationVal := `{"name":"","image":"","handler":"","annotations":{"key":"value","key2":"value2"},"labels":null,"environment":null,"constraints":null,"secrets":null,"limits":null,"requests":null,"readOnlyRootFilesystem":false}`
 
 	spec := faasv1.Function{
 		Spec: faasv1.FunctionSpec{
@@ -83,7 +83,7 @@ func Test_makeAnnotationsDoesNotModifyOriginalSpec(t *testing.T) {
 	expectedAnnotations := map[string]string{
 		"prometheus.io.scrape": "false",
 		"test.foo":             "bar",
-		annotationFunctionSpec: `{"name":"testfunc","image":"","replicas":null,"handler":"","annotations":{"test.foo":"bar"},"labels":null,"environment":null,"constraints":null,"secrets":null,"limits":null,"requests":null,"readOnlyRootFilesystem":false}`,
+		annotationFunctionSpec: `{"name":"testfunc","image":"","handler":"","annotations":{"test.foo":"bar"},"labels":null,"environment":null,"constraints":null,"secrets":null,"limits":null,"requests":null,"readOnlyRootFilesystem":false}`,
 	}
 
 	makeAnnotations(function)

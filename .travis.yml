@@ -12,8 +12,9 @@ addons:
     packages:
       - docker-ce
 
-install:
-  - echo "Please don't go get"
+cache:
+  directories:
+    - $GOPATH/pkg/mod
 
 script:
   - make test

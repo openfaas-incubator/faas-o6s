@@ -1,4 +1,4 @@
-apiVersion: openfaas.com/v1alpha2
+apiVersion: openfaas.com/v1
 kind: Function
 metadata:
   name: nodeinfo
@@ -18,7 +18,10 @@ spec:
     debug: "true"
   limits:
     cpu: "200m"
-    memory: "1Gi"
+    memory: "512Mi"
   requests:
     cpu: "10m"
     memory: "128Mi"
+  secrets:
+   - faas-token
+   - faas-key

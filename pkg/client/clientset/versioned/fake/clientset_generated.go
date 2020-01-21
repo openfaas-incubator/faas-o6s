@@ -10,8 +10,8 @@ package fake
 
 import (
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	openfaasv1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2"
-	fakeopenfaasv1alpha2 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1alpha2/fake"
+	openfaasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1"
+	fakeopenfaasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -66,7 +66,7 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 
 var _ clientset.Interface = &Clientset{}
 
-// OpenfaasV1alpha2 retrieves the OpenfaasV1alpha2Client
-func (c *Clientset) OpenfaasV1alpha2() openfaasv1alpha2.OpenfaasV1alpha2Interface {
-	return &fakeopenfaasv1alpha2.FakeOpenfaasV1alpha2{Fake: &c.Fake}
+// OpenfaasV1 retrieves the OpenfaasV1Client
+func (c *Clientset) OpenfaasV1() openfaasv1.OpenfaasV1Interface {
+	return &fakeopenfaasv1.FakeOpenfaasV1{Fake: &c.Fake}
 }

@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openfaas-operator
+  namespace: openfaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openfaas-operator
+  template:
+    metadata:
+      labels:
+        app: openfaas-operator
+      annotations:
+        prometheus.io.scrape: 'true'
+    spec:
+      serviceAccountName: openfaas-operator
+      containers:
+      - name: operator
+        image: functions/openfaas-operator:latest-dev
+        imagePullPolicy: Always
+        command:
+          - ./openfaas-operator
+          - -logtostderr
+          - -v=2
+        env:
+        - name: function_namespace
+          value: openfaas-fn
+        ports:
+        - containerPort: 8081
+          protocol: TCP
+        resources:
+          limits:
+            memory: 512Mi

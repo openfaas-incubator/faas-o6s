@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/google/go-cmp/cmp"
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -23,6 +23,7 @@ const (
 // the Function resource that 'owns' it.
 func newDeployment(
 	function *faasv1.Function,
+	existingDeployment *appsv1.Deployment,
 	existingSecrets map[string]*corev1.Secret,
 	factory FunctionFactory) *appsv1.Deployment {
 
@@ -66,7 +67,7 @@ func newDeployment(
 			},
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: function.Spec.Replicas,
+			Replicas: getReplicas(function, existingDeployment),
 			Strategy: appsv1.DeploymentStrategy{
 				Type: appsv1.RollingUpdateDeploymentStrategyType,
 				RollingUpdate: &appsv1.RollingUpdateDeployment{

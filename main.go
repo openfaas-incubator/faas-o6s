@@ -6,16 +6,16 @@ import (
 	"os"
 	"time"
 
-	"github.com/openfaas/faas-netes/k8s"
-	providertypes "github.com/openfaas/faas-provider/types"
-
 	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
 	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/controller"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/server"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/signals"
 	"github.com/openfaas-incubator/openfaas-operator/pkg/version"
+	"github.com/openfaas/faas-netes/k8s"
 	"github.com/openfaas/faas-netes/types"
+	providertypes "github.com/openfaas/faas-provider/types"
+
 	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -23,6 +23,8 @@ import (
 
 	// required to authenticate against GKE clusters
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+
+	// required for updating and validating the CRD clientset
 	_ "k8s.io/code-generator/cmd/client-gen/generators"
 )
 
@@ -105,7 +107,9 @@ func main() {
 		glog.Fatalf("Invalid image_pull_policy configured: %s", config.ImagePullPolicy)
 	}
 
-	defaultResync := time.Second * 5
+	// the sync interval does not affect the scale to/from zero feature
+	// auto-scaling is does via the HTTP API that acts on the deployment Spec.Replicas
+	defaultResync := time.Minute * 5
 
 	kubeInformerOpt := kubeinformers.WithNamespace(functionNamespace)
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResync, kubeInformerOpt)

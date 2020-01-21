@@ -2,14 +2,10 @@ package controller
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1alpha2"
-	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
-	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
-	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1alpha2"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -25,13 +21,19 @@ import (
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
 	glog "k8s.io/klog"
+
+	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
+	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
+	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
+	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
+	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1"
 )
 
-const controllerAgentName = "openfaas-operator"
-const faasKind = "Function"
-const functionPort = 8080
-
 const (
+	controllerAgentName = "openfaas-operator"
+	faasKind            = "Function"
+	functionPort        = 8080
+	LabelMinReplicas    = "com.openfaas.scale.min"
 	// SuccessSynced is used as part of the Event 'reason' when a Function is synced
 	SuccessSynced = "Synced"
 	// ErrResourceExists is used as part of the Event 'reason' when a Function fails
@@ -82,7 +84,7 @@ func NewController(
 
 	// obtain references to shared index informers for the Deployment and Function types
 	deploymentInformer := kubeInformerFactory.Apps().V1().Deployments()
-	faasInformer := faasInformerFactory.Openfaas().V1alpha2().Functions()
+	faasInformer := faasInformerFactory.Openfaas().V1().Functions()
 
 	// Create event broadcaster
 	// Add o6s types to the default Kubernetes Scheme so Events can be
@@ -251,7 +253,7 @@ func (c *Controller) syncHandler(key string) error {
 
 		glog.Infof("Creating deployment for '%s'", function.Spec.Name)
 		deployment, err = c.kubeclientset.AppsV1().Deployments(function.Namespace).Create(
-			newDeployment(function, existingSecrets, c.factory),
+			newDeployment(function, deployment, existingSecrets, c.factory),
 		)
 		if err != nil {
 			return err
@@ -298,7 +300,7 @@ func (c *Controller) syncHandler(key string) error {
 		}
 
 		deployment, err = c.kubeclientset.AppsV1().Deployments(function.Namespace).Update(
-			newDeployment(function, existingSecrets, c.factory),
+			newDeployment(function, deployment, existingSecrets, c.factory),
 		)
 
 		if err != nil {
@@ -324,31 +326,8 @@ func (c *Controller) syncHandler(key string) error {
 		return err
 	}
 
-	// Finally, we update the status block of the Function resource to reflect the
-	// current state of the world
-	err = c.updateFunctionStatus(function, deployment)
-	if err != nil {
-		return err
-	}
-
 	c.recorder.Event(function, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
 	return nil
-}
-
-func (c *Controller) updateFunctionStatus(function *faasv1.Function, deployment *appsv1.Deployment) error {
-	// TODO: enable status on K8s 1.12
-	return nil
-	// NEVER modify objects from the store. It's a read-only, local cache.
-	// You can use DeepCopy() to make a deep copy of original object and modify this copy
-	// Or create a copy manually for better performance
-	functionCopy := function.DeepCopy()
-	functionCopy.Status.AvailableReplicas = deployment.Status.AvailableReplicas
-	// Until #38113 is merged, we must use Update instead of UpdateStatus to
-	// update the Status block of the Function resource. UpdateStatus will not
-	// allow changes to the Spec of the resource, which is ideal for ensuring
-	// nothing other than resource status has been updated.
-	_, err := c.faasclientset.OpenfaasV1alpha2().Functions(function.Namespace).Update(functionCopy)
-	return err
 }
 
 // enqueueFunction takes a Function resource and converts it into a namespace/name
@@ -417,4 +396,57 @@ func (c *Controller) getSecrets(namespace string, secretNames []string) (map[str
 	}
 
 	return secrets, nil
+}
+
+// getReplicas returns the desired number of replicas for a function taking into account
+// the min replicas label, HPA, the OF autoscaler and scaled to zero deployments
+func getReplicas(function *faasv1.Function, deployment *appsv1.Deployment) *int32 {
+	var minReplicas *int32
+
+	// extract min replicas from label if specified
+	if function != nil && function.Spec.Labels != nil {
+		lb := *function.Spec.Labels
+		if value, exists := lb[LabelMinReplicas]; exists {
+			r, err := strconv.Atoi(value)
+			if err == nil && r > 0 {
+				minReplicas = int32p(int32(r))
+			}
+		}
+	}
+
+	// extract current deployment replicas if specified
+	var deploymentReplicas *int32
+	if deployment != nil {
+		deploymentReplicas = deployment.Spec.Replicas
+	}
+
+	// do not set replicas if min replicas is not set
+	// and current deployment has no replicas count
+	if minReplicas == nil && deploymentReplicas == nil {
+		return nil
+	}
+
+	// set replicas to min if deployment has no replicas and min replicas exists
+	if minReplicas != nil && deploymentReplicas == nil {
+		return minReplicas
+	}
+
+	// do not override replicas when deployment is scaled to zero
+	if deploymentReplicas != nil && *deploymentReplicas == 0 {
+		return deploymentReplicas
+	}
+
+	// do not override replicas when min is not specified
+	if minReplicas == nil && deploymentReplicas != nil {
+		return deploymentReplicas
+	}
+
+	// do not override HPA or OF autoscaler replicas if the value is greater than min
+	if minReplicas != nil && deploymentReplicas != nil {
+		if *deploymentReplicas >= *minReplicas {
+			return deploymentReplicas
+		}
+	}
+
+	return minReplicas
 }
