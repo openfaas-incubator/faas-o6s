@@ -9,8 +9,8 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package v1
 
 import (
-	v1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
-	"github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
+	v1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
+	"github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 

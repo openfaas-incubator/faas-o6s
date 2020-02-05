@@ -13,9 +13,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	internalinterfaces "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces"
-	openfaas "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/openfaas"
+	versioned "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
+	internalinterfaces "github.com/openfaas/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces"
+	openfaas "github.com/openfaas/openfaas-operator/pkg/client/informers/externalversions/openfaas"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

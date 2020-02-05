@@ -22,11 +22,11 @@ import (
 	"k8s.io/client-go/util/workqueue"
 	glog "k8s.io/klog"
 
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
-	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	faasscheme "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/scheme"
-	informers "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions"
-	listers "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1"
+	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
+	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
+	faasscheme "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned/scheme"
+	informers "github.com/openfaas/openfaas-operator/pkg/client/informers/externalversions"
+	listers "github.com/openfaas/openfaas-operator/pkg/client/listers/openfaas/v1"
 )
 
 const (

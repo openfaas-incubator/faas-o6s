@@ -11,10 +11,10 @@ package v1
 import (
 	time "time"
 
-	openfaasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
-	versioned "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	internalinterfaces "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces"
-	v1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/listers/openfaas/v1"
+	openfaasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
+	versioned "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
+	internalinterfaces "github.com/openfaas/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces"
+	v1 "github.com/openfaas/openfaas-operator/pkg/client/listers/openfaas/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"

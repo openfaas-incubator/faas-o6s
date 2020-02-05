@@ -9,7 +9,7 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package fake
 
 import (
-	v1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1"
+	v1 "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )

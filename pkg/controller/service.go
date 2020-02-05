@@ -6,7 +6,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
+	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
 )
 
 // newService creates a new ClusterIP Service for a Function resource. It also sets

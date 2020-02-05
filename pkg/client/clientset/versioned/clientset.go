@@ -11,7 +11,7 @@ package versioned
 import (
 	"fmt"
 
-	openfaasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1"
+	openfaasv1 "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

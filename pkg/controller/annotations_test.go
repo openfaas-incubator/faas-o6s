@@ -3,7 +3,7 @@ package controller
 import (
 	"testing"
 
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
+	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
 )
 
 func Test_makeAnnotations_NoKeys(t *testing.T) {

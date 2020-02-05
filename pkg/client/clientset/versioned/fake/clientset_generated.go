@@ -9,9 +9,9 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package fake
 
 import (
-	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
-	openfaasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1"
-	fakeopenfaasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1/fake"
+	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
+	openfaasv1 "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1"
+	fakeopenfaasv1 "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned/typed/openfaas/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

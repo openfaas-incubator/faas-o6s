@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
-	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned"
+	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
+	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas-provider/types"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
