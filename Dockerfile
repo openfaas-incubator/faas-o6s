@@ -30,4 +30,3 @@ RUN chown -R app:app ./
 USER app
 
 ENTRYPOINT ["./openfaas-operator"]
-CMD ["-logtostderr"]
