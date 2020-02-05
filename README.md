@@ -3,9 +3,9 @@
 The Official OpenFaaS Operator and CRD for Kubernetes
 
 [![Build
-Status](https://travis-ci.com/openfaas-incubator/openfaas-operator.svg?branch=master)](https://travis-ci.com/openfaas-incubator/openfaas-operator)
-[![Go Report Card](https://goreportcard.com/badge/github.com/openfaas-incubator/openfaas-operator)](https://goreportcard.com/report/github.com/openfaas-incubator/openfaas-operator)
-[![GoDoc](https://godoc.org/github.com/openfaas-incubator/openfaas-operator?status.svg)](https://godoc.org/github.com/openfaas-incubator/openfaas-operator) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Status](https://travis-ci.com/openfaas/openfaas-operator.svg?branch=master)](https://travis-ci.com/openfaas/openfaas-operator)
+[![Go Report Card](https://goreportcard.com/badge/github.com/openfaas/openfaas-operator)](https://goreportcard.com/report/github.com/openfaas/openfaas-operator)
+[![GoDoc](https://godoc.org/github.com/openfaas/openfaas-operator?status.svg)](https://godoc.org/github.com/openfaas/openfaas-operator) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![OpenFaaS](https://img.shields.io/badge/openfaas-serverless-blue.svg)](https://www.openfaas.com)
 
 Requires Kubernetes 1.11 or newer
