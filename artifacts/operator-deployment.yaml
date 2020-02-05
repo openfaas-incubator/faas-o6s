@@ -19,11 +19,10 @@ spec:
       serviceAccountName: openfaas-operator
       containers:
       - name: operator
-        image: functions/openfaas-operator:latest-dev
+        image: openfaas/openfaas-operator:latest-dev
         imagePullPolicy: Always
         command:
           - ./openfaas-operator
-          - -logtostderr
           - -v=2
         env:
         - name: function_namespace
