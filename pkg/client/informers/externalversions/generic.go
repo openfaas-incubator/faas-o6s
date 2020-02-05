@@ -11,7 +11,7 @@ package externalversions
 import (
 	"fmt"
 
-	v1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
+	v1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )

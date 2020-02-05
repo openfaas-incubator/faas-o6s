@@ -9,8 +9,8 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package openfaas
 
 import (
-	internalinterfaces "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces"
-	v1 "github.com/openfaas-incubator/openfaas-operator/pkg/client/informers/externalversions/openfaas/v1"
+	internalinterfaces "github.com/openfaas/openfaas-operator/pkg/client/informers/externalversions/internalinterfaces"
+	v1 "github.com/openfaas/openfaas-operator/pkg/client/informers/externalversions/openfaas/v1"
 )
 
 // Interface provides access to each of this group's versions.

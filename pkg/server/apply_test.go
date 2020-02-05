@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	clientset "github.com/openfaas-incubator/openfaas-operator/pkg/client/clientset/versioned/fake"
+	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned/fake"
 
 	types "github.com/openfaas/faas-provider/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

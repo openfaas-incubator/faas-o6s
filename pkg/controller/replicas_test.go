@@ -6,7 +6,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/client-go/kubernetes/fake"
 
-	faasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
+	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
 	"github.com/openfaas/faas-netes/k8s"
 )
 

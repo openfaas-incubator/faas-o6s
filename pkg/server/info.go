@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/openfaas-incubator/openfaas-operator/pkg/version"
+	"github.com/openfaas/openfaas-operator/pkg/version"
 	"github.com/openfaas/faas-provider/types"
 )
 
@@ -16,7 +16,7 @@ func makeInfoHandler() http.HandlerFunc {
 		}
 
 		sha, release := version.GetReleaseInfo()
-		info := types.InfoRequest{
+		info := types.InfoResponse{
 			Orchestration: "kubernetes",
 			Provider:      "openfaas-operator",
 			Version: types.ProviderVersion{

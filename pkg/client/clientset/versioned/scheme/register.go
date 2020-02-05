@@ -9,7 +9,7 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 package scheme
 
 import (
-	openfaasv1 "github.com/openfaas-incubator/openfaas-operator/pkg/apis/openfaas/v1"
+	openfaasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
