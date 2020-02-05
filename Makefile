@@ -1,4 +1,4 @@
-.PHONY: build build-armhf push test verify-codegen ci-armhf-build ci-armhf-push ci-arm64-build ci-arm64-push
+.PHONY: build build-armhf push test verify-codegen e2e ci-armhf-build ci-armhf-push ci-arm64-build ci-arm64-push
 TAG?=latest
 
 build:
@@ -27,3 +27,8 @@ ci-arm64-build:
 
 ci-arm64-push:
 	docker push openfaas/openfaas-operator:$(TAG)-arm64
+
+e2e:
+	./e2e/setup-cluster.sh
+	./e2e/setup-openfaas.sh
+	./e2e/test-function.sh
