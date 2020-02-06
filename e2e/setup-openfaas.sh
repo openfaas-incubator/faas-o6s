@@ -22,11 +22,15 @@ echo ">>> Create OpenFaaS CRD"
 kubectl apply -f ${REPO_ROOT}/artifacts/operator-crd.yaml
 
 echo ">>> Install OpenFaaS with Helm"
+# the pull policy must be set to IfNotPresent for Kubernetes
+# to load the locally built image
+# we disable NATS and faasIdler as they slow down the startup
+# and have no impact on the operator testing
 helm upgrade -i openfaas openfaas/openfaas \
 --namespace openfaas \
 --set openfaasImagePullPolicy=IfNotPresent \
 --set functionNamespace=openfaas-fn \
---set generateBasicAuth=true \
+--set basic_auth=false \
 --set async=false \
 --set faasIdler.create=false \
 --set operator.create=true \
@@ -34,6 +38,8 @@ helm upgrade -i openfaas openfaas/openfaas \
 --set operator.image=test/openfaas-operator:latest
 
 echo ">>> Patch operator deployment"
+# we patch the operator deployment to make it
+# compatible with the current build
 TEMP_DIR=$(mktemp -d)
 cat > ${TEMP_DIR}/patch.yaml << EOL
 spec:
@@ -48,3 +54,8 @@ kubectl -n openfaas patch deployment gateway --patch "$(cat ${TEMP_DIR}/patch.ya
 
 echo ">>> Wait for operator deployment to be ready"
 kubectl -n openfaas rollout status deployment/gateway --timeout=60s
+
+
+
+
+
