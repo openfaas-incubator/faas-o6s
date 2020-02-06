@@ -23,7 +23,6 @@ spec:
         imagePullPolicy: Always
         command:
           - ./openfaas-operator
-          - -v=2
         env:
         - name: function_namespace
           value: openfaas-fn
