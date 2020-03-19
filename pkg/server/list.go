@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas-provider/types"
+	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	appsv1 "k8s.io/client-go/listers/apps/v1"

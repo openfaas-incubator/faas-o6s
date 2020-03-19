@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/openfaas/faas-provider/types"
 	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
 	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
-	"github.com/openfaas/faas-provider/types"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	glog "k8s.io/klog"

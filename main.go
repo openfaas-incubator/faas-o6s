@@ -6,15 +6,15 @@ import (
 	"os"
 	"time"
 
+	"github.com/openfaas/faas-netes/k8s"
+	"github.com/openfaas/faas-netes/types"
+	providertypes "github.com/openfaas/faas-provider/types"
 	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
 	informers "github.com/openfaas/openfaas-operator/pkg/client/informers/externalversions"
 	"github.com/openfaas/openfaas-operator/pkg/controller"
 	"github.com/openfaas/openfaas-operator/pkg/server"
 	"github.com/openfaas/openfaas-operator/pkg/signals"
 	"github.com/openfaas/openfaas-operator/pkg/version"
-	"github.com/openfaas/faas-netes/k8s"
-	"github.com/openfaas/faas-netes/types"
-	providertypes "github.com/openfaas/faas-provider/types"
 
 	kubeinformers "k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
