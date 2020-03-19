@@ -1,12 +1,13 @@
 package controller
 
 import (
-	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
+	"testing"
+
 	"github.com/openfaas/faas-netes/k8s"
+	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
-	"testing"
 )
 
 func Test_newDeployment(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/openfaas/openfaas-operator/pkg/version"
 	"github.com/openfaas/faas-provider/types"
+	"github.com/openfaas/openfaas-operator/pkg/version"
 )
 
 // makeInfoHandler provides the system/info endpoint

@@ -1,9 +1,9 @@
 package controller
 
 import (
-	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
 	"github.com/openfaas/faas-netes/k8s"
 	"github.com/openfaas/faas-provider/types"
+	faasv1 "github.com/openfaas/openfaas-operator/pkg/apis/openfaas/v1"
 	appsv1 "k8s.io/api/apps/v1"
 
 	"k8s.io/client-go/kubernetes"

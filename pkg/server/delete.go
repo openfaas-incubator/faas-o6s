@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
 	"github.com/openfaas/faas/gateway/requests"
+	clientset "github.com/openfaas/openfaas-operator/pkg/client/clientset/versioned"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	glog "k8s.io/klog"
 )
