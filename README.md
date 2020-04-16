@@ -6,7 +6,7 @@ This operator has merged with the [openfaas/faas-netes](https://github.com/openf
 
 * Why is this being done?
 
-This change been part on the road map since mid-2019 and requested by the community contributors from even earlier than that. The two codebases were challenging to maintain and had much code in common.
+This change been part on the [road map since mid-2019](https://trello.com/c/sHlL69xR/16-merge-of-faas-netes-and-openfaas-operator-into-one-codebase) and requested by the community contributors from even earlier than that. The two codebases were challenging to maintain and had much code in common.
 
 * What do I need to do?
 
